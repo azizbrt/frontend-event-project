@@ -9,14 +9,15 @@ const CookieConsent = () => {
   // useEffect pour vérifier si le cookie existe déjà
   useEffect(() => {
     const cookieConsent = Cookies.get("cookie_consent"); // Récupération du cookie
-    if (!cookieConsent) {
-      setShowBanner(true); // Affichage du bandeau si le cookie n'existe pas
+    if (cookieConsent) {
+      setShowBanner(false); // Affichage du bandeau si le cookie n'existe pas
     }
   }, []);
 
   // Fonction appelée lorsqu'on clique sur "Accepter"
   const handleAccept = () => {
     Cookies.set("cookie_consent", "true", { expires: 30 }); // Création du cookie valable 30 jours
+    
     setShowBanner(false); // Masquage du bandeau
   };
 

@@ -23,7 +23,7 @@ const CardSection = () => {
           <p data-aos="fade-up" className="text-base text-orange-600">
             À NE PAS RATER
           </p>
-          <h1 data-aos="fade-up" className="text-3xl font-bold">
+          <h1 data-aos="fade-up" className="text-3xl font-bold ">
             Les Meilleurs Événements Chez Nous
           </h1>
         </div>
