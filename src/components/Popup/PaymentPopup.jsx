@@ -1,26 +1,30 @@
 import React from "react";
 import { Card, CardContent, Button, Typography } from "@mui/material";
 
+// Composant PaymentPopup qui affiche une fenêtre de paiement
 const PaymentPopup = ({ onClose, onSuccess, price, title }) => {
-  // Fonction de soumission du paiement
+  // Fonction appelée lorsque l'utilisateur confirme le paiement
   const handleSubmit = () => {
-    alert(`Paiement de ${price} TND pour l'événement: ${title} effectué.`);
-    onSuccess();
-    onClose();
+    onSuccess(); // Appelle la fonction pour signaler un paiement réussi
+    onClose(); // Ferme la popup
   };
 
   return (
+    // Fond semi-transparent pour le popup
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      {/* Carte contenant les informations du paiement */}
       <Card className="w-96 p-6 shadow-lg">
         <CardContent>
-          {/* Titre */}
+          {/* Titre du popup */}
           <Typography variant="h5" gutterBottom className="text-2xl font-bold text-center mb-4">
             Virement Bancaire
           </Typography>
-{/* Instructions supplémentaires */}
-<Typography variant="body2" className="mt-4 text-gray-600">
+
+          {/* Instructions supplémentaires */}
+          <Typography variant="body2" className="mt-4 text-gray-600">
             Bienvenue, veuillez effectuer un virement du montant indiqué vers le compte bancaire ci-dessous.
           </Typography>
+
           {/* Informations de paiement */}
           <div className="space-y-4">
             <Typography variant="body1">
@@ -46,15 +50,16 @@ const PaymentPopup = ({ onClose, onSuccess, price, title }) => {
             </Typography>
           </div>
 
-          
-
-          {/* Bouton d'envoi */}
+          {/* Bouton de confirmation du paiement */}
           <div className="flex justify-center mt-6">
             <Button
-              onClick={handleSubmit}
-              variant="contained"
-              color="primary"
-              className="bg-orange-500 hover:bg-orange-600"
+              onClick={handleSubmit} // Action au clic
+              variant="contained" // Style du bouton rempli
+              sx={{
+                bgcolor: "orange", // Fond orange
+                "&:hover": { bgcolor: "#e65100" }, // Un orange plus foncé au survol
+                color: "white", // Texte blanc
+              }}
             >
               Confirmer le Paiement
             </Button>
@@ -65,4 +70,4 @@ const PaymentPopup = ({ onClose, onSuccess, price, title }) => {
   );
 };
 
-export default PaymentPopup;
+export default PaymentPopup; // Exportation du composant pour être utilisé ailleurs

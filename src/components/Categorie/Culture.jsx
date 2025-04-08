@@ -34,6 +34,12 @@ const Culture = () => {
     return isDateMatch && isCategoryMatch;
   });
 
+  // Réinitialiser les filtres
+  const resetFilters = () => {
+    setSelectedDate(null);
+    setSelectedCategory("");
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Navbar */}
@@ -41,61 +47,66 @@ const Culture = () => {
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-6">
-        <h2 className="text-2xl font-semibold mb-4">Catégorie Culture et Loisirs
-        </h2>
-        <p className="mb-4">Voici la section des événements de la catégorie Culture et Loisirs
-        ...</p>
+        <h2 className="text-2xl font-semibold mb-4">Catégorie Éducation et Formation</h2>
+        <p className="mb-4">Voici la section des événements de la catégorie Éducation et Formation...</p>
 
         {/* Filtres */}
-        <div className="mb-6">
-          <div className="flex gap-4 items-center">
-            {/* Calendrier compact pour sélectionner une date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sélectionner une date :
-              </label>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="Choisir une date"
-                className="p-2 border rounded w-full"
-              />
-            </div>
-
-            {/* Filtrage par catégorie */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sélectionner une catégorie :
-              </label>
-              <select
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                value={selectedCategory}
-                className="p-2 border rounded w-full"
-              >
-                <option value="">Toutes les catégories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
+          {/* Sélectionner une date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sélectionner une date :
+            </label>
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Choisir une date"
+              className="p-2 border rounded w-full"
+              autoComplete="off"
+            />
           </div>
+
+          {/* Sélectionner une catégorie */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sélectionner une catégorie :
+            </label>
+            <select
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory}
+              className="p-2 border rounded w-full"
+            >
+              <option value="">Toutes les catégories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Bouton de réinitialisation */}
+          <button 
+            onClick={resetFilters} 
+            className="bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-400"
+          >
+            Réinitialiser
+          </button>
         </div>
 
-        {/* Affichage des événements filtrés */}
-        <div>
+        {/* Affichage des événements filtrés sous forme de cartes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event) => (
-              <div key={event.id} className="bg-white p-4 mb-4 shadow-md rounded">
+              <div key={event.id} className="bg-white p-4 shadow-md rounded-lg">
                 <h3 className="font-semibold text-lg">{event.name}</h3>
                 <p className="text-sm text-gray-500">Date : {event.date}</p>
                 <p className="text-sm text-gray-500">Catégorie : {event.category}</p>
               </div>
             ))
           ) : (
-            <p>Aucun événement trouvé pour les critères sélectionnés.</p>
+            <p className="text-gray-600">Aucun événement trouvé pour les critères sélectionnés.</p>
           )}
         </div>
       </div>

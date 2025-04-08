@@ -57,6 +57,7 @@ const Education = () => {
               dateFormat="dd/MM/yyyy"
               placeholderText="Choisir une date"
               className="p-2 border rounded w-full"
+              autoComplete="off"
             />
           </div>
 

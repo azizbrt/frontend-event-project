@@ -49,7 +49,7 @@ import ForgetPasswordPage from "./components/Popup/ForgetPasswordPage";
 import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
 
 // protected  used to protect pages like /Utilisateurs, /Admin, etc.
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, isCheckingAuth, user } = useAuthStore();
 
   if (isCheckingAuth) {
@@ -58,6 +58,11 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated || !user?.isVerified) {
     return <Navigate to="/" replace />;
+  }
+  // Check if the user's role is allowed (if allowedRoles is specified)
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    const defaultRoute = getDefaultRoute(user.role);
+    return <Navigate to={defaultRoute} replace />;
   }
 
   return children;
@@ -70,6 +75,19 @@ const RedirectAuthenticatedUser = ({ children }) => {
     return <Navigate to="/Utilisateurs" replace />;
   }
   return children;
+};
+//verifier le role d'utilisateur
+const getDefaultRoute = (role) => {
+  switch (role) {
+    case "admin":
+      return "/admin";
+    case "gestionnaire":
+      return "/gestionnaire";
+    case "participant":
+      return "/Utilisateurs";
+    default:
+      return "/";
+  }
 };
 
 // 🏠 Home Page Structure
@@ -102,7 +120,6 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-  
 
   // Setup scroll animation library
   useEffect(() => {
@@ -121,7 +138,15 @@ const App = () => {
 
       <Routes>
         {/* 🌍 Home */}
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <RedirectAuthenticatedUser>
+              {" "}
+              <Home />
+            </RedirectAuthenticatedUser>
+          }
+        />
 
         {/* 🃏 Cards */}
         <Route path="/Card1" element={<Card1 />} />
@@ -144,14 +169,28 @@ const App = () => {
         <Route
           path="/Utilisateurs"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["participant"]}>
               <Utilisateurs />
             </ProtectedRoute>
           }
         />
 
-        <Route path="/Admin" element={<Admin />} />
-        <Route path="/Gestionnaire" element={<Gestionnaire />} />
+        <Route
+          path="/Admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Gestionnaire"
+          element={
+            <ProtectedRoute allowedRoles={["gestionnaire"]}>
+              <Gestionnaire />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/UpdateProfil" element={<UpdateProfil />} />
 
         {/* ✉️ Email Verification */}
@@ -165,7 +204,7 @@ const App = () => {
         />
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-              </Routes>
+      </Routes>
     </Router>
   );
 };

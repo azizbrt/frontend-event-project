@@ -47,6 +47,7 @@ export const useAuthStore = create((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+      return response; 
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error logging in",
@@ -145,5 +146,34 @@ export const useAuthStore = create((set, get) => ({
       throw error;
       
     }
-  }
+  },
+  // Function to update user profile
+  updateUserProfile: async (name, email, password,confirmPassword) => {
+    set({ isLoading: true, error: null }); // Start loading state
+    try {
+      // Sending the update request to the backend
+      const response = await axios.put(`${API_URL}/profile`, {
+        name,
+        email,
+        password,
+        confirmPassword,
+      }, {
+        withCredentials: true, // To send cookies with the request (if needed)
+      });
+
+      // If successful, update the user state with the response
+      set({ user: response.data.user, isLoading: false });
+    } catch (error) {
+      // Handle errors, set loading to false, and show the error message
+      set({
+        isLoading: false,
+        error: error.response?.data?.message || "Erreur lors de la mise à jour du profil",
+      });
+      throw error;
+    }
+  },
+
+  // Optionally, add a function to clear error or reset user state
+  clearError: () => set({ error: null }),
+
 }));

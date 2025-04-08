@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
+import GestionInscriptions from "./GestionInscriptions";
+import CRUDevenement from "./CRUDevenement";
 
 const Gestionnaire = () => {
  const [selectedFeature, setSelectedFeature] = useState("users");
@@ -67,23 +69,9 @@ const Gestionnaire = () => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {selectedFeature === "users" && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-orange-400 mb-4">Gérer les inscription</h2>
-              <p className="text-gray-600">
-                Contenu pour gérer les inscription...
-              </p>
-            </div>
-          )}
+          {selectedFeature === "users" && <GestionInscriptions/>}
        
-          {selectedFeature === "events" && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-orange-400 mb-4">Gérer les événements</h2>
-              <p className="text-gray-600">
-                Contenu pour gérer les événements...
-              </p>
-            </div>
-          )}
+          {selectedFeature === "events" && <CRUDevenement/>}
           {selectedFeature === "statistics" && (
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold text-orange-400 mb-4">Statistiques globales</h2>
@@ -99,4 +87,4 @@ const Gestionnaire = () => {
   );
 };
 
-export default Gestionnaire
+export default Gestionnaire;
