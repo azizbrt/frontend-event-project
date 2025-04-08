@@ -3,9 +3,12 @@ import { IoMdSearch } from "react-icons/io";
 import CRUDuser from "./CRUDuser"; // Importer le composant CRUDuser
 import CRUDcategorie from "./CRUDcategorie";
 import CRUDevenement from "./CRUDevenement";
+import { useAuthStore } from "../../store/authStore";
 
 const Admin = () => {
   const [selectedFeature, setSelectedFeature] = useState("users");
+    const { isAuthenticated, user, logout } = useAuthStore();
+  
 
   // Gérer la sélection d'une fonctionnalité dans la barre latérale
   const handleFeatureSelection = (feature) => {
@@ -14,6 +17,7 @@ const Admin = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
+      
       {/* Sidebar */}
       <aside className="w-64 bg-gradient-to-b from-orange-400 to-orange-400 text-white h-screen p-6 shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center text-white">Admin</h2>
@@ -60,7 +64,7 @@ const Admin = () => {
         {/* Header */}
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <span className="font-semibold text-gray-700">Bonjour, Admin</span>
+            <span className="font-semibold text-gray-700"> {user?.name}</span>
           </div>
           <div className="relative group hidden sm:block">
             <input

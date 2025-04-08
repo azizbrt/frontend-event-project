@@ -99,7 +99,7 @@ const Navbar = ({ handleOrderPopup }) => {
                     >
                       <CgProfile className="text-xl" />
                       <span className="hidden sm:inline">
-                        {user?.name || "Mon Profil"}
+                        {user?.name }
                       </span>
                     </button>
 
