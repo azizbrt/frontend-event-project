@@ -3,142 +3,179 @@ import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { useAuthStore } from "../../store/authStore";
 
-const UpdateProfil = () => {
+const UpdateProfile = () => {
+  // State management
   const { user, updateUserProfile, isLoading, error } = useAuthStore();
-
-  const [profileData, setProfileData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
+  });
+  const [messages, setMessages] = useState({
+    success: "",
+    errors: {}
   });
 
-  const [successMessage, setSuccessMessage] = useState("");
-  const [formErrors, setFormErrors] = useState({});
-
-  // Fill initial user info
+  // Initialize form with user data
   useEffect(() => {
     if (user) {
-      setProfileData((prev) => ({
-        ...prev,
+      setFormData({
         name: user.name,
         email: user.email,
-      }));
+        password: "",
+        confirmPassword: ""
+      });
     }
   }, [user]);
 
-  const handleInputChange = (e) => {
+  // Handle input changes
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfileData({ ...profileData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
+  // Validate form inputs
+  const validate = () => {
     const errors = {};
-    if (!profileData.name) errors.name = "Le nom est requis.";
-    if (!profileData.email) errors.email = "L'email est requis.";
-    else if (!/\S+@\S+\.\S+/.test(profileData.email)) errors.email = "Email invalide.";
-    if (profileData.password && profileData.password.length < 6) errors.password = "Min 6 caractères.";
-    if (profileData.password !== profileData.confirmPassword) errors.confirmPassword = "Les mots de passe ne correspondent pas.";
+    
+    if (!formData.name.trim()) errors.name = "Name is required";
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      errors.email = "Invalid email format";
+    }
+    if (formData.password && formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords don't match";
+    }
 
-    setFormErrors(errors);
+    setMessages(prev => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage("");
+    setMessages({ success: "", errors: {} });
 
-    if (!validateForm()) return;
+    if (!validate()) return;
 
     try {
       await updateUserProfile(
-        profileData.name,
-        profileData.email,
-        profileData.password
+        formData.name,
+        formData.email,
+        formData.password
       );
 
-      setSuccessMessage("✅ Profil mis à jour avec succès !");
-      setProfileData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+      setMessages({
+        success: "Profile updated successfully!",
+        errors: {}
+      });
+      setFormData(prev => ({ ...prev, password: "", confirmPassword: "" }));
     } catch (err) {
-      console.error("Erreur de mise à jour", err);
+      console.error("Update error:", err);
     }
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="bg-white shadow-lg p-6 rounded-lg w-full max-w-md">
-          <h2 className="text-xl font-bold text-center mb-4">Mettre à jour le profil</h2>
-
-          {successMessage && (
-            <div className="bg-green-100 text-green-700 p-2 text-center rounded mb-4">
-              {successMessage}
+      
+      <main className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold text-center mb-6">Update Profile</h1>
+          
+          {/* Status messages */}
+          {messages.success && (
+            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+              {messages.success}
             </div>
           )}
-
           {error && (
-            <div className="bg-red-100 text-red-700 p-2 text-center rounded mb-4">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Nom"
-              value={profileData.name}
-              onChange={handleInputChange}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            {formErrors.name && <p className="text-red-500 text-sm">{formErrors.name}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name field */}
+            <div>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your name"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
+              />
+              {messages.errors.name && (
+                <p className="mt-1 text-sm text-red-500">{messages.errors.name}</p>
+              )}
+            </div>
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={profileData.email}
-              onChange={handleInputChange}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
+            {/* Email field */}
+            <div>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Your email"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
+              />
+              {messages.errors.email && (
+                <p className="mt-1 text-sm text-red-500">{messages.errors.email}</p>
+              )}
+            </div>
 
-            <input
-              type="password"
-              name="password"
-              placeholder="Nouveau mot de passe (optionnel)"
-              value={profileData.password}
-              onChange={handleInputChange}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            {formErrors.password && <p className="text-red-500 text-sm">{formErrors.password}</p>}
+            {/* Password field */}
+            <div>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="New password (optional)"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
+              />
+              {messages.errors.password && (
+                <p className="mt-1 text-sm text-red-500">{messages.errors.password}</p>
+              )}
+            </div>
 
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirmer le mot de passe"
-              value={profileData.confirmPassword}
-              onChange={handleInputChange}
-              className="w-full mb-3 p-2 border rounded"
-            />
-            {formErrors.confirmPassword && <p className="text-red-500 text-sm">{formErrors.confirmPassword}</p>}
+            {/* Confirm password field */}
+            <div>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm password"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
+              />
+              {messages.errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-500">{messages.errors.confirmPassword}</p>
+              )}
+            </div>
 
+            {/* Submit button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-orange-500 text-white w-full py-2 rounded hover:bg-orange-600 transition"
+              className="w-full py-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition disabled:opacity-70"
             >
-              {isLoading ? "Mise à jour..." : "Mettre à jour"}
+              {isLoading ? "Updating..." : "Update Profile"}
             </button>
           </form>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>
   );
 };
 
-export default UpdateProfil;
+export default UpdateProfile;
