@@ -47,26 +47,10 @@ import Card4 from "./components/lesPages/Card4";
 import Card5 from "./components/lesPages/Card5";
 import ForgetPasswordPage from "./components/Popup/ForgetPasswordPage";
 import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
+import EventDetails from "./components/lesPages/Card1";
+import ProtectedRoute from "./middleware/ProtectedRoute";
 
 // protected  used to protect pages like /Utilisateurs, /Admin, etc.
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { isAuthenticated, isCheckingAuth, user } = useAuthStore();
-
-  if (isCheckingAuth) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated || !user?.isVerified) {
-    return <Navigate to="/" replace />;
-  }
-  // Check if the user's role is allowed (if allowedRoles is specified)
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const defaultRoute = getDefaultRoute(user.role);
-    return <Navigate to={defaultRoute} replace />;
-  }
-
-  return children;
-};
 
 // 🛡️ This component redirects logged-in users to home
 const RedirectAuthenticatedUser = ({ children }) => {
@@ -149,7 +133,16 @@ const App = () => {
         />
 
         {/* 🃏 Cards */}
-        <Route path="/Card1" element={<Card1 />} />
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
+              <EventDetails />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/Card2" element={<Card2 />} />
         <Route path="/Card3" element={<Card3 />} />
         <Route path="/Card4" element={<Card4 />} />
@@ -169,7 +162,9 @@ const App = () => {
         <Route
           path="/Utilisateurs"
           element={
-            <ProtectedRoute allowedRoles={["participant"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
               <Utilisateurs />
             </ProtectedRoute>
           }
@@ -186,12 +181,21 @@ const App = () => {
         <Route
           path="/Gestionnaire"
           element={
-            <ProtectedRoute allowedRoles={["gestionnaire"]}>
+            <ProtectedRoute allowedRoles={["gestionnaire", "admin"]}>
               <Gestionnaire />
             </ProtectedRoute>
           }
         />
-        <Route path="/UpdateProfil" element={<UpdateProfil />} />
+        <Route
+          path="/UpdateProfil"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
+              <UpdateProfil />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ✉️ Email Verification */}
         <Route

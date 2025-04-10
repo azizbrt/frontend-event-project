@@ -11,7 +11,7 @@ const Inscription = () => {
 
   return (
     <div className="bg-white flex justify-center py-12 px-4"> 
-      <div className="bg-orange-300 max-w-6xl w-full flex flex-col-reverse md:flex-row items-center gap-8 md:gap-10 px-6 py-8 md:py-12 mx-auto rounded-lg shadow-lg">
+      <div className="bg-orange-500 max-w-6xl w-full flex flex-col-reverse md:flex-row items-center gap-8 md:gap-10 px-6 py-8 md:py-12 mx-auto rounded-lg shadow-lg">
         {/* Texte à gauche sur grand écran et en haut sur mobile */}
         <div className="w-full md:w-1/2 text-center md:text-left">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-50">

@@ -110,13 +110,14 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: async () => {
+    set({ isAuthenticated: false, user: null }); // ⬅️ Set immediately to prevent flicker or re-renders
     try {
       await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-      set({ isAuthenticated: false, user: null });
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);
     }
   },
+  
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
     try {

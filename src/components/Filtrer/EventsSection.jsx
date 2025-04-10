@@ -1,138 +1,160 @@
-import React, { useState } from "react";
-import Image1 from "../../assets/evenement/coaching.jpg";
-import Image2 from "../../assets/evenement/communauté.jpg";
-import Image3 from "../../assets/evenement/Nettoyages.jpg";
-import Image4 from "../../assets/evenement/Professionnel.jpg";
-import Image5 from "../../assets/evenement/sport.jpg";
-import Image6 from "../../assets/evenement/Célébrations et Fêtes.jpg";
-import Image7 from "../../assets/evenement/Communautaire et Caritatif.jpg";
-import Image8 from "../../assets/evenement/Éducation .jpg";
-import Image9 from "../../assets/evenement/Marchés et Foires.jpg";
-import Image10 from "../../assets/evenement/Formation.jpg";
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaUsers,
+  FaStar,
+} from "react-icons/fa";
+import useEventStore from "../../store/useEventStore ";
+import { Link } from "react-router-dom";
+import { CalendarDays } from "lucide-react";
 
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import EventCard from "./EventCard";
+const responsive = {
+  desktop: {
+    breakpoint: { max: 3000, min: 1024 },
+    items: 3,
+    partialVisibilityGutter: 40,
+  },
+  tablet: {
+    breakpoint: { max: 1024, min: 768 },
+    items: 2,
+    partialVisibilityGutter: 30,
+  },
+  mobile: {
+    breakpoint: { max: 768, min: 0 },
+    items: 1,
+    partialVisibilityGutter: 20,
+  },
+};
 
-const events = [
-  { id: 1, img: Image1, title: "coaching", date: "19/02/2025", location: "sfax" },
-  { id: 2, img: Image2, title: "communauté", date: "19/02/2025", location: "ariena" },
-  { id: 3, img: Image3, title: "Nettoyages", date: "19/02/2025", location: "nabeul:kélibia" },
-  { id: 4, img: Image4, title: "Professionnel", date: "20/02/2025", location: "centre urbain" },
-  { id: 5, img: Image5, title: "sport", date: "20/02/2025", location: "sousse" },
-  { id: 6, img: Image6, title: "Célébrations et Fêtes", date: "18/02/2025", location: "sousse" },
-  { id: 7, img: Image7, title: "Communautaire et Caritatif", date: "20/02/2025", location: "monastirnabeul:hammamet" },
-  { id: 8, img: Image8, title: "Éducation", date: "22/02/2025", location: "Sfax" },
-  { id: 9, img: Image9, title: "Marchés et Foires", date: "22/02/2025", location: "Béja" },
-  { id: 10, img: Image10, title: "Formation", date: "23/02/2025", location: "centre elif" },
-];
+const EventCard = ({ event }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    whileHover={{ scale: 1.03 }}
+    transition={{ duration: 0.3 }}
+    className="mx-2 p-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+  >
+    <div className="relative">
+      <motion.img
+        src={`http://localhost:8000/images/${event.image}`}
+        alt={event.titre}
+        className="w-full h-48 object-cover rounded-lg"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      />
+      {event.isRecommended && (
+        <div className="absolute top-2 right-2 bg-yellow-400 text-white px-2 py-1 rounded-full flex items-center text-xs">
+          <FaStar className="mr-1" /> Recommandé
+        </div>
+      )}
+    </div>
+
+    <div className="mt-4 space-y-2">
+      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+        {event.titre}
+      </h3>
+      <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
+
+      <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
+        <CalendarDays className="w-4 h-4 text-orange-500" />
+        {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
+      </div>
+
+      <div className="flex items-center text-sm text-gray-500">
+        <FaMapMarkerAlt className="mr-2 text-orange-500" />
+        <span className="line-clamp-1">{event.lieu}</span>
+      </div>
+
+
+    </div>
+    <Link
+      to={`/events/${event._id}`}
+      className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
+    >
+      Voir détails
+    </Link>
+  </motion.div>
+);
+
+const CustomArrow = ({ onClick, direction }) => (
+  <motion.button
+    onClick={onClick}
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+    className={`absolute z-10 ${
+      direction === "left" ? "left-0" : "right-0"
+    } p-2 bg-white rounded-full shadow-lg`}
+    aria-label={direction === "left" ? "Previous" : "Next"}
+  >
+    {direction === "left" ? (
+      <FaChevronLeft className="text-orange-500 text-xl" />
+    ) : (
+      <FaChevronRight className="text-orange-500 text-xl" />
+    )}
+  </motion.button>
+);
 
 const EventsSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [filteredEvents, setFilteredEvents] = useState(events);
-  const [selectedFilter, setSelectedFilter] = useState(null);
+  const { recommendedEvents, loading, error, fetchRecommendedEvents } =
+    useEventStore();
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % filteredEvents.length);
-  };
+  useEffect(() => {
+    fetchRecommendedEvents();
+  }, [fetchRecommendedEvents]);
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + filteredEvents.length) % filteredEvents.length);
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
 
-  const filterEvents = (filterType) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-
-    const weekendStart = new Date(today);
-    weekendStart.setDate(today.getDate() + (6 - today.getDay()));
-    weekendStart.setHours(0, 0, 0, 0);
-
-    const weekendEnd = new Date(weekendStart);
-    weekendEnd.setDate(weekendStart.getDate() + 1);
-    weekendEnd.setHours(23, 59, 59, 999);
-
-    let filtered;
-    if (filterType === "today") {
-      filtered = events.filter((event) => {
-        const eventDate = new Date(event.date.split("/").reverse().join("-"));
-        eventDate.setHours(0, 0, 0, 0);
-        return eventDate.getTime() === today.getTime();
-      });
-    } else if (filterType === "tomorrow") {
-      filtered = events.filter((event) => {
-        const eventDate = new Date(event.date.split("/").reverse().join("-"));
-        eventDate.setHours(0, 0, 0, 0);
-        return eventDate.getTime() === tomorrow.getTime();
-      });
-    } else if (filterType === "weekend") {
-      filtered = events.filter((event) => {
-        const eventDate = new Date(event.date.split("/").reverse().join("-"));
-        eventDate.setHours(0, 0, 0, 0);
-        return eventDate >= weekendStart && eventDate <= weekendEnd;
-      });
-    } else {
-      filtered = events;
-    }
-
-    setFilteredEvents(filtered);
-    setCurrentIndex(0);
-    setSelectedFilter(filterType);
-  };
+  if (error) {
+    return (
+      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 text-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full py-10 bg-white">
-      <h2 className="text-2xl font-bold text-center text-orange-400 uppercase">
-        Nos évenement
-      </h2>
+    <div className="w-full py-12 bg-gray-50">
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-3xl font-bold text-center text-black mb-8"
+      >
+        Événements à ne pas manquer
+      </motion.h2>
 
-      <div className="flex justify-center space-x-2 my-4">
-        <button
-          onClick={() => filterEvents("today")}
-          className={`px-4 py-2 rounded-md ${selectedFilter === "today" ? "bg-orange-600 text-white" : "border"}`}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="relative px-4"
+      >
+        <Carousel
+          responsive={responsive}
+          infinite={true}
+          autoPlay={true}
+          autoPlaySpeed={5000}
+          partialVisible={true}
+          customLeftArrow={<CustomArrow direction="left" />}
+          customRightArrow={<CustomArrow direction="right" />}
+          containerClass="carousel-container"
+          itemClass="carousel-item-padding-40-px"
         >
-          Aujourd'hui
-        </button>
-        <button
-          onClick={() => filterEvents("tomorrow")}
-          className={`px-4 py-2 rounded-md ${selectedFilter === "tomorrow" ? "bg-orange-600 text-white" : "border"}`}
-        >
-          Demain
-        </button>
-        <button
-          onClick={() => filterEvents("weekend")}
-          className={`px-4 py-2 rounded-md ${selectedFilter === "weekend" ? "bg-orange-600 text-white" : "border"}`}
-        >
-          Ce week-end
-        </button>
-      </div>
-
-      <div className="relative max-w-5xl mx-auto">
-        <button
-          onClick={prevSlide}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 bg-white shadow-md rounded-full"
-          aria-label="Previous event"
-        >
-          <FaChevronLeft />
-        </button>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {filteredEvents.slice(currentIndex, currentIndex + 3).map((event) => (
-            <EventCard key={event.id} event={event} />
+          {recommendedEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
           ))}
-        </div>
-
-        <button
-          onClick={nextSlide}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 bg-white shadow-md rounded-full"
-          aria-label="Next event"
-        >
-          <FaChevronRight />
-        </button>
-      </div>
+        </Carousel>
+      </motion.div>
     </div>
   );
 };
