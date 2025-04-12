@@ -1,87 +1,83 @@
 import React, { useState } from "react";
-import { IoMdSearch } from "react-icons/io";
+import { motion } from "framer-motion";
+import { Users, Calendar, BarChart, Home, UserCircle, Search } from "lucide-react";
 import GestionInscriptions from "./GestionInscriptions";
 import CRUDevenement from "./CRUDevenement";
+import { useAuthStore } from "../../store/authStore";
 
 const Gestionnaire = () => {
- const [selectedFeature, setSelectedFeature] = useState("users");
+  const { user } = useAuthStore();
+  const [activeTab, setActiveTab] = useState("inscriptions");
 
-  // Gérer la sélection d'une fonctionnalité dans la barre latérale
-  const handleFeatureSelection = (feature) => {
-    setSelectedFeature(feature);
+  const tabs = {
+    inscriptions: {
+      label: "Gérer les inscriptions",
+      icon: <Users className="mr-2 w-5 h-5" />,
+      component: <GestionInscriptions />,
+    },
+    evenements: {
+      label: "Gérer les événements",
+      icon: <Calendar className="mr-2 w-5 h-5" />,
+      component: <CRUDevenement />,
+    },
+    statistiques: {
+      label: "Statistiques",
+      icon: <BarChart className="mr-2 w-5 h-5" />,
+      component: <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-orange-500 mb-4">Statistiques globales</h2>
+        <p className="text-gray-600">Tableau de bord des statistiques à venir...</p>
+      </div>,
+    },
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-orange-400 to-orange-400 text-white h-screen p-6 shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center text-white">Gestionnaire</h2>
-        <nav>
-          <ul className="space-y-4">
-            <li
-              onClick={() => handleFeatureSelection("users")}
-              className={`cursor-pointer flex items-center gap-3 p-2 rounded-lg ${
-                selectedFeature === "users" ? "bg-orange-600" : "hover:bg-orange-400"
-              } transition duration-300`}
+      <div className="w-64 bg-gradient-to-b from-orange-500 to-orange-600 text-white p-6 shadow-lg">
+        <div className="flex items-center mb-8">
+          <Home className="w-6 h-6 mr-2" />
+          <h2 className="text-xl font-bold">Espace Gestionnaire</h2>
+        </div>
+
+        <nav className="space-y-2">
+          {Object.entries(tabs).map(([id, tab]) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`w-full text-left flex items-center p-3 rounded-lg transition ${
+                activeTab === id ? "bg-white text-orange-600 shadow-md" : "hover:bg-orange-400"
+              }`}
             >
-              <span>👥</span> Gérer les inscription
-            </li>
-         
-            <li
-              onClick={() => handleFeatureSelection("events")}
-              className={`cursor-pointer flex items-center gap-3 p-2 rounded-lg ${
-                selectedFeature === "events" ? "bg-orange-600" : "hover:bg-orange-400"
-              } transition duration-300`}
-            >
-              <span>📦</span> Gérer les événements
-            </li>
-            <li
-              onClick={() => handleFeatureSelection("statistics")}
-              className={`cursor-pointer flex items-center gap-3 p-2 rounded-lg ${
-                selectedFeature === "statistics" ? "bg-orange-600" : "hover:bg-orange-400"
-              } transition duration-300`}
-            >
-              <span>⚙️</span> Statistiques globales
-            </li>
-          </ul>
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </nav>
-      </aside>
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white shadow-md p-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-          
-            <span className="font-semibold text-gray-700">Bonjour, Gestionnaire</span>
+        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <UserCircle className="text-orange-500 w-6 h-6 mr-2" />
+            <span className="font-medium text-gray-700">Bonjour, {user?.name}</span>
           </div>
-          <div className="relative group hidden sm:block">
-  <input
-    type="text"
-    placeholder="search"
-    className="w-[200px] group-hover:w-[300px] transition-all duration-300 rounded-full border border-gray-300 px-2 py-1 focus:outline-none 
-               dark:border-orange-400 dark:bg-gray-800 hover:border-orange-500"
-  />
-  <IoMdSearch className="text-gray-500 group-hover:text-orange-500 absolute top-1/2 -translate-y-1/2 right-3" />
-</div>
 
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              className="w-48 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {selectedFeature === "users" && <GestionInscriptions/>}
-       
-          {selectedFeature === "events" && <CRUDevenement/>}
-          {selectedFeature === "statistics" && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-orange-400 mb-4">Statistiques globales</h2>
-              <p className="text-gray-600">
-                Contenu pour accéder aux statistiques globales...
-              </p>
-            </div>
-          )}
-         
-        </div>
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          {tabs[activeTab].component}
+        </main>
       </div>
     </div>
   );

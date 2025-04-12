@@ -27,7 +27,6 @@ import EmailVerificationPage from "./components/Popup/EmailVerificationPage";
 import Admin from "./components/Dashbord/Admin";
 import Gestionnaire from "./components/Dashbord/Gestionnaire";
 import Utilisateurs from "./components/Utilisateur/Utilisateurs";
-import UpdateProfil from "./components/Utilisateur/updateProfil";
 
 // 🏷️ Categories
 import Education from "./components/Categorie/Education";
@@ -49,6 +48,7 @@ import ForgetPasswordPage from "./components/Popup/ForgetPasswordPage";
 import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
 import EventDetails from "./components/lesPages/Card1";
 import ProtectedRoute from "./middleware/ProtectedRoute";
+import UpdateProfile from "./components/Utilisateur/UpdateProfil";
 
 // protected  used to protect pages like /Utilisateurs, /Admin, etc.
 
@@ -192,7 +192,7 @@ const App = () => {
             <ProtectedRoute
               allowedRoles={["admin", "gestionnaire", "participant"]}
             >
-              <UpdateProfil />
+              <UpdateProfile />
             </ProtectedRoute>
           }
         />
