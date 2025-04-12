@@ -86,7 +86,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     if (messageConfig) {
       const timer = setTimeout(() => {
         messageConfig.action();
-      }, 10000); // 10s
+      }, 5000); // 5s
       return () => clearTimeout(timer);
     }
   }, [messageConfig]);

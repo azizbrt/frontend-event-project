@@ -209,7 +209,7 @@ const AddEvent = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="">Sélectionnez</option>
-                <option value="Présentiel">Physique</option>
+                <option value="Presentiel">Physique</option>
                 <option value="enligne">En ligne</option>
                 <option value="hybride">Hybride</option>
               </select>

@@ -102,20 +102,63 @@ const useEventStore = create((set, get) => ({
   },
 
   // ✅ Fetch events by gestionnaire ID
-  fetchEventsByGestionnaire: async (gestionnaireId) => {
-    if (!gestionnaireId) {
-      set({ error: "Gestionnaire ID is missing!" });
+  // In useEventStore.js
+  fetchEventsByGestionnaire: async (nom) => {
+    if (!nom) {
+      set({ error: "Le nom de l'organisateur est manquant !" });
       return;
     }
   
+    // First check if we have cached data
+    const cachedEvents = localStorage.getItem(`events_${nom}`);
+    if (cachedEvents) {
+      set({ 
+        events: JSON.parse(cachedEvents),
+        loading: false 
+      });
+    }
+  
     set({ loading: true, error: null });
+    
     try {
-      const res = await axios.get(`${API_URL}/gestionnaire/${gestionnaireId}`);
-      set({ events: res.data.events, loading: false });
+      const res = await axios.get(`${API_URL}/gestionnaire/${nom}`, {
+        withCredentials: true
+      });
+      
+      const eventsData = res.data.events || res.data;
+      
+      // Update state and cache in localStorage
+      set({ 
+        events: eventsData,
+        loading: false 
+      });
+      
+      // Store in localStorage with timestamp
+      localStorage.setItem(`events_${nom}`, JSON.stringify({
+        data: eventsData,
+        timestamp: new Date().getTime()
+      }));
+      
     } catch (error) {
-      set({ error: error.response?.data?.message || "Erreur inconnue", loading: false });
+      console.error("Detailed error:", error.response?.data || error.message);
+      
+      // If offline and we have cached data, use that instead of showing error
+      const cachedEvents = localStorage.getItem(`events_${nom}`);
+      if (error.message.includes("Network Error") && cachedEvents) {
+        set({ 
+          events: JSON.parse(cachedEvents).data,
+          loading: false,
+          error: "Mode hors ligne: données chargées depuis le cache"
+        });
+      } else {
+        set({
+          error: error.response?.data?.message || "Erreur lors du chargement",
+          loading: false
+        });
+      }
     }
   },
+  
   
 }));
 
