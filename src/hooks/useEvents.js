@@ -7,6 +7,7 @@ import {
   fetchEventsByGestionnaire,
 } from '../api/eventApi.js';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 const API_URL = "http://localhost:8000/api/events";
 
 export const useEvents = () => {
@@ -64,3 +65,36 @@ export const useEventsByGestionnaire = (nom) => {
       }
     });
     };
+    // In your useUpdateEvent hook file
+export const useUpdateEvent = () => {
+    const queryClient = useQueryClient();
+  
+    return useMutation({
+      mutationFn: async ({ id, updatedData }) => {
+        const { data } = await axios.put(`${API_URL}/update/${id}`, updatedData);
+        return data;
+      },
+      onSuccess: (data) => {
+        toast.success("Événement mis à jour avec succès");
+        queryClient.invalidateQueries(["events"]); // This refreshes your events list
+        return data; // Make sure to return the data
+      },
+      onError: (error) => {
+        toast.error(`Erreur: ${error.response?.data?.message || error.message}`);
+      },
+      onSettled: () => {
+        // This runs after success or error
+        // No need to do anything here, but it's good to know it exists
+      }
+    });
+  };
+      export const useEventById = (eventId) => {
+        return useQuery({
+          queryKey: ["event", eventId],
+          queryFn: async () => {
+            const { data } = await axios.get(`${API_URL}/get/${eventId}`);
+            return data.event;
+          },
+          enabled: !!eventId, // Only fetch if eventId exists
+        });
+      };
