@@ -1,100 +1,134 @@
+// src/hooks/useEventHooks.js
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  fetchAllEvents,
-  fetchEventById,
-  fetchRecommendedEvents,
-  createEvent,
-  fetchEventsByGestionnaire,
-} from '../api/eventApi.js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+
 const API_URL = "http://localhost:8000/api/events";
 
+// 💡 1. GET - Tous les événements
 export const useEvents = () => {
-  return useQuery(['events'], fetchAllEvents);
-};
-
-export const useEvent = (id) => {
-  return useQuery(['event', id], () => fetchEventById(id), {
-    enabled: !!id
+  return useQuery({
+    queryKey: ["events"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_URL}/get`);
+      return data;
+    },
+    staleTime: 1000 * 60 * 5, // Cache 5 min
   });
 };
 
-export const useRecommendedEvents = () => {
-  return useQuery(['recommendedEvents'], fetchRecommendedEvents);
+// 👀 2. GET - Un événement par ID
+export const useEventById = (eventId) => {
+  return useQuery({
+    queryKey: ["event", eventId],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_URL}/get/${eventId}`);
+      return data.event;
+    },
+    enabled: !!eventId, // Yfetch ken eventId mawjoud
+  });
 };
 
-export const useCreateEvent = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['events']); // reload after new event
+// 🎯 3. GET - Événements recommandés
+export const useRecommendedEvents = () => {
+  return useQuery({
+    queryKey: ["recommendedEvents"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_URL}/recommended`);
+      return data;
     },
   });
 };
 
+// 🧑‍💼 4. GET - Événements d’un gestionnaire (par nom)
 export const useEventsByGestionnaire = (nom) => {
-    return useQuery({
-      queryKey: ['events', 'gestionnaire', nom],
-      queryFn: async () => {
-        const response = await axios.get(`${API_URL}/gestionnaire/${nom}`, {
-          withCredentials: true
-        });
-        return response.data.events || response.data;
-      },
-      enabled: !!nom,
-      staleTime: 5 * 60 * 1000 // 5 minutes cache
-    });
-  };
-  export const useDeleteEvent = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: async (eventId) => {
-        const response = await axios.delete(`${API_URL}/delete/${eventId}`, {
-          withCredentials: true,
-        });
-        return response.data;
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ 
-          queryKey: ['events', 'gestionnaire'] 
-        });
-      }
-    });
-    };
-    // In your useUpdateEvent hook file
+  return useQuery({
+    queryKey: ["events", "gestionnaire", nom],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_URL}/gestionnaire/${nom}`, {
+        withCredentials: true,
+      });
+      return data.events || data;
+    },
+    enabled: !!nom,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+// 🆕 5. POST - Créer un événement
+export const useCreateEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData) => {
+      const { data } = await axios.post(`${API_URL}/create`, formData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["events"]);
+      toast.success("Événement créé !");
+    },
+    onError: () => toast.error("Erreur lors de la création"),
+  });
+};
+
+// 🗑️ 6. DELETE - Supprimer un événement
+export const useDeleteEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (eventId) => {
+      const { data } = await axios.delete(`${API_URL}/delete/${eventId}`, {
+        withCredentials: true,
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["events"]);
+      toast.success("Événement supprimé !");
+    },
+    onError: () => toast.error("Erreur lors de la suppression"),
+  });
+};
+
+// ✏️ 7. PUT - Modifier un événement
 export const useUpdateEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updatedData }) => {
+      const { data } = await axios.put(`${API_URL}/update/${id}`, updatedData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["events"]);
+      toast.success("Événement mis à jour !");
+    },
+    onError: (error) => {
+      toast.error(`Erreur: ${error.response?.data?.message || error.message}`);
+    },
+  });
+};
+const updateEventStatus = async ({ id, etat }) => {
+    const response = await axios.put(`${API_URL}/etat/${id}`, { etat });
+    return response.data;
+  };
+  
+  // 2️⃣ - Hook React Query
+  export const useUpdateEventStatus = () => {
     const queryClient = useQueryClient();
   
     return useMutation({
-      mutationFn: async ({ id, updatedData }) => {
-        const { data } = await axios.put(`${API_URL}/update/${id}`, updatedData);
-        return data;
-      },
+      mutationFn: updateEventStatus,
       onSuccess: (data) => {
-        toast.success("Événement mis à jour avec succès");
-        queryClient.invalidateQueries(["events"]); // This refreshes your events list
-        return data; // Make sure to return the data
+        toast.success(data.message || "État de l’événement mis à jour !");
+        queryClient.invalidateQueries({ queryKey: ["events"] });
       },
       onError: (error) => {
-        toast.error(`Erreur: ${error.response?.data?.message || error.message}`);
+        toast.error(
+          error.response?.data?.message || "Échec de la mise à jour de l’état."
+        );
       },
-      onSettled: () => {
-        // This runs after success or error
-        // No need to do anything here, but it's good to know it exists
-      }
     });
   };
-      export const useEventById = (eventId) => {
-        return useQuery({
-          queryKey: ["event", eventId],
-          queryFn: async () => {
-            const { data } = await axios.get(`${API_URL}/get/${eventId}`);
-            return data.event;
-          },
-          enabled: !!eventId, // Only fetch if eventId exists
-        });
-      };

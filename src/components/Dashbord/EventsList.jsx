@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FaEdit,
@@ -11,6 +11,7 @@ import { useEventsByGestionnaire, useDeleteEvent } from "../../hooks/useEvents";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-hot-toast";
 import ModifyEvent from "./ModifyEvent"; // Don't forget to import this!
+import { data } from "react-router-dom";
 
 const EventsList = () => {
   // 1. All the important things we need to remember
@@ -23,6 +24,11 @@ const EventsList = () => {
     isError,
     error,
   } = useEventsByGestionnaire(user?.name);
+  useEffect(() => {
+    if (data?.events?.length === 0) {
+      alert(`No events found for ${userName}`);
+    }
+  }, [data]);
   const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
 
   // 2. How to choose which event to modify

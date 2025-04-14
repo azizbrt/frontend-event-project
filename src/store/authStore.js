@@ -13,22 +13,34 @@ export const useAuthStore = create((set, get) => ({
   message: null,
 
   signup: async (email, password, name) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null, signupSuccess: false });
     try {
       const response = await axios.post(
         `${API_URL}/signup`,
         { email, password, name },
         { withCredentials: true }
       );
+  
+      // Store user data but don't set as authenticated yet
       set({
         user: response.data.user,
-        isAuthenticated: true,
         isLoading: false,
+        signupSuccess: true,
+        verificationEmail: email, // Store email for verification
+        isAuthenticated: false // User not fully authenticated until verified
       });
+  
+      // Redirect to verification page or show verification modal
+      // You'll need to implement this based on your routing
+      // router.push('/verify-email');
+      
+      return response.data; // Return the response for further handling
+  
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error creating user",
         isLoading: false,
+        signupSuccess: false
       });
       throw error;
     }

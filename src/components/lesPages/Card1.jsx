@@ -141,14 +141,7 @@ const EventDetails = () => {
                     : "Gratuit"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                {selectedEvent.etat === "accepter" ? (
-                  <CheckCircle className="text-green-600" />
-                ) : (
-                  <XCircle className="text-yellow-500" />
-                )}
-                <span>{selectedEvent.etat}</span>
-              </div>
+              
             </div>
 
             <motion.button
