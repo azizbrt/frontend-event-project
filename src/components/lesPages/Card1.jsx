@@ -12,10 +12,9 @@ import {
 } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
-import PaymentPopup from "../Popup/PaymentPopup";
 import Commentaire from "../../components/Feedback/Commentaire";
 import useEventStore from "../../store/useEventStore ";
-
+import InscrirePopup from "../../components/Inscrire/InscrirePopup";
 const EventDetails = () => {
   const { id } = useParams();
   const [showPopup, setShowPopup] = useState(false);
@@ -167,15 +166,15 @@ const EventDetails = () => {
         <Footer />
       </motion.div>
 
-      {showPopup && (
-        <PaymentPopup
-          onClose={() => setShowPopup(false)}
-          onSuccess={handlePaymentSuccess}
-          price={selectedEvent.prix}
-          title={selectedEvent.titre}
-          eventId={selectedEvent._id}
-        />
-      )}
+
+{showPopup && (
+  <InscrirePopup
+    onClose={() => setShowPopup(false)}
+    onSuccess={handlePaymentSuccess}
+    title={selectedEvent.titre}
+    eventId={selectedEvent._id}
+  />
+)}
 
       {paymentSuccess && (
         <motion.div

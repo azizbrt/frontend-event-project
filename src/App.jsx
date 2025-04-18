@@ -15,7 +15,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Navbar from "./components/Navbar/Navbar";
 import Remise from "./components/Remise/Remise";
 import EventsSection from "./components/Filtrer/EventsSection";
-import Inscrire from "./components/Inscrire/Inscrire";
 import Description from "./components/Description/TEAM";
 import Footer from "./components/Footer/Footer";
 import CardSection from "./components/lesPages/CardSection";
@@ -49,6 +48,7 @@ import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
 import EventDetails from "./components/lesPages/Card1";
 import ProtectedRoute from "./middleware/ProtectedRoute";
 import UpdateProfile from "./components/Utilisateur/UpdateProfil";
+import InscrirePopup from "./components/Inscrire/InscrirePopup";
 
 // Create query client instance
 const queryClient = new QueryClient({
@@ -91,7 +91,6 @@ const Home = () => {
       <Remise handleOrderPopup={toggleLoginPopup} />
       <CardSection />
       <EventsSection />
-      <Inscrire />
       <Description />
       <Footer />
       <Popup orderPopup={showLoginPopup} setOrderPopup={setShowLoginPopup} />
