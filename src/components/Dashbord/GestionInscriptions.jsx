@@ -1,121 +1,145 @@
 import React, { useState } from "react";
+import {
+  useAnnulerInscription,
+  useConsulterInscription,
+  useValiderInscription,
+} from "../../hooks/useInscription";
 
 const GestionInscriptions = () => {
-  // État pour la liste des inscriptions
-  const [inscriptions, setInscriptions] = useState([
-    {
-      id: 1,
-      nomParticipant: "wided",
-      email: "wided1@gmail.com",
-      evenement: " Le coaching",
-      statut: "En attente",
-    },
-    {
-      id: 2,
-      nomParticipant: "med",
-      email: "med@gmail.com",
-      evenement: "Collectes de fonds",
-      statut: "En attente",
-    },
-  ]);
+  const { data, isLoading: isLoadingInscriptions, isError, error } =
+    useConsulterInscription();
+  const { mutate: validerInscription, isLoading: loadingValidation } =
+    useValiderInscription();
+  const { mutate: annulerInscription, isLoading: loadingAnnulation } =
+    useAnnulerInscription();
 
-  // État pour l'inscription en cours de modification
+  // Hooks d'état (toujours avant tout return ou condition)
   const [editingInscription, setEditingInscription] = useState(null);
 
-  // Approver une inscription
+  // Fonctions
   const approuverInscription = (inscriptionId) => {
-    setInscriptions(
-      inscriptions.map((inscription) =>
-        inscription.id === inscriptionId
-          ? { ...inscription, statut: "Approuvée" }
-          : inscription
-      )
-    );
+    console.log("Approuver", inscriptionId); // à remplacer par appel API plus tard
   };
 
-  // Annuler une inscription
-  const annulerInscription = (inscriptionId) => {
-    setInscriptions(
-      inscriptions.filter((inscription) => inscription.id !== inscriptionId)
-    );
+  const handleAnnulation = (inscriptionId) => {
+    annulerInscription(inscriptionId);
   };
 
-  // Consulter une inscription
   const consulterInscription = (inscriptionId) => {
-    const inscription = inscriptions.find(
-      (inscription) => inscription.id === inscriptionId
-    );
-    if (inscription) {
-      setEditingInscription(inscription);
-    }
+    const inscription = data?.find((insc) => insc._id === inscriptionId);
+    setEditingInscription(inscription);
   };
 
-  // Fermer le mode consultation
   const fermerConsultation = () => {
     setEditingInscription(null);
   };
 
+  // Affichage
+  if (isLoadingInscriptions) return <div>Chargement...</div>;
+  if (isError) return <div>{error?.message || "Erreur de chargement"}</div>;
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-orange-400 mb-4">Gérer les Inscriptions</h2>
+      <h1 className="text-2xl font-bold mb-4">Inscriptions des événements</h1>
 
-      {/* Tableau des inscriptions */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-orange-100">
-            <th className="p-2 border">ID</th>
-            <th className="p-2 border">Nom du Participant</th>
-            <th className="p-2 border">Email</th>
-            <th className="p-2 border">Événement</th>
-            <th className="p-2 border">Statut</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inscriptions.map((inscription) => (
-            <tr key={inscription.id} className="text-center">
-              <td className="p-2 border">{inscription.id}</td>
-              <td className="p-2 border">{inscription.nomParticipant}</td>
-              <td className="p-2 border">{inscription.email}</td>
-              <td className="p-2 border">{inscription.evenement}</td>
-              <td className="p-2 border">{inscription.statut}</td>
-              <td className="p-2 border">
-                <button
-                  onClick={() => approuverInscription(inscription.id)}
-                  className="mr-2 px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Approuver
-                </button>
-                <button
-                  onClick={() => annulerInscription(inscription.id)}
-                  className="mr-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => consulterInscription(inscription.id)}
-                  className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Consulter
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {data?.length === 0 ? (
+        <p>Aucune inscription trouvée.</p>
+      ) : (
+        <>
+          {console.log("📦 Données d'inscription :", data)}
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-orange-100">
+                <th className="p-2 border">Nom du Participant</th>
+                <th className="p-2 border">Email</th>
+                <th className="p-2 border">Téléphone</th>
+                <th className="p-2 border">Événement</th>
+                <th className="p-2 border">Statut</th>
+                <th className="p-2 border">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((inscription, index) => {
+                console.log(`🔍 Inscription #${index + 1}`, inscription);
+                return (
+                  <tr key={inscription._id} className="text-center">
+                    <td className="p-2 border">
+                      {inscription.participant.nom}
+                    </td>
+                    <td className="p-2 border">
+                      {inscription.participant.email}
+                    </td>
+                    <td className="p-2 border">
+                      {inscription.participant.telephone}
+                    </td>
+                    <td className="p-2 border">
+                      {inscription.evenement.titre}
+                    </td>
+                    <td className="p-2 border">{inscription.status}</td>
+                    <td className="p-2 border space-x-1">
+                      <button
+                        onClick={() => {
+                          console.log(
+                            "✅ Approuver ID :",
+                            inscription._id || inscription.id
+                          );
+                          validerInscription(inscription._id || inscription.id);
+                        }}
+                        disabled={loadingValidation}
+                        className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        {loadingValidation ? "..." : "Approuver"}
+                      </button>
+                      <button
+                        onClick={() => handleAnnulation(inscription.id)}
+                        disabled={loadingAnnulation}
+                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        {loadingAnnulation ? "Annulation..." : "Annuler"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          console.log("🔎 Consulter ID :", inscription._id);
+                          consulterInscription(inscription._id);
+                        }}
+                        className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      >
+                        Consulter
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      )}
 
-      {/* Mode Consultation */}
+      {/* Mode consultation (facultatif) */}
       {editingInscription && (
-        <div className="mt-6 bg-gray-100 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Détails de l'inscription</h3>
-          <p><strong>ID :</strong> {editingInscription.id}</p>
-          <p><strong>Nom du Participant :</strong> {editingInscription.nomParticipant}</p>
-          <p><strong>Email :</strong> {editingInscription.email}</p>
-          <p><strong>Événement :</strong> {editingInscription.evenement}</p>
-          <p><strong>Statut :</strong> {editingInscription.statut}</p>
+        <div className="mt-6 p-4 border rounded shadow">
+          <h2 className="text-xl font-semibold mb-2">
+            Détails de l'inscription
+          </h2>
+          <p>
+            <strong>Nom:</strong> {editingInscription.participant.nom}
+          </p>
+          <p>
+            <strong>Email:</strong> {editingInscription.participant.email}
+          </p>
+          <p>
+            <strong>Téléphone:</strong>{" "}
+            {editingInscription.participant.telephone}
+          </p>
+          <p>
+            <strong>Événement:</strong> {editingInscription.evenement.titre}
+          </p>
+          <p>
+            <strong>Statut:</strong> {editingInscription.status}
+          </p>
           <button
             onClick={fermerConsultation}
-            className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+            className="mt-2 px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
           >
             Fermer
           </button>
