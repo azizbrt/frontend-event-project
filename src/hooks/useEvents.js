@@ -42,34 +42,42 @@ export const useRecommendedEvents = () => {
 };
 
 // 🧑‍💼 4. GET - Événements d’un gestionnaire (par nom)
-export const useEventsByGestionnaire = (nom) => {
+// 4. GET - Événements d’un organisateur (anciennement gestionnaire)
+export const useEventsByGestionnaire = (id) => {
   return useQuery({
-    queryKey: ["events", "gestionnaire", nom],
+    queryKey: ["events", "gestionnaire", id],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_URL}/gestionnaire/${nom}`, {
+      const { data } = await axios.get(`${API_URL}/gestionnaire/${id}`, {
         withCredentials: true,
       });
-      return data.events || data;
+      // Ensure consistent response format
+      return Array.isArray(data) ? data : data?.events || [];
     },
-    enabled: !!nom,
-    staleTime: 1000 * 60 * 5,
+    enabled: !!id, // Only enable when ID exists
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    refetchOnMount: "always", // Always refetch when component mounts
   });
 };
 
-// 🆕 5. POST - Créer un événement
-export const useCreateEvent = () => {
+
+export const useCreateEvent = (gestionnaireId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (formData) => {
-      const { data } = await axios.post(`${API_URL}/create`, formData);
+      const { data } = await axios.post(`${API_URL}/create`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["events"]);
+      queryClient.invalidateQueries({ queryKey: ["events", "gestionnaire", gestionnaireId] });
       toast.success("Événement créé !");
     },
-    onError: () => toast.error("Erreur lors de la création"),
+    onError: (error) => {
+      console.error("Create Event Error:", error);
+      toast.error("Erreur lors de la création");
+    },
   });
 };
 

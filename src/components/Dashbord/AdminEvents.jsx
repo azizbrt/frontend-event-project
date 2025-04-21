@@ -10,7 +10,11 @@ import {
   FaTimes,
   FaSearch,
 } from "react-icons/fa";
-import { useEvents, useDeleteEvent, useUpdateEventStatus } from "../../hooks/useEvents";
+import {
+  useEvents,
+  useDeleteEvent,
+  useUpdateEventStatus,
+} from "../../hooks/useEvents";
 import { toast } from "react-hot-toast";
 import ModifyEvent from "./ModifyEvent";
 
@@ -20,7 +24,8 @@ const AdminEvents = () => {
   const [isModifyOpen, setIsModifyOpen] = useState(false);
   const { data, isLoading, isError } = useEvents();
   const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateEventStatus();
+  const { mutate: updateStatus, isPending: isUpdating } =
+    useUpdateEventStatus();
 
   const handleModify = (event) => {
     setSelectedEvent(event);
@@ -31,14 +36,15 @@ const AdminEvents = () => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
       deleteEvent(eventId, {
         onSuccess: () => toast.success("Événement supprimé avec succès"),
-        onError: (err) => toast.error(`Erreur lors de la suppression: ${err.message}`),
+        onError: (err) =>
+          toast.error(`Erreur lors de la suppression: ${err.message}`),
       });
     }
   };
 
   const handleApprove = (eventId) => {
     updateStatus(
-      { id:eventId, etat: "accepter" },
+      { id: eventId, etat: "accepter" },
       {
         onSuccess: () => toast.success("Événement approuvé"),
         onError: (err) => toast.error(`Erreur: ${err.message}`),
@@ -48,7 +54,7 @@ const AdminEvents = () => {
 
   const handleReject = (eventId) => {
     updateStatus(
-      { id:eventId, etat: "refusé" },
+      { id: eventId, etat: "refusé" },
       {
         onSuccess: () => toast.success("Événement refusé"),
         onError: (err) => toast.error(`Erreur: ${err.message}`),
@@ -131,7 +137,14 @@ const AdminEvents = () => {
                   className="hover:bg-gray-50"
                 >
                   <td className="p-3 border-b">{event.titre}</td>
-                  <td className="p-3 border-b">{event.organisateur}</td>
+                  <td className="p-3 border-b">
+                    <div>
+                      <p className="font-medium">{event.organisateur?.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {event.organisateur?.email}
+                      </p>
+                    </div>
+                  </td>
                   <td className="p-3 border-b">{event.typeEvenement}</td>
                   <td className="p-3 border-b">
                     <div className="flex items-center gap-2">
@@ -197,7 +210,9 @@ const AdminEvents = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-medium">{event.titre}</h3>
-                <p className="text-sm text-gray-600">{event.organisateur}</p>
+                <p className="text-sm text-gray-600">
+                  {event.organisateur?.name} - {event.organisateur?.email}
+                </p>
               </div>
               <div className="flex gap-2">
                 {event.etat === "en attendant" && (

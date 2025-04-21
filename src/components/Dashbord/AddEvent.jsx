@@ -2,39 +2,21 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
-  Bookmark,
-  FileText,
-  List,
-  ChevronDown,
-  Calendar,
-  MapPin,
-  Users,
-  Euro,
-  Tag,
-  UploadCloud,
-  Image as ImageIcon,
   Save,
-  Pencil,
-  Trash2,
   XCircle,
-  Loader2,
-  Loader2Icon
+  Loader2 as Loader2Icon,
 } from "lucide-react";
-import useEventStore from "../../store/useEventStore ";
 import { useAuthStore } from "../../store/authStore";
 import useCategorieStore from "../../store/useCategorieStore";
-
+import { useCreateEvent, useEventsByGestionnaire } from "../../hooks/useEvents";
+import toast from "react-hot-toast";
 
 const AddEvent = () => {
-  // Get functions and data from our stores
-  const { events, loading, error, fetchEventsByGestionnaire, createEvent } = useEventStore();
   const { user } = useAuthStore();
   const { categories, fetchCategories } = useCategorieStore();
 
-  // Local state for showing/hiding the form, handling image file, submission state, and for storing form values
   const [showForm, setShowForm] = useState(false);
   const [image, setImage] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [formData, setFormData] = useState({
     titre: "",
@@ -46,46 +28,38 @@ const AddEvent = () => {
     capacite: "",
     prix: "",
     tag: "",
+
     categorieName: ""
   });
 
-  // Fetch available categories once when the component mounts
+  // Fetch categories on mount
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Fetch events organized by the logged-in user
-  useEffect(() => {
-    if (user?._id) {
-      fetchEventsByGestionnaire(user._id);
-    }
-  }, [user, fetchEventsByGestionnaire]);
+  // Fetch user events
+  const { data: events, refetch } = useEventsByGestionnaire(user?._id);
 
-  // Update formData when the user changes any form input
+  // Create event mutation
+  const { mutate: createEvent, isLoading: isSubmitting } = useCreateEvent(user?._id);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // When the user selects a file, save it to state
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
+    setImage(e.target.files[0]);
   };
 
-  // When the form is submitted, prepare and send the data to the backend
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitError(null);
 
     if (!image) {
-      alert("Veuillez sélectionner une image !");
-      return;
+      return toast.error("Veuillez sélectionner une image !");
     }
 
-    setIsSubmitting(true);
-
-    // Create a new FormData object to send multipart/form-data
     const data = new FormData();
     data.append("titre", formData.titre);
     data.append("description", formData.description);
@@ -95,42 +69,38 @@ const AddEvent = () => {
     data.append("lieu", formData.lieu);
     data.append("capacite", formData.capacite);
     data.append("categorieName", formData.categorieName);
-    // Append the organizer’s name (from the authenticated user)
-    data.append("organisateur", user.name);
-
+    data.append("organisateur", user?._id);
     if (formData.prix) data.append("prix", formData.prix);
     if (formData.tag) {
-      // Split the tag string into an array and join it back as a comma-separated string
       const tagArray = formData.tag.split(",").map((t) => t.trim());
       data.append("tag", tagArray.join(","));
     }
-
     data.append("image", image);
 
-    try {
-      await createEvent(data);
-      alert("Événement ajouté avec succès !");
-      // Reset the form values
-      setFormData({
-        titre: "",
-        description: "",
-        typeEvenement: "",
-        dateDebut: "",
-        dateFin: "",
-        lieu: "",
-        capacite: "",
-        prix: "",
-        tag: "",
-        categorieName: ""
-      });
-      setImage(null);
-      setShowForm(false);
-    } catch (err) {
-      console.error("Erreur création événement:", err);
-      setSubmitError(err.response?.data?.message || "Erreur lors de la création de l'événement");
-    }
-
-    setIsSubmitting(false);
+    createEvent(data, {
+      onSuccess: () => {
+        toast.success("Événement ajouté avec succès !");
+        setFormData({
+          titre: "",
+          description: "",
+          typeEvenement: "",
+          dateDebut: "",
+          dateFin: "",
+          lieu: "",
+          capacite: "",
+          prix: "",
+          tag: "",
+          categorieName: ""
+        });
+        setImage(null);
+        setShowForm(false);
+        refetch(); // Refresh the events list
+      },
+      onError: (err) => {
+        const errorMsg = err?.response?.data?.message || "Erreur lors de la création de l'événement";
+        setSubmitError(errorMsg);
+      }
+    });
   };
 
   return (
@@ -163,7 +133,7 @@ const AddEvent = () => {
               </div>
             </div>
           )}
-          <form onSubmit={handleSubmit} encType="multipart/form-data">
+           <form onSubmit={handleSubmit} encType="multipart/form-data">
             {/* Organizer Display */}
             <div className="mb-4">
               <label className="block mb-1 font-medium">Organisateur:</label>
@@ -337,8 +307,6 @@ const AddEvent = () => {
           </form>
         </motion.div>
       )}
-
-     
     </div>
   );
 };

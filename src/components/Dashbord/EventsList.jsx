@@ -18,17 +18,23 @@ const EventsList = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModifyOpen, setIsModifyOpen] = useState(false);
   const { user, isCheckingAuth } = useAuthStore();
-  const {
+    const {
     data: events = [],
     isLoading,
     isError,
     error,
-  } = useEventsByGestionnaire(user?.name);
+    refetch
+  } = useEventsByGestionnaire(user?._id);
+  
   useEffect(() => {
-    if (data?.events?.length === 0) {
-      alert(`No events found for ${userName}`);
+    if (user?._id) {
+      refetch(); // Force fetch events when user ID is available
     }
-  }, [data]);
+  }, [user?._id, refetch]);
+  
+  
+  
+  
   const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
 
   // 2. How to choose which event to modify
@@ -158,6 +164,7 @@ const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
       </div>
     </td>
     <td className="p-3 border-b">{event.capacite}</td>
+    
     <td className="p-3 border-b">
       <div className="flex gap-2">
         <button onClick={() => onModify(event)} className="text-blue-600 p-2">
