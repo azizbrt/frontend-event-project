@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import {
   useAnnulerInscription,
   useConsulterInscription,
   useValiderInscription,
 } from "../../hooks/useInscription";
+import { useGetAllPaiementsWithDetails } from "../../hooks/usePayment";
 
 const GestionInscriptions = () => {
-  const { data, isLoading: isLoadingInscriptions, isError, error } =
-    useConsulterInscription();
+  const {
+    data,
+    isLoading: isLoadingInscriptions,
+    isError,
+    error,
+  } = useConsulterInscription();
+
+  const { data: paiements, isLoading: isLoadingPaiements } =
+    useGetAllPaiementsWithDetails();
+
   const { mutate: validerInscription, isLoading: loadingValidation } =
     useValiderInscription();
   const { mutate: annulerInscription, isLoading: loadingAnnulation } =
@@ -15,19 +25,27 @@ const GestionInscriptions = () => {
 
   // Hooks d'état (toujours avant tout return ou condition)
   const [editingInscription, setEditingInscription] = useState(null);
+  const [paiement, setPaiment] = useState([]);
+
+  useEffect(() => {
+    if (!Array.isArray(data) || !Array.isArray(paiements)) return;
+
+    const updatedPaiment = data.map((inscription) => {
+      const found = paiements.find((p) => {
+        const paiementId = p?.inscription?._id;
+        return paiementId === inscription.id;
+      });
+      return found || null;
+    });
+
+    setPaiment(updatedPaiment);
+  }, [data, paiements]);
+
+  console.log(paiement, "paiment !!!;knjhh");
 
   // Fonctions
-  const approuverInscription = (inscriptionId) => {
-    console.log("Approuver", inscriptionId); // à remplacer par appel API plus tard
-  };
-
   const handleAnnulation = (inscriptionId) => {
     annulerInscription(inscriptionId);
-  };
-
-  const consulterInscription = (inscriptionId) => {
-    const inscription = data?.find((insc) => insc._id === inscriptionId);
-    setEditingInscription(inscription);
   };
 
   const fermerConsultation = () => {
@@ -35,8 +53,12 @@ const GestionInscriptions = () => {
   };
 
   // Affichage
-  if (isLoadingInscriptions) return <div>Chargement...</div>;
+  if (isLoadingInscriptions || isLoadingPaiements)
+    return <div>Chargement...</div>;
   if (isError) return <div>{error?.message || "Erreur de chargement"}</div>;
+
+  console.log("📦 Données d'inscription :", data); // Debugging inscriptions
+  console.log("💸 Données de paiements :", paiements); // Debugging payments
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -46,7 +68,6 @@ const GestionInscriptions = () => {
         <p>Aucune inscription trouvée.</p>
       ) : (
         <>
-          {console.log("📦 Données d'inscription :", data)}
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-orange-100">
@@ -55,12 +76,16 @@ const GestionInscriptions = () => {
                 <th className="p-2 border">Téléphone</th>
                 <th className="p-2 border">Événement</th>
                 <th className="p-2 border">Statut</th>
-                <th className="p-2 border">Actions</th>
+                <th className="p-2 border">Paiement</th>
+                <th className="p-2 border">Référence</th>
               </tr>
             </thead>
             <tbody>
               {data.map((inscription, index) => {
-                console.log(`🔍 Inscription #${index + 1}`, inscription);
+                let paiementIndex = paiement[index];
+                console.log(paiementIndex, "paiementIndex");
+                console.log(paiement, "paiement !!");
+
                 return (
                   <tr key={inscription._id} className="text-center">
                     <td className="p-2 border">
@@ -76,14 +101,32 @@ const GestionInscriptions = () => {
                       {inscription.evenement.titre}
                     </td>
                     <td className="p-2 border">{inscription.status}</td>
+                    <td className="p-2 border">
+                      {paiementIndex ? (
+                        <span>{paiementIndex.reference}</span> // Displaying payment reference from hook
+                      ) : (
+                        <span>Non payé</span>
+                      )}
+                    </td>
                     <td className="p-2 border space-x-1">
                       <button
                         onClick={() => {
-                          console.log(
-                            "✅ Approuver ID :",
-                            inscription._id || inscription.id
-                          );
-                          validerInscription(inscription._id || inscription.id);
+                          Swal.fire({
+                            title: "Approuver cette inscription ?",
+                            text: "L'utilisateur sera accepté à l'événement.",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonColor: "#10B981", // green
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Oui, approuver",
+                            cancelButtonText: "Annuler",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              validerInscription(
+                                inscription._id || inscription.id
+                              );
+                            }
+                          });
                         }}
                         disabled={loadingValidation}
                         className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
@@ -91,20 +134,26 @@ const GestionInscriptions = () => {
                         {loadingValidation ? "..." : "Approuver"}
                       </button>
                       <button
-                        onClick={() => handleAnnulation(inscription.id)}
+                        onClick={() => {
+                          Swal.fire({
+                            title: "Annuler cette inscription ?",
+                            text: "Cette action est irréversible.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#EF4444", // red
+                            cancelButtonColor: "#6B7280", // gray
+                            confirmButtonText: "Oui, annuler",
+                            cancelButtonText: "Annuler",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              handleAnnulation(inscription.id);
+                            }
+                          });
+                        }}
                         disabled={loadingAnnulation}
                         className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                       >
                         {loadingAnnulation ? "Annulation..." : "Annuler"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          console.log("🔎 Consulter ID :", inscription._id);
-                          consulterInscription(inscription._id);
-                        }}
-                        className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        Consulter
                       </button>
                     </td>
                   </tr>

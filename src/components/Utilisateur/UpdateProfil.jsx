@@ -2,43 +2,44 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { useAuthStore } from "../../store/authStore";
+import { useMesInscriptions } from "../../hooks/useInscription";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, Mail, Lock, Calendar, BadgeCheck, Clock, ScrollText } from "lucide-react";
 
 const UpdateProfile = () => {
-  // State management
   const { user, updateUserProfile, isLoading, error } = useAuthStore();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
-  const [messages, setMessages] = useState({
-    success: "",
-    errors: {}
-  });
+  const [messages, setMessages] = useState({ success: "", errors: {} });
+  const {
+    data: inscriptionsData,
+    isLoading: loadingInscriptions,
+    isError,
+    error: inscriptionError,
+  } = useMesInscriptions();
 
-  // Initialize form with user data
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name,
         email: user.email,
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
       });
     }
   }, [user]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validate form inputs
   const validate = () => {
     const errors = {};
-    
     if (!formData.name.trim()) errors.name = "Name is required";
     if (!formData.email.trim()) {
       errors.email = "Email is required";
@@ -52,11 +53,10 @@ const UpdateProfile = () => {
       errors.confirmPassword = "Passwords don't match";
     }
 
-    setMessages(prev => ({ ...prev, errors }));
+    setMessages((prev) => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessages({ success: "", errors: {} });
@@ -64,117 +64,170 @@ const UpdateProfile = () => {
     if (!validate()) return;
 
     try {
-      await updateUserProfile(
-        formData.name,
-        formData.email,
-        formData.password
-      );
-
-      setMessages({
-        success: "Profile updated successfully!",
-        errors: {}
-      });
-      setFormData(prev => ({ ...prev, password: "", confirmPassword: "" }));
+      await updateUserProfile(formData.name, formData.email, formData.password);
+      setMessages({ success: "✅ Profil mis à jour avec succès!", errors: {} });
+      setFormData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
     } catch (err) {
       console.error("Update error:", err);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-center mb-6">Update Profile</h1>
-          
-          {/* Status messages */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50 to-white">
+    <Navbar />
+    
+    <main className="flex-grow flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+        className="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-lg border border-orange-100"
+      >
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2">
+            <User size={28} /> Mon Profil
+          </h1>
+          <p className="text-orange-400 mt-2">Gérez vos informations personnelles</p>
+        </motion.div>
+
+        {/* Messages */}
+        <AnimatePresence>
           {messages.success && (
-            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
-              {messages.success}
-            </div>
-          )}
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name field */}
-            <div>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Your name"
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
-              />
-              {messages.errors.name && (
-                <p className="mt-1 text-sm text-red-500">{messages.errors.name}</p>
-              )}
-            </div>
-
-            {/* Email field */}
-            <div>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Your email"
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
-              />
-              {messages.errors.email && (
-                <p className="mt-1 text-sm text-red-500">{messages.errors.email}</p>
-              )}
-            </div>
-
-            {/* Password field */}
-            <div>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="New password (optional)"
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
-              />
-              {messages.errors.password && (
-                <p className="mt-1 text-sm text-red-500">{messages.errors.password}</p>
-              )}
-            </div>
-
-            {/* Confirm password field */}
-            <div>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-orange-300"
-              />
-              {messages.errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-500">{messages.errors.confirmPassword}</p>
-              )}
-            </div>
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition disabled:opacity-70"
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-6 p-3 bg-green-50 text-green-600 rounded-lg border border-green-100 flex items-center gap-2"
             >
-              {isLoading ? "Updating..." : "Update Profile"}
-            </button>
-          </form>
-        </div>
-      </main>
+              <BadgeCheck className="text-green-500" /> {messages.success}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <Footer />
-    </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {[
+            { icon: <User />, name: "name", placeholder: "Nom complet", type: "text" },
+            { icon: <Mail />, name: "email", placeholder: "Adresse email", type: "email" },
+            { icon: <Lock />, name: "password", placeholder: "Nouveau mot de passe", type: "password" },
+            { icon: <Lock />, name: "confirmPassword", placeholder: "Confirmer le mot de passe", type: "password" },
+          ].map((field, index) => (
+            <motion.div
+              key={field.name}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index }}
+              className="relative"
+            >
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orange-400">
+                {field.icon}
+              </div>
+              <input
+                type={field.type}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                placeholder={field.placeholder}
+                className="w-full pl-10 pr-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-300 transition-all"
+              />
+              {messages.errors[field.name] && (
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-1 text-sm text-red-500 flex items-center gap-1"
+                >
+                  <Clock size={14} /> {messages.errors[field.name]}
+                </motion.p>
+              )}
+            </motion.div>
+          ))}
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <Clock className="animate-spin" size={18} />
+                En cours...
+              </>
+            ) : (
+              <>
+                <BadgeCheck size={18} />
+                Mettre à jour
+              </>
+            )}
+          </motion.button>
+        </form>
+
+        {/* Inscriptions Section */}
+        <motion.section
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 pt-6 border-t border-orange-100"
+        >
+          <h2 className="text-xl font-semibold text-orange-600 mb-4 flex items-center gap-2">
+            <ScrollText className="text-orange-500" /> Mes Participations
+          </h2>
+
+          {loadingInscriptions ? (
+            <div className="flex justify-center py-8">
+              <Clock className="animate-spin text-orange-400" size={24} />
+            </div>
+          ) : inscriptionsData?.inscriptions?.length > 0 ? (
+            <ul className="space-y-3">
+              {inscriptionsData.inscriptions.map((item, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 * index }}
+                  className="p-4 bg-orange-50 rounded-lg hover:shadow-md transition-shadow"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-2">
+                      <Calendar className="text-orange-500 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-orange-700">{item.evenement.titre}</p>
+                        <p className="text-sm text-orange-500">
+                          {new Date(item.evenement.dateDebut).toLocaleDateString()} - {new Date(item.evenement.dateFin).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <BadgeCheck className="text-orange-500 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-orange-700 capitalize">{item.status}</p>
+                        <p className="text-sm text-orange-500">
+                          Inscrit le {new Date(item.dateInscription).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-center py-6 text-orange-400">
+              <p>Aucune participation enregistrée</p>
+            </div>
+          )}
+        </motion.section>
+      </motion.div>
+    </main>
+
+    <Footer />
+  </div>
   );
 };
 

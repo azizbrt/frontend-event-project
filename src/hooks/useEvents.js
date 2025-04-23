@@ -41,7 +41,6 @@ export const useRecommendedEvents = () => {
   });
 };
 
-// 🧑‍💼 4. GET - Événements d’un gestionnaire (par nom)
 // 4. GET - Événements d’un organisateur (anciennement gestionnaire)
 export const useEventsByGestionnaire = (id) => {
   return useQuery({

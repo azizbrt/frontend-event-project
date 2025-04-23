@@ -37,7 +37,7 @@ const Navbar = ({ handleOrderPopup }) => {
   return (
     <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-200 relative z-40">
       {/* Top Section with Logo */}
-      <div className="bg-gradient-to-r  bg-orange-500">
+      <div className="bg-gradient-to-r  from-orange-500 via-orange-400 to-orange-500">
         <div className="container flex justify-between items-center px-4 sm:px-6 py-3">
           {/* Logo */}
           <div className="flex items-center gap-x-2">

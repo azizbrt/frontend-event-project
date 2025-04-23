@@ -1,73 +1,120 @@
-import React from "react";
-import { Card, CardContent, Button, Typography } from "@mui/material";
+import { useState } from "react"; // Import the React useState hook to manage state
+import { motion } from "framer-motion"; // Import motion from framer-motion to animate the popup
+import { useCreatePayment } from "../../hooks/usePayment"; // Import the payment creation hook
 
-// Composant PaymentPopup qui affiche une fenêtre de paiement
-const PaymentPopup = ({ onClose, onSuccess, price, title }) => {
-  // Fonction appelée lorsque l'utilisateur confirme le paiement
-  const handleSubmit = () => {
-    onSuccess(); // Appelle la fonction pour signaler un paiement réussi
-    onClose(); // Ferme la popup
+const PaiementPopup = ({
+  onClose,
+  eventId,
+  nomAffiché,
+  eventPrice,
+  inscriptionId,
+}) => {
+  // States to store reference and loading state
+  const [reference, setReference] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Hook to handle payment creation
+  const createPayment = useCreatePayment();
+
+  // Function to handle payment button click
+  const handlePayment = async () => {
+    // If there is no inscription or event ID, don't proceed
+    if (!inscriptionId || !eventId) return;
+
+    setIsLoading(true); // Set loading to true when starting the payment process
+
+    try {
+      // Call the createPayment hook to create a payment and get a reference number
+      const data = await createPayment.mutateAsync({ eventId, inscriptionId });
+      // Set the reference number once the payment is created successfully
+      setReference(data?.paiment?.reference || "Erreur");
+    } catch (error) {
+      // If there is an error, set the reference to "Erreur"
+      setReference("Erreur");
+    } finally {
+      setIsLoading(false); // Set loading to false once done
+    }
   };
 
   return (
-    // Fond semi-transparent pour le popup
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      {/* Carte contenant les informations du paiement */}
-      <Card className="w-96 p-6 shadow-lg">
-        <CardContent>
-          {/* Titre du popup */}
-          <Typography variant="h5" gutterBottom className="text-2xl font-bold text-center mb-4">
-            Virement Bancaire
-          </Typography>
+    <motion.div
+      initial={{ opacity: 0 }} // Initial opacity for animation
+      animate={{ opacity: 1 }} // Animation to fade in
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+    >
+      <motion.div
+        initial={{ scale: 0.9 }} // Initial scale for the popup animation
+        animate={{ scale: 1 }} // Animation to scale the popup to normal size
+        className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Paiement pour {nomAffiché} {/* Display participant name */}
+          </h3>
+          <button
+            onClick={onClose} // Close the popup when the button is clicked
+            className="text-gray-400 hover:text-gray-600 text-xl"
+          >
+            ✕ {/* Close icon */}
+          </button>
+        </div>
 
-          {/* Instructions supplémentaires */}
-          <Typography variant="body2" className="mt-4 text-gray-600">
-            Bienvenue, veuillez effectuer un virement du montant indiqué vers le compte bancaire ci-dessous.
-          </Typography>
-
-          {/* Informations de paiement */}
-          <div className="space-y-4">
-            <Typography variant="body1">
-              <strong>Montant :</strong> {price} TND
-            </Typography>
-            <Typography variant="body1">
-              <strong>À l'ordre de :</strong> Ste Event Tunisie
-            </Typography>
-            <Typography variant="body1">
-              <strong>Pour l'événement :</strong> {title}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Banque :</strong> ATB
-            </Typography>
-            <Typography variant="body1">
-              <strong>RIB Bancaire :</strong> 0109 0125 1100 0041 8491
-            </Typography>
-            <Typography variant="body1">
-              <strong>BIC :</strong> ATBKTTNT
-            </Typography>
-            <Typography variant="body1">
-              <strong>Agence :</strong> 41 av. Alain Savary, 1002 Belvedere
-            </Typography>
+        <form onSubmit={(e) => e.preventDefault()}>
+          {/* Display amount to be paid */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Montant à payer (TND)
+            </label>
+            <input
+              type="text"
+              value={eventPrice} // Display event price
+              disabled // Make the input read-only
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+            />
           </div>
 
-          {/* Bouton de confirmation du paiement */}
-          <div className="flex justify-center mt-6">
-            <Button
-              onClick={handleSubmit} // Action au clic
-              variant="contained" // Style du bouton rempli
-              sx={{
-                bgcolor: "orange", // Fond orange
-                "&:hover": { bgcolor: "#e65100" }, // Un orange plus foncé au survol
-                color: "white", // Texte blanc
-              }}
+          {/* Display the reference number */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Référence (générée automatiquement)
+            </label>
+            <input
+              type="text"
+              value={isLoading ? "Génération en cours..." : reference} // Show "Génération en cours..." if loading, else show reference
+              disabled // Make the input read-only
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+            />
+          </div>
+
+          {/* Dummy RIB (bank account number) field */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              RIB
+            </label>
+            <input
+              type="text"
+              value="FR76 1234 5678 9876 5432 1000 000" // Static bank account number for the example
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            {/* Submit button to validate the payment */}
+            <button
+              type="button"
+              onClick={handlePayment} // Trigger the payment handling function
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+              disabled={isLoading} // Disable the button while loading
             >
-              Confirmer le Paiement
-            </Button>
+              {isLoading ? "Traitement..." : "Valider le paiement"}{" "}
+              {/* Button text changes based on loading state */}
+            </button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 };
 
-export default PaymentPopup; // Exportation du composant pour être utilisé ailleurs
+export default PaiementPopup;

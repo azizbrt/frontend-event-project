@@ -140,7 +140,6 @@ const EventDetails = () => {
                     : "Gratuit"}
                 </span>
               </div>
-              
             </div>
 
             <motion.button
@@ -166,15 +165,15 @@ const EventDetails = () => {
         <Footer />
       </motion.div>
 
-
-{showPopup && (
-  <InscrirePopup
-    onClose={() => setShowPopup(false)}
-    onSuccess={handlePaymentSuccess}
-    title={selectedEvent.titre}
-    eventId={selectedEvent._id}
-  />
-)}
+      {showPopup && (
+        <InscrirePopup
+          onClose={() => setShowPopup(false)}
+          onSuccess={handlePaymentSuccess}
+          title={selectedEvent.titre}
+          eventId={selectedEvent._id}
+          eventPrice={selectedEvent.prix}
+        />
+      )}
 
       {paymentSuccess && (
         <motion.div

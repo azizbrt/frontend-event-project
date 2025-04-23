@@ -30,9 +30,6 @@ export const useAuthStore = create((set, get) => ({
         isAuthenticated: false // User not fully authenticated until verified
       });
   
-      // Redirect to verification page or show verification modal
-      // You'll need to implement this based on your routing
-      // router.push('/verify-email');
       
       return response.data; // Return the response for further handling
   
