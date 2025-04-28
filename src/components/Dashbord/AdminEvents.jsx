@@ -76,11 +76,17 @@ const AdminEvents = () => {
   };
 
   const filteredEvents =
-    data?.events?.filter(
-      (event) =>
-        event.titre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.organisateur?.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+    data?.events?.filter((event) => {
+      const title = event.titre?.toLowerCase() || "";
+      const organizerName = event.organisateur?.name?.toLowerCase() || "";
+      const organizerEmail = event.organisateur?.email?.toLowerCase() || "";
+
+      return (
+        title.includes(searchTerm.toLowerCase()) ||
+        organizerName.includes(searchTerm.toLowerCase()) ||
+        organizerEmail.includes(searchTerm.toLowerCase())
+      );
+    }) || [];
 
   if (isLoading) return <p className="text-center mt-10">Chargement...</p>;
   if (isError)

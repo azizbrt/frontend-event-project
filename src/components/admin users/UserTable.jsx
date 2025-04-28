@@ -1,27 +1,26 @@
 import React, { useState } from "react";
-import { useSearchUsers } from "../../hooks/useUsers"; // Adjust the path to your actual hook
+import { useSearchUsers } from "../../hooks/useUsers";
 
 const UserTable = ({ users, onEdit, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [triggerSearch, setTriggerSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // new state to trigger search
 
-  // Using the search hook to fetch users based on the search term
-  const { data: filteredUsers, isLoading, isError } = useSearchUsers(searchTerm);
+  const { data: filteredUsers, isLoading, isError } = useSearchUsers(searchQuery);
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Update search term as the user types
+  const handleInputChange = (e) => {
+    setSearchTerm(e.target.value); // just update the input
   };
 
   const handleSearchClick = () => {
-    setTriggerSearch(true); // Trigger search when the button is clicked
+    setSearchQuery(searchTerm); // when click, set the query to search
   };
 
-  // Loading and error states
+  // Handle loading or error
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error while fetching users!</p>;
 
-  // Decide whether to show the filtered or original users
-  const displayUsers = triggerSearch && filteredUsers?.length > 0 ? filteredUsers : users;
+  // Choose what to display
+  const displayUsers = searchQuery && filteredUsers?.length > 0 ? filteredUsers : users;
 
   if (displayUsers.length === 0) {
     return <p className="text-center text-gray-500">Aucun utilisateur pour l'instant.</p>;
@@ -34,13 +33,13 @@ const UserTable = ({ users, onEdit, onDelete }) => {
         <input
           type="text"
           value={searchTerm}
-          onChange={handleSearchChange}
+          onChange={handleInputChange}
           placeholder="Rechercher par nom ou email..."
           className="border border-gray-300 rounded px-4 py-2 w-full max-w-xs"
         />
         <button
           onClick={handleSearchClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+          className="bg-orange-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
         >
           Rechercher
         </button>

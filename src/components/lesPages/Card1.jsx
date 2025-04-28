@@ -98,6 +98,24 @@ const EventDetails = () => {
             <p className="text-gray-700 text-lg leading-relaxed">
               {selectedEvent.description}
             </p>
+            {/* ➔ New: Tags */}
+            {selectedEvent.tag && selectedEvent.tag.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Tags
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedEvent.tag.map((t, index) => (
+                    <span
+                      key={index}
+                      className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm"
+                    >
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2 text-gray-600">
               <div className="flex items-center gap-2">
@@ -140,6 +158,13 @@ const EventDetails = () => {
                     : "Gratuit"}
                 </span>
               </div>
+              {/* ➔ New: Catégorie */}
+              <div className="flex items-center gap-2">
+                <Tag className="text-purple-600" />
+                <span>Catégorie: {selectedEvent.categorieName}</span>
+              </div>
+
+              
             </div>
 
             <motion.button

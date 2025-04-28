@@ -49,6 +49,7 @@ import EventDetails from "./components/lesPages/Card1";
 import ProtectedRoute from "./middleware/ProtectedRoute";
 import UpdateProfile from "./components/Utilisateur/UpdateProfil";
 import InscrirePopup from "./components/Inscrire/InscrirePopup";
+import Event from "./components/Utilisateur/Event";
 
 // Create query client instance
 const queryClient = new QueryClient({
@@ -132,16 +133,24 @@ const AppContent = () => {
         <Route
           path="/events/:id"
           element={
-            <ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}>
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
               <EventDetails />
             </ProtectedRoute>
           }
         />
-        
-        <Route path="/Card2" element={<Card2 />} />
-        <Route path="/Card3" element={<Card3 />} />
-        <Route path="/Card4" element={<Card4 />} />
-        <Route path="/Card5" element={<Card5 />} />
+
+        <Route
+          path="/evenements"
+          element={
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
+              <Event />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/Education-et-Formation" element={<Education />} />
         <Route path="/Culture-et-Loisirs" element={<Culture />} />
@@ -155,7 +164,9 @@ const AppContent = () => {
         <Route
           path="/Utilisateurs"
           element={
-            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
               <Utilisateurs />
             </ProtectedRoute>
           }
@@ -169,7 +180,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        
+
         <Route
           path="/Gestionnaire"
           element={
@@ -178,11 +189,13 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        
+
         <Route
           path="/UpdateProfil"
           element={
-            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
               <UpdateProfile />
             </ProtectedRoute>
           }
@@ -196,7 +209,7 @@ const AppContent = () => {
             </RedirectAuthenticatedUser>
           }
         />
-        
+
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       </Routes>
