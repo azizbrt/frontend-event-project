@@ -8,6 +8,7 @@ import CRUDevenement from "./CRUDevenement";
 import { useAuthStore } from "../../store/authStore";
 import AddEvent from "./AddEvent";
 import AdminEvents from "./AdminEvents";
+import Statistique from "./Statestique";
 
 const Admin = () => {
   const [selectedFeature, setSelectedFeature] = useState("users");
@@ -94,7 +95,7 @@ const Admin = () => {
                 Statistiques globales
               </h2>
               <p className="text-gray-600">
-                Contenu pour consulter les statistiques globales...
+                <Statistique />
               </p>
             </motion.div>
           )}
