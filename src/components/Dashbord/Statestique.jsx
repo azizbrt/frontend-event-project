@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import {
   useDernieresInscriptions,
+  useDerniersPaiements,
   useTotalEvents,
   useTotalInscriptions,
   useTotalUsers,
@@ -28,8 +29,9 @@ const Statistique = () => {
     isLoading: loadingInscriptions,
     isError: errorInscriptions,
   } = useDernieresInscriptions();
-
-  // Placeholder des autres données (tu vas faire d'autres hooks plus tard)
+  // Appel du hook
+  const { data: paiementsRecents, isLoading: loadingPaiements } =
+    useDerniersPaiements();
 
   // Références
   const reference = {
@@ -149,7 +151,32 @@ const Statistique = () => {
           <h3 className="text-md font-semibold text-gray-700 mb-4">
             Derniers paiements
           </h3>
-          <p className="text-gray-500">Aucun paiement récent.</p>
+          {loadingPaiements ? (
+            <p className="text-gray-500">Chargement...</p>
+          ) : paiementsRecents && paiementsRecents.length > 0 ? (
+            <ul className="space-y-2">
+              {paiementsRecents.map((p) => (
+                <li key={p._id} className="border p-3 rounded-lg">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">
+                      {p.utilisateurId?.name || "Inconnu"}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(p.datePaiement).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Événement : {p.evenementId?.titre || "N/A"}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Montant : {p.montant} TND
+                  </div>
+                                  </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">Aucun paiement récent.</p>
+          )}{" "}
         </div>
       </div>
     </div>

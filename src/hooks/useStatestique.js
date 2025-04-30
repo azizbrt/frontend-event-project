@@ -48,3 +48,12 @@ export function useTotalUsers() {
       refetchOnWindowFocus: true,
     });
   }
+  export const useDerniersPaiements = () => {
+    return useQuery({
+      queryKey: ["dernierPaiements"],
+      queryFn: async () => {
+        const { data } = await axios.get(`${API_URL}/dernier-payment`);
+        return data.paiements;
+      },
+    });
+  };
