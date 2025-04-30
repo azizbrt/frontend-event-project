@@ -25,7 +25,8 @@ const AddUser = async (userData) =>{
 export const useAddUser = () => {
     return useMutation({
       mutationFn: AddUser,
-    });
+    }
+  );
   };
   
   const updateUser = async (updateUser) => {

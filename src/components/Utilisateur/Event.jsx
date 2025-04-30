@@ -101,7 +101,7 @@ const Event = () => {
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-grow container mx-auto px-4 py-10 flex flex-col md:flex-row gap-6">
+      <main className="flex-grow container mx-auto px-4 pt-20 py-10 flex flex-col md:flex-row gap-6">
         {/* Filtres */}
         <aside className="w-full md:w-64 lg:w-80 bg-white p-4 rounded-lg shadow-md h-fit sticky top-4">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">

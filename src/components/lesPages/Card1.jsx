@@ -13,17 +13,17 @@ import {
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import Commentaire from "../../components/Feedback/Commentaire";
-import useEventStore from "../../store/useEventStore ";
 import InscrirePopup from "../../components/Inscrire/InscrirePopup";
+import { useEvents } from "../../hooks/useEvents";
+
 const EventDetails = () => {
   const { id } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const { selectedEvent, loading, error, getEventById } = useEventStore();
-
-  useEffect(() => {
-    if (id) getEventById(id);
-  }, [id, getEventById]);
+  const { data: eventsData, isLoading, isError } = useEvents();
+  
+  // Find the specific event by ID
+  const selectedEvent = eventsData?.events?.find(event => event._id === id);
 
   const handlePaymentSuccess = () => {
     setPaymentSuccess(true);
@@ -38,7 +38,7 @@ const EventDetails = () => {
     });
   };
 
-  if (loading || !selectedEvent) {
+  if (isLoading) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
         <Navbar />
@@ -56,7 +56,7 @@ const EventDetails = () => {
     );
   }
 
-  if (error) {
+  if (isError || !selectedEvent) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
         <Navbar />
@@ -66,7 +66,7 @@ const EventDetails = () => {
             animate={{ opacity: 1 }}
             className="bg-red-100 text-red-700 p-4 rounded shadow"
           >
-            {error}
+            {isError ? "Erreur de chargement" : "Événement non trouvé"}
           </motion.div>
         </main>
         <Footer />
@@ -81,7 +81,7 @@ const EventDetails = () => {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto py-10 px-4 sm:px-8"
+        className="container mx-auto py-10 px-4 sm:px-8 pt-20"
       >
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
@@ -98,7 +98,7 @@ const EventDetails = () => {
             <p className="text-gray-700 text-lg leading-relaxed">
               {selectedEvent.description}
             </p>
-            {/* ➔ New: Tags */}
+            
             {selectedEvent.tag && selectedEvent.tag.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -158,13 +158,20 @@ const EventDetails = () => {
                     : "Gratuit"}
                 </span>
               </div>
-              {/* ➔ New: Catégorie */}
               <div className="flex items-center gap-2">
                 <Tag className="text-purple-600" />
                 <span>Catégorie: {selectedEvent.categorieName}</span>
               </div>
 
-              
+              <div className="flex items-center gap-2">
+                <Users className="text-blue-600" />
+                <div>
+                  <div>Organisateur: {selectedEvent.organisateur?.name}</div>
+                  <div className="text-sm text-gray-500">
+                    {selectedEvent.organisateur?.email}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <motion.button
