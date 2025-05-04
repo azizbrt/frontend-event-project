@@ -42,7 +42,9 @@ const Admin = () => {
                 key={item.key}
                 onClick={() => handleFeatureSelection(item.key)}
                 className={`cursor-pointer flex items-center gap-3 p-2 rounded-lg transition duration-300 ${
-                  selectedFeature === item.key ? "bg-orange-600" : "hover:bg-orange-400"
+                  selectedFeature === item.key
+                    ? "bg-orange-600"
+                    : "hover:bg-orange-400"
                 }`}
               >
                 {item.icon} {item.label}
@@ -94,9 +96,9 @@ const Admin = () => {
               <h2 className="text-xl font-semibold text-orange-500 mb-4">
                 Statistiques globales
               </h2>
-              <p className="text-gray-600">
+              <div className="text-gray-600">
                 <Statistique />
-              </p>
+              </div>
             </motion.div>
           )}
         </motion.div>

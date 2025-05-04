@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Toaster } from "react-hot-toast";
@@ -48,7 +43,6 @@ import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
 import EventDetails from "./components/lesPages/Card1";
 import ProtectedRoute from "./middleware/ProtectedRoute";
 import UpdateProfile from "./components/Utilisateur/UpdateProfil";
-import InscrirePopup from "./components/Inscrire/InscrirePopup";
 import Event from "./components/Utilisateur/Event";
 
 // Create query client instance
@@ -67,19 +61,6 @@ const RedirectAuthenticatedUser = ({ children }) => {
     return <Navigate to="/Utilisateurs" replace />;
   }
   return children;
-};
-
-const getDefaultRoute = (role) => {
-  switch (role) {
-    case "admin":
-      return "/admin";
-    case "gestionnaire":
-      return "/gestionnaire";
-    case "participant":
-      return "/Utilisateurs";
-    default:
-      return "/";
-  }
 };
 
 const Home = () => {
@@ -101,7 +82,7 @@ const Home = () => {
 };
 
 const AppContent = () => {
-  const { isCheckingAuth, checkAuth } = useAuthStore();
+  const { checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -118,7 +99,7 @@ const AppContent = () => {
   }, []);
 
   return (
-    <Router>
+    <>
       <Toaster position="top-right" />
       <Routes>
         <Route
@@ -129,29 +110,22 @@ const AppContent = () => {
             </RedirectAuthenticatedUser>
           }
         />
-
         <Route
           path="/events/:id"
           element={
-            <ProtectedRoute
-              allowedRoles={["participant", "admin", "gestionnaire"]}
-            >
+            <ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}>
               <EventDetails />
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/evenements"
           element={
-            <ProtectedRoute
-              allowedRoles={["participant", "admin", "gestionnaire"]}
-            >
+            <ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}>
               <Event />
             </ProtectedRoute>
           }
         />
-
         <Route path="/Education-et-Formation" element={<Education />} />
         <Route path="/Culture-et-Loisirs" element={<Culture />} />
         <Route path="/Celebrations-et-Fêtes" element={<Celebrations />} />
@@ -164,14 +138,11 @@ const AppContent = () => {
         <Route
           path="/Utilisateurs"
           element={
-            <ProtectedRoute
-              allowedRoles={["admin", "gestionnaire", "participant"]}
-            >
+            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
               <Utilisateurs />
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/Admin"
           element={
@@ -180,7 +151,6 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/Gestionnaire"
           element={
@@ -189,18 +159,14 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/UpdateProfil"
           element={
-            <ProtectedRoute
-              allowedRoles={["admin", "gestionnaire", "participant"]}
-            >
+            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
               <UpdateProfile />
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/verify-email"
           element={
@@ -209,11 +175,10 @@ const AppContent = () => {
             </RedirectAuthenticatedUser>
           }
         />
-
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       </Routes>
-    </Router>
+    </>
   );
 };
 
