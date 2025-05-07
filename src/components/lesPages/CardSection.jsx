@@ -11,7 +11,7 @@ const CardSection = () => {
   }, []);
 
   return (
-    <div className="py-16 bg-gray-50">
+    <div className="py-16 bg-white">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">

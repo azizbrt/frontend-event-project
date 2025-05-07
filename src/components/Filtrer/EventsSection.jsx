@@ -125,7 +125,7 @@ const EventsSection = () => {
   }
 
   return (
-    <div className="w-full py-12 bg-gray-50">
+    <div className="w-full py-12 bg-white">
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
