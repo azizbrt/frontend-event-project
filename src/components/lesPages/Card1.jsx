@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -8,7 +8,6 @@ import {
   Users,
   BadgeDollarSign,
   CheckCircle,
-  XCircle,
 } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
@@ -21,23 +20,27 @@ const EventDetails = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const { data: eventsData, isLoading, isError } = useEvents();
-  
-  // Find the specific event by ID
-  const selectedEvent = eventsData?.events?.find(event => event._id === id);
+
+  const selectedEvent = eventsData?.events?.find(
+    (event) => event._id === id && event.etat === "accepter"
+  );
 
   const handlePaymentSuccess = () => {
     setPaymentSuccess(true);
     setShowPopup(false);
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
-  };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -56,6 +59,7 @@ const EventDetails = () => {
     );
   }
 
+  // Error or not found event
   if (isError || !selectedEvent) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -66,7 +70,9 @@ const EventDetails = () => {
             animate={{ opacity: 1 }}
             className="bg-red-100 text-red-700 p-4 rounded shadow"
           >
-            {isError ? "Erreur de chargement" : "Événement non trouvé"}
+            {isError
+              ? "Erreur de chargement"
+              : "Événement non trouvé ou non accepté"}
           </motion.div>
         </main>
         <Footer />
@@ -77,6 +83,7 @@ const EventDetails = () => {
   return (
     <div className="bg-gray-100 min-h-screen">
       <Navbar />
+
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -98,8 +105,8 @@ const EventDetails = () => {
             <p className="text-gray-700 text-lg leading-relaxed">
               {selectedEvent.description}
             </p>
-            
-            {selectedEvent.tag && selectedEvent.tag.length > 0 && (
+
+            {selectedEvent.tag?.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
                   Tags
@@ -144,7 +151,6 @@ const EventDetails = () => {
             <h2 className="text-xl font-semibold text-orange-600">
               Informations
             </h2>
-
             <div className="space-y-2 text-gray-700">
               <div className="flex items-center gap-2">
                 <Users className="text-gray-700" />
@@ -172,6 +178,16 @@ const EventDetails = () => {
                   </div>
                 </div>
               </div>
+              {selectedEvent.restrictionAge && (
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="text-yellow-500" />
+                  <span>
+                    {selectedEvent.restrictionAge === "tout public"
+                      ? "Accessible à tout le public"
+                      : "Réservé aux personnes majeures (18 ans et plus)"}
+                  </span>
+                </div>
+              )}
             </div>
 
             <motion.button

@@ -28,8 +28,8 @@ const AddEvent = () => {
     capacite: "",
     prix: "",
     tag: "",
-
-    categorieName: ""
+    ageRestriction: "",
+    categorieName: "",
   });
 
   // Fetch categories on mount
@@ -41,7 +41,9 @@ const AddEvent = () => {
   const { data: events, refetch } = useEventsByGestionnaire(user?._id);
 
   // Create event mutation
-  const { mutate: createEvent, isLoading: isSubmitting } = useCreateEvent(user?._id);
+  const { mutate: createEvent, isLoading: isSubmitting } = useCreateEvent(
+    user?._id
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,6 +72,7 @@ const AddEvent = () => {
     data.append("capacite", formData.capacite);
     data.append("categorieName", formData.categorieName);
     data.append("organisateur", user?._id);
+    data.append("ageRestriction", formData.ageRestriction);
     if (formData.prix) data.append("prix", formData.prix);
     if (formData.tag) {
       const tagArray = formData.tag.split(",").map((t) => t.trim());
@@ -90,23 +93,27 @@ const AddEvent = () => {
           capacite: "",
           prix: "",
           tag: "",
-          categorieName: ""
+          categorieName: "",
         });
         setImage(null);
         setShowForm(false);
         refetch(); // Refresh the events list
       },
       onError: (err) => {
-        const errorMsg = err?.response?.data?.message || "Erreur lors de la création de l'événement";
+        const errorMsg =
+          err?.response?.data?.message ||
+          "Erreur lors de la création de l'événement";
         setSubmitError(errorMsg);
-      }
+      },
     });
   };
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-orange-500">Liste des événements</h2>
+        <h2 className="text-2xl font-bold text-orange-500">
+          Liste des événements
+        </h2>
         <motion.button
           onClick={() => setShowForm(!showForm)}
           whileHover={{ scale: 1.05 }}
@@ -133,7 +140,7 @@ const AddEvent = () => {
               </div>
             </div>
           )}
-           <form onSubmit={handleSubmit} encType="multipart/form-data">
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
             {/* Organizer Display */}
             <div className="mb-4">
               <label className="block mb-1 font-medium">Organisateur:</label>
@@ -170,7 +177,9 @@ const AddEvent = () => {
             </div>
             {/* Type d'événement */}
             <div className="mb-4">
-              <label className="block mb-1 font-medium">Type d'événement:</label>
+              <label className="block mb-1 font-medium">
+                Type d'événement:
+              </label>
               <select
                 name="typeEvenement"
                 value={formData.typeEvenement}
@@ -182,6 +191,23 @@ const AddEvent = () => {
                 <option value="Presentiel">Physique</option>
                 <option value="enligne">En ligne</option>
                 <option value="hybride">Hybride</option>
+              </select>
+            </div>
+            {/* Age Restriction */}
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">
+                Restriction d'âge:
+              </label>
+              <select
+                name="ageRestriction"
+                value={formData.ageRestriction}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Sélectionnez une restriction d'âge</option>
+                <option value="tout public">Enfants</option>
+                <option value="+18">Adultes</option>
               </select>
             </div>
             {/* Dates */}
@@ -248,7 +274,9 @@ const AddEvent = () => {
             </div>
             {/* Tags */}
             <div className="mb-4">
-              <label className="block mb-1 font-medium">Tags (séparés par des virgules):</label>
+              <label className="block mb-1 font-medium">
+                Tags (séparés par des virgules):
+              </label>
               <input
                 type="text"
                 name="tag"

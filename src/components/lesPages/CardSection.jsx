@@ -60,7 +60,7 @@ const CardSection = () => {
                   {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
                 </div>
                 <Link
-                  to={`/events/${event._id}`}
+                  to={`/events/${event._id}`} 
                   className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
                 >
                   Voir détails

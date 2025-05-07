@@ -6,7 +6,9 @@ import toast from 'react-hot-toast';
 
 const API_URL = "http://localhost:8000/api/events";
 
-// 💡 1. GET - Tous les événements
+/* ==================== GET HOOKS ==================== */
+
+// 📌 Tous les événements
 export const useEvents = () => {
   return useQuery({
     queryKey: ["events"],
@@ -14,11 +16,11 @@ export const useEvents = () => {
       const { data } = await axios.get(`${API_URL}/get`);
       return data;
     },
-    staleTime: 1000 * 60 * 5, // Cache 5 min
+    staleTime: 1000 * 60 * 5, // 5 min de cache
   });
 };
 
-// 👀 2. GET - Un événement par ID
+// 🔍 Un événement par ID
 export const useEventById = (eventId) => {
   return useQuery({
     queryKey: ["event", eventId],
@@ -26,11 +28,11 @@ export const useEventById = (eventId) => {
       const { data } = await axios.get(`${API_URL}/get/${eventId}`);
       return data.event;
     },
-    enabled: !!eventId, // Yfetch ken eventId mawjoud
+    enabled: !!eventId,
   });
 };
 
-// 🎯 3. GET - Événements recommandés
+// ⭐ Événements recommandés
 export const useRecommendedEvents = () => {
   return useQuery({
     queryKey: ["recommendedEvents"],
@@ -41,7 +43,7 @@ export const useRecommendedEvents = () => {
   });
 };
 
-// 4. GET - Événements d’un organisateur (anciennement gestionnaire)
+// 👤 Événements d’un gestionnaire
 export const useEventsByGestionnaire = (id) => {
   return useQuery({
     queryKey: ["events", "gestionnaire", id],
@@ -49,16 +51,17 @@ export const useEventsByGestionnaire = (id) => {
       const { data } = await axios.get(`${API_URL}/gestionnaire/${id}`, {
         withCredentials: true,
       });
-      // Ensure consistent response format
       return Array.isArray(data) ? data : data?.events || [];
     },
-    enabled: !!id, // Only enable when ID exists
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
-    refetchOnMount: "always", // Always refetch when component mounts
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: "always",
   });
 };
 
+/* ==================== MUTATION HOOKS ==================== */
 
+// 🆕 Créer un événement
 export const useCreateEvent = (gestionnaireId) => {
   const queryClient = useQueryClient();
 
@@ -70,17 +73,18 @@ export const useCreateEvent = (gestionnaireId) => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events", "gestionnaire", gestionnaireId] });
       toast.success("Événement créé !");
+      queryClient.invalidateQueries(["events", "gestionnaire", gestionnaireId]);
+      queryClient.invalidateQueries(["events"]);
     },
     onError: (error) => {
-      console.error("Create Event Error:", error);
+      console.error("Erreur création événement:", error);
       toast.error("Erreur lors de la création");
     },
   });
 };
 
-// 🗑️ 6. DELETE - Supprimer un événement
+// 🗑️ Supprimer un événement
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
 
@@ -92,14 +96,14 @@ export const useDeleteEvent = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["events"]);
       toast.success("Événement supprimé !");
+      queryClient.invalidateQueries(["events"]);
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
 };
 
-// ✏️ 7. PUT - Modifier un événement
+// ✏️ Modifier un événement
 export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
 
@@ -109,33 +113,32 @@ export const useUpdateEvent = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["events"]);
       toast.success("Événement mis à jour !");
+      queryClient.invalidateQueries(["events"]);
     },
     onError: (error) => {
-      toast.error(`Erreur: ${error.response?.data?.message || error.message}`);
+      toast.error(error.response?.data?.message || "Erreur lors de la mise à jour.");
     },
   });
 };
+
+// ✅ Modifier l’état (statut) d’un événement
 const updateEventStatus = async ({ id, etat }) => {
-    const response = await axios.put(`${API_URL}/etat/${id}`, { etat });
-    return response.data;
-  };
-  
-  // 2️⃣ - Hook React Query
-  export const useUpdateEventStatus = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: updateEventStatus,
-      onSuccess: (data) => {
-        toast.success(data.message || "État de l’événement mis à jour !");
-        queryClient.invalidateQueries({ queryKey: ["events"] });
-      },
-      onError: (error) => {
-        toast.error(
-          error.response?.data?.message || "Échec de la mise à jour de l’état."
-        );
-      },
-    });
-  };
+  const { data } = await axios.put(`${API_URL}/etat/${id}`, { etat });
+  return data;
+};
+
+export const useUpdateEventStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateEventStatus,
+    onSuccess: (data) => {
+      toast.success(data.message || "État de l’événement mis à jour !");
+      queryClient.invalidateQueries(["events"]);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Erreur mise à jour état.");
+    },
+  });
+};
