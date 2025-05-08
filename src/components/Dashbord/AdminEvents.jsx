@@ -17,6 +17,7 @@ import {
 } from "../../hooks/useEvents";
 import { toast } from "react-hot-toast";
 import ModifyEvent from "./ModifyEvent";
+import EventDetailsModal from "./EventDetailsModal";
 
 const AdminEvents = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +27,13 @@ const AdminEvents = () => {
   const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateEventStatus();
+  const [detailsEvent, setDetailsEvent] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+  const handleViewDetails = (event) => {
+    setDetailsEvent(event);
+    setIsDetailsOpen(true);
+  };
   const handleModify = (event) => {
     setSelectedEvent(event);
     setIsModifyOpen(true);
@@ -160,26 +167,7 @@ const AdminEvents = () => {
                   </td>
                   <td className="p-3 border-b">
                     <div className="flex gap-3">
-                      {event.etat === "en attendant" && (
-                        <>
-                          <button
-                            onClick={() => handleApprove(event._id, "accepter")}
-                            disabled={isUpdating}
-                            className="p-2 text-green-600 hover:bg-green-100 rounded-full"
-                            title="Approuver"
-                          >
-                            <FaCheck />
-                          </button>
-                          <button
-                            onClick={() => handleReject(event._id)}
-                            disabled={isUpdating}
-                            className="p-2 text-red-600 hover:bg-red-100 rounded-full"
-                            title="Rejeter"
-                          >
-                            <FaTimes />
-                          </button>
-                        </>
-                      )}
+                      
                       <button
                         onClick={() => handleModify(event)}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"
@@ -194,6 +182,12 @@ const AdminEvents = () => {
                         title="Supprimer"
                       >
                         <FaTrash />
+                      </button>
+                      <button
+                        onClick={() => handleViewDetails(event)}
+                        className="text-purple-600 hover:text-purple-800 border border-purple-500 px-3 py-1 text-sm rounded"
+                      >
+                        Voir plus
                       </button>
                     </div>
                   </td>
@@ -273,6 +267,14 @@ const AdminEvents = () => {
           onClose={() => setIsModifyOpen(false)}
         />
       )}
+      <EventDetailsModal
+        event={detailsEvent}
+        isOpen={isDetailsOpen}
+        handleApprove={handleApprove}
+        handleReject={handleReject}
+        onClose={() => setIsDetailsOpen(false)}
+        isUpdating={isLoading}
+      />
     </div>
   );
 };

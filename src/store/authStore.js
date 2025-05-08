@@ -51,12 +51,13 @@ export const useAuthStore = create((set, get) => ({
         { email, password },
         { withCredentials: true }
       );
+      console.log("Login Response:", response.data);  // Log the response for debugging
       set({
-        user: response.data.user,
-        isAuthenticated: true,
+        user: response.data.user,   // Immediately update user
+        isAuthenticated: true,       // Set as authenticated immediately
         isLoading: false,
       });
-      return response; 
+      return response;
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error logging in",
@@ -65,6 +66,7 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+  
 
   verifyEmail: async (code) => {
     set({ isLoading: true, error: null });
@@ -92,31 +94,36 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true, error: null });
     try {
-      if (get().isAuthenticated) return;
-
       const response = await axios.get(`${API_URL}/check-auth`, {
         withCredentials: true,
       });
-
+      console.log("Auth Check Response:", response.data);
+  
+      if (!response.data.user) {
+        set({
+          user: null,
+          isAuthenticated: false,
+          isCheckingAuth: false,
+        });
+        return;
+      }
+  
       set({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
     } catch (error) {
-      console.warn(
-        "Erreur auth frontend:",
-        error.response?.data || error.message
-      );
+      console.warn("Erreur auth frontend:", error.response?.data || error.message);
       set({
-        error:
-          error.response?.data?.message || "Erreur lors de l’authentification",
+        error: error.response?.data?.message || "Erreur lors de l’authentification",
         isCheckingAuth: false,
         isAuthenticated: false,
         user: null,
       });
     }
   },
+  
 
   logout: async () => {
     set({ isAuthenticated: false, user: null }); // ⬅️ Set immediately to prevent flicker or re-renders
