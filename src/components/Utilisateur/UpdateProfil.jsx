@@ -105,7 +105,7 @@ const UpdateProfile = () => {
             transition={{ delay: 0.2 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2">
+            <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2 mt-16">
               <User size={28} /> Mon Profil
             </h1>
             <p className="text-orange-400 mt-2">

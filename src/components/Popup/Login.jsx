@@ -1,87 +1,92 @@
 import React, { useState } from "react";
-import { IoMail, IoLockClosed, IoClose } from "react-icons/io5"; // Import IoClose for the close button
+import { IoMail, IoLockClosed, IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 
 const Login = ({ setOrderPopup, setRegisterPopup }) => {
   const [emaillogin, setEmaillogin] = useState("");
   const [passwordlogin, setPasswordlogin] = useState("");
+
   const navigate = useNavigate();
   const { login, error, isLoading } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", { emaillogin, passwordlogin });
-    await login(emaillogin, passwordlogin);
 
-    // Simulate API response
-    const response = {
-      success: true,
-      isEmailVerified: false, // Change to true to test the normal login flow
-    };
+    try {
+      await login(emaillogin, passwordlogin);
 
-    if (!response.success) {
-      alert("Email ou mot de passe incorrect !");
-      return;
+      // Replace with real API response logic
+      const response = {
+        success: true,
+        isEmailVerified: true,
+      };
+
+      if (!response.success) {
+        alert("Email ou mot de passe incorrect !");
+        return;
+      }
+
+      if (!response.isEmailVerified) {
+        navigate("/verify-email");
+        return;
+      }
+
+      setOrderPopup(false);
+      navigate("/Utilisateurs");
+    } catch (err) {
+      console.error("Login error:", err);
     }
-
-    if (!response.isEmailVerified) {
-      navigate("/verify-email");
-      return;
-    }
-
-    setOrderPopup(false);
-    navigate("/Utilisateurs");
   };
 
-  // Function to close the popup
   const closePopup = () => {
     setOrderPopup(false);
   };
 
   return (
-    <div className="popup fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center">
-      <div className="w-[300px] p-4 shadow-md bg-white dark:bg-gray-900 rounded-md relative">
+    <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center">
+      <div className="w-[340px] sm:w-[400px] p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg relative">
         {/* Close Button */}
         <button
           onClick={closePopup}
-          className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+          className="absolute top-3 right-3 text-gray-500 hover:text-black"
         >
           <IoClose size={24} />
         </button>
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-center mx-auto">
-            Se Connecter
-          </h1>
-        </div>
+        <h2 className="text-xl font-bold text-center text-gray-800 dark:text-white mb-4">
+          Se Connecter
+        </h2>
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="mt-4">
+        <form onSubmit={handleLogin}>
           <div className="relative mb-4">
-            <IoMail className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            <IoMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="email"
               placeholder="Email"
-              className="w-full rounded-full border pl-8 pr-2 py-1 focus:outline-none"
+              className="w-full border pl-10 pr-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white"
               value={emaillogin}
               onChange={(e) => setEmaillogin(e.target.value)}
-            />
-          </div>
-          <div className="relative mb-2">
-            <IoLockClosed className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              className="w-full rounded-full border pl-8 pr-2 py-1 focus:outline-none"
-              value={passwordlogin}
-              onChange={(e) => setPasswordlogin(e.target.value)}
+              required
             />
           </div>
 
-          {/* Mot de passe oublié */}
-          <div className="text-center mb-2">
+          <div className="relative mb-2">
+            <IoLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              className="w-full border pl-10 pr-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white"
+              value={passwordlogin}
+              onChange={(e) => setPasswordlogin(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Forgot Password */}
+          <div className="text-right mb-2">
             <span
               className="text-sm text-blue-500 hover:underline cursor-pointer"
               onClick={() => {
@@ -93,21 +98,28 @@ const Login = ({ setOrderPopup, setRegisterPopup }) => {
             </span>
           </div>
 
-          {/* Message d'erreur */}
-          {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
+          {/* Error Display */}
+          {error && !error.includes("Unauthorized") && (
+            <p className="text-sm text-red-500 mt-1">{error}</p>
+          )}
 
+          {/* Submit Button */}
           <button
             type="submit"
-            className="bg-orange-500 text-white w-full py-1 mt-2 rounded-full"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-full font-semibold transition duration-200 disabled:opacity-50"
+            disabled={isLoading}
           >
-            Connecter
+            {isLoading ? "Connexion..." : "Connecter"}
           </button>
 
-          <p className="text-sm mt-2 text-center">
+          {/* Link to Register */}
+          <p className="text-sm mt-4 text-center text-gray-600 dark:text-gray-300">
             Nouveau ici ?{" "}
             <span
               className="text-blue-500 hover:underline cursor-pointer"
-              onClick={() => setRegisterPopup(true)}
+              onClick={() => {
+                setRegisterPopup(true);
+              }}
             >
               Créer un compte
             </span>

@@ -20,24 +20,22 @@ export const useAuthStore = create((set, get) => ({
         { email, password, name },
         { withCredentials: true }
       );
-  
+
       // Store user data but don't set as authenticated yet
       set({
         user: response.data.user,
         isLoading: false,
         signupSuccess: true,
         verificationEmail: email, // Store email for verification
-        isAuthenticated: false // User not fully authenticated until verified
+        isAuthenticated: false, // User not fully authenticated until verified
       });
-  
-      
+
       return response.data; // Return the response for further handling
-  
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error creating user",
         isLoading: false,
-        signupSuccess: false
+        signupSuccess: false,
       });
       throw error;
     }
@@ -51,10 +49,13 @@ export const useAuthStore = create((set, get) => ({
         { email, password },
         { withCredentials: true }
       );
-      console.log("Login Response:", response.data);  // Log the response for debugging
+      console.log("Login Response:", response.data); // Log the response for debugging
       set({
-        user: response.data.user,   // Immediately update user
-        isAuthenticated: true,       // Set as authenticated immediately
+        user: {
+          ...response.data.user,
+          _id: response.data.user._id || response.data.user.id,
+        }, // Immediately update user
+        isAuthenticated: true, // Set as authenticated immediately
         isLoading: false,
       });
       return response;
@@ -66,7 +67,6 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
-  
 
   verifyEmail: async (code) => {
     set({ isLoading: true, error: null });
@@ -98,7 +98,7 @@ export const useAuthStore = create((set, get) => ({
         withCredentials: true,
       });
       console.log("Auth Check Response:", response.data);
-  
+
       if (!response.data.user) {
         set({
           user: null,
@@ -107,23 +107,26 @@ export const useAuthStore = create((set, get) => ({
         });
         return;
       }
-  
+
       set({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
     } catch (error) {
-      console.warn("Erreur auth frontend:", error.response?.data || error.message);
+      console.warn(
+        "Erreur auth frontend:",
+        error.response?.data || error.message
+      );
       set({
-        error: error.response?.data?.message || "Erreur lors de l’authentification",
+        error:
+          error.response?.data?.message || "Erreur lors de l’authentification",
         isCheckingAuth: false,
         isAuthenticated: false,
         user: null,
       });
     }
   },
-  
 
   logout: async () => {
     set({ isAuthenticated: false, user: null }); // ⬅️ Set immediately to prevent flicker or re-renders
@@ -133,13 +136,17 @@ export const useAuthStore = create((set, get) => ({
       console.error("Erreur lors de la déconnexion", error);
     }
   },
-  
+
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/forgot-password`, {
-        email
-      },{ withCredentials: true });
+      const response = await axios.post(
+        `${API_URL}/forgot-password`,
+        {
+          email,
+        },
+        { withCredentials: true }
+      );
       set({ message: response.data.message, isLoading: false });
     } catch (error) {
       set({
@@ -153,7 +160,10 @@ export const useAuthStore = create((set, get) => ({
   resetPassword: async (token, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/reset-password/${token}`, {password,withCredentials: true});
+      const response = await axios.post(`${API_URL}/reset-password/${token}`, {
+        password,
+        withCredentials: true,
+      });
       set({ message: response.data.message, isLoading: false });
     } catch (error) {
       set({
@@ -161,22 +171,25 @@ export const useAuthStore = create((set, get) => ({
         error: error.response.data.message || "Error resetting password",
       });
       throw error;
-      
     }
   },
   // Function to update user profile
-  updateUserProfile: async (name, email, password,confirmPassword) => {
+  updateUserProfile: async (name, email, password, confirmPassword) => {
     set({ isLoading: true, error: null }); // Start loading state
     try {
       // Sending the update request to the backend
-      const response = await axios.put(`${API_URL}/profile`, {
-        name,
-        email,
-        password,
-        confirmPassword,
-      }, {
-        withCredentials: true, // To send cookies with the request (if needed)
-      });
+      const response = await axios.put(
+        `${API_URL}/profile`,
+        {
+          name,
+          email,
+          password,
+          confirmPassword,
+        },
+        {
+          withCredentials: true, // To send cookies with the request (if needed)
+        }
+      );
 
       // If successful, update the user state with the response
       set({ user: response.data.user, isLoading: false });
@@ -184,7 +197,9 @@ export const useAuthStore = create((set, get) => ({
       // Handle errors, set loading to false, and show the error message
       set({
         isLoading: false,
-        error: error.response?.data?.message || "Erreur lors de la mise à jour du profil",
+        error:
+          error.response?.data?.message ||
+          "Erreur lors de la mise à jour du profil",
       });
       throw error;
     }
@@ -192,5 +207,4 @@ export const useAuthStore = create((set, get) => ({
 
   // Optionally, add a function to clear error or reset user state
   clearError: () => set({ error: null }),
-
 }));

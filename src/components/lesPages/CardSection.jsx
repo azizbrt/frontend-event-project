@@ -30,44 +30,46 @@ const CardSection = () => {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-          {latestEvents.map((event) => (
-            <div
-              key={event._id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl"
-            >
-              <div className="relative h-48 bg-gray-200 overflow-hidden">
-                <img
-                  src={`http://localhost:8000/images/${event.image}`}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                  alt={event.titre}
-                />
-                <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  Nouveau
+          {latestEvents
+            .filter((event) => event.etat === "accepter")
+            .map((event) => (
+              <div
+                key={event._id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl"
+              >
+                <div className="relative h-48 bg-gray-200 overflow-hidden">
+                  <img
+                    src={`http://localhost:8000/images/${event.image}`}
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    alt={event.titre}
+                  />
+                  <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    Nouveau
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <div className="text-sm text-gray-500 mb-1 flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-orange-500" />
+                    {event.lieu}
+                  </div>
+                  <h3 className="text-lg font-semibold truncate block max-w-full">
+                    {event.titre}
+                  </h3>
+
+                  <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
+                    <CalendarDays className="w-4 h-4 text-orange-500" />
+                    {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
+                  </div>
+                  <Link
+                    to={`/events/${event._id}`}
+                    className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
+                  >
+                    Voir détails
+                  </Link>
                 </div>
               </div>
-
-              <div className="p-4">
-                <div className="text-sm text-gray-500 mb-1 flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-orange-500" />
-                  {event.lieu}
-                </div>
-                <h3 className="text-lg font-semibold truncate block max-w-full">
-                  {event.titre}
-                </h3>
-
-                <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
-                  <CalendarDays className="w-4 h-4 text-orange-500" />
-                  {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
-                </div>
-                <Link
-                  to={`/events/${event._id}`} 
-                  className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
-                >
-                  Voir détails
-                </Link>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Voir tous les événements */}

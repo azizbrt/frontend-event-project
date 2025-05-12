@@ -11,30 +11,29 @@ import { useEventsByGestionnaire, useDeleteEvent } from "../../hooks/useEvents";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-hot-toast";
 import ModifyEvent from "./ModifyEvent"; // Don't forget to import this!
-import { data } from "react-router-dom";
 
 const EventsList = () => {
   // 1. All the important things we need to remember
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModifyOpen, setIsModifyOpen] = useState(false);
+  const [event, setEvenet] = useState([]);
   const { user, isCheckingAuth } = useAuthStore();
-    const {
-    data: events = [],
+  const {
+    data: events,
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
   } = useEventsByGestionnaire(user?._id);
-  
+
   useEffect(() => {
-    if (user?._id) {
-      refetch(); // Force fetch events when user ID is available
+    if (!isCheckingAuth && user?._id) {
+      refetch(); // Refetch once auth check is done and user ID is known
     }
-  }, [user?._id, refetch]);
-  
-  
-  
-  
+  }, [user?._id, isCheckingAuth, refetch]);
+
+  console.log(user, "event");
+
   const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
 
   // 2. How to choose which event to modify
@@ -83,7 +82,7 @@ const EventsList = () => {
     <div className="p-4 bg-white rounded-lg shadow-md">
       <h3 className="text-xl font-semibold mb-4">Événements créés</h3>
 
-      {events.length > 0 ? (
+      {events?.length > 0 ? (
         <>
           {/* Big screen view */}
           <div className="overflow-x-auto">
@@ -99,7 +98,7 @@ const EventsList = () => {
                 </tr>
               </thead>
               <tbody>
-                {events.map((event) => (
+                {events?.map((event) => (
                   <EventRow
                     key={event._id}
                     event={event}
@@ -164,7 +163,7 @@ const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
       </div>
     </td>
     <td className="p-3 border-b">{event.capacite}</td>
-    
+
     <td className="p-3 border-b">
       <div className="flex gap-2">
         <button onClick={() => onModify(event)} className="text-blue-600 p-2">

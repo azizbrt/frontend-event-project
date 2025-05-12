@@ -5,7 +5,7 @@ import "aos/dist/aos.css";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import "./index.css";
 // Components
 import Navbar from "./components/Navbar/Navbar";
 import Remise from "./components/Remise/Remise";
@@ -41,9 +41,9 @@ import Card5 from "./components/lesPages/Card5";
 import ForgetPasswordPage from "./components/Popup/ForgetPasswordPage";
 import ResetPasswordPage from "./components/Popup/ResetPasswordPage";
 import EventDetails from "./components/lesPages/Card1";
-import ProtectedRoute from "./middleware/ProtectedRoute";
 import UpdateProfile from "./components/Utilisateur/UpdateProfil";
 import Event from "./components/Utilisateur/Event";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 // Create query client instance
 const queryClient = new QueryClient({
@@ -63,6 +63,13 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
+const getContentReady = () => {
+  // befor getting the content of the doom ready need loader
+  window.addEventListener("load", function () {
+    document.body.classList.add("loaded");
+  });
+};
+getContentReady();
 const Home = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const toggleLoginPopup = () => setShowLoginPopup(!showLoginPopup);
@@ -100,6 +107,9 @@ const AppContent = () => {
 
   return (
     <>
+      <div id="loader">
+        <div class="spinner"></div>
+      </div>
       <Toaster position="top-right" />
       <Routes>
         <Route
@@ -113,7 +123,9 @@ const AppContent = () => {
         <Route
           path="/events/:id"
           element={
-            <ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}>
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
               <EventDetails />
             </ProtectedRoute>
           }
@@ -121,7 +133,9 @@ const AppContent = () => {
         <Route
           path="/evenements"
           element={
-            <ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}>
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
               <Event />
             </ProtectedRoute>
           }
@@ -138,7 +152,9 @@ const AppContent = () => {
         <Route
           path="/Utilisateurs"
           element={
-            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
               <Utilisateurs />
             </ProtectedRoute>
           }
@@ -162,7 +178,9 @@ const AppContent = () => {
         <Route
           path="/UpdateProfil"
           element={
-            <ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
               <UpdateProfile />
             </ProtectedRoute>
           }

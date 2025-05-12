@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Logo from "../../assets/logo4.png";
+import { useNavigate } from "react-router-dom";
 import { IoMail, IoLockClosed, IoPerson, IoClose } from "react-icons/io5";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import { useAuthStore } from "../../store/authStore";
+import { isPasswordStrong } from "../../utils/passwordUtils";
 
 const Register = ({ setRegisterPopup, setOrderPopup }) => {
   const [name, setName] = useState("");
@@ -11,95 +11,109 @@ const Register = ({ setRegisterPopup, setOrderPopup }) => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // Get the signup function and error state from your auth store.
   const { signup, error, isLoading } = useAuthStore();
 
-  // When the form is submitted:
   const handleSignUp = async (e) => {
-    e.preventDefault(); // Stop the form from reloading the page.
-    console.log("Signing up with:", { name, email, password });
-    try {
-      // Call the signup function from the auth store.
-      await signup(email, password, name);
-      // After successful signup, navigate to the email verification page.
-      navigate("/verify-email");
-    } catch (error) {
-      console.error("Error signing up:", error);
-      // If there is an error from the API, it will be shown below.
+    e.preventDefault();
+
+    if (!isPasswordStrong(password)) {
+      alert(
+        "Le mot de passe est trop faible. Veuillez respecter tous les critères."
+      );
+      return;
     }
-    // Close the register popup after signup.
-    setRegisterPopup(false);
-    setOrderPopup(true);
+
+    try {
+      await signup(email, password, name);
+      navigate("/verify-email");
+      setRegisterPopup(false);
+      setOrderPopup(true);
+    } catch (err) {
+      console.error("Error signing up:", err);
+    }
   };
 
-  // Function to close the register popup.
   const closePopup = () => {
     setRegisterPopup(false);
   };
 
   return (
-    <div className="popup fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center">
-      <div className="w-[300px] p-4 shadow-md bg-white dark:bg-gray-900 rounded-md relative">
+    <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center">
+      <div className="w-[340px] sm:w-[400px] p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg relative">
         {/* Close Button */}
         <button
           onClick={closePopup}
-          className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+          className="absolute top-3 right-3 text-gray-500 hover:text-black"
         >
           <IoClose size={24} />
         </button>
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-center mx-auto">
-            Créer un compte
-          </h1>
-        </div>
+        <h2 className="text-xl font-bold text-center text-gray-800 dark:text-white mb-4">
+          Créer un compte
+        </h2>
 
         {/* Register Form */}
-        <form onSubmit={handleSignUp} className="mt-4">
+        <form onSubmit={handleSignUp}>
           <div className="relative mb-4">
-            <IoPerson className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            <IoPerson className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Nom"
-              className="w-full rounded-full border pl-8 pr-2 py-1 focus:outline-none"
+              className="w-full border pl-10 pr-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
+
           <div className="relative mb-4">
-            <IoMail className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            <IoMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="email"
               placeholder="Email"
-              className="w-full rounded-full border pl-8 pr-2 py-1 focus:outline-none"
+              className="w-full border pl-10 pr-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
-          <div className="relative mb-4">
-            <IoLockClosed className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+
+          <div className="relative mb-2">
+            <IoLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="password"
               placeholder="Mot de passe"
-              className="w-full rounded-full border pl-8 pr-2 py-1 focus:outline-none"
+              className="w-full border pl-10 pr-3 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
-            {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
           </div>
+
+          {/* Error */}
+          {error && !error.includes("Unauthorized") && (
+            <p className="text-sm text-red-500 mt-1">{error}</p>
+          )}
+
+          {/* Password Strength Meter */}
           <PasswordStrengthMeter password={password} />
+
+          {/* Submit Button */}
           <button
             type="submit"
-            className="bg-orange-500 text-white w-full py-1 mt-4 rounded-full"
+            className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-full font-semibold transition duration-200 disabled:opacity-50"
+            disabled={!isPasswordStrong(password) || isLoading}
           >
-            S'inscrire
+            {isLoading ? "Création..." : "S'inscrire"}
           </button>
-          <p className="text-sm mt-2 text-center">
+
+          {/* Login Link */}
+          <p className="text-sm mt-4 text-center text-gray-600 dark:text-gray-300">
             Déjà un compte ?{" "}
             <span
-              className="text-blue-500 hover:underline cursor-pointer"
               onClick={() => setRegisterPopup(false)}
+              className="text-blue-500 hover:underline cursor-pointer"
             >
               Se connecter
             </span>

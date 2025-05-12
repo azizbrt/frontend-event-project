@@ -150,9 +150,12 @@ const EventsSection = () => {
           containerClass="carousel-container"
           itemClass="carousel-item-padding-40-px"
         >
-          {recommendedEvents.map((event) => (
-            <EventCard key={event._id} event={event} />
-          ))}
+          {recommendedEvents
+  .filter((event) => event.etat === "accepté")
+  .map((event) => (
+    <EventCard key={event._id} event={event} />
+))}
+
         </Carousel>
       </motion.div>
     </div>

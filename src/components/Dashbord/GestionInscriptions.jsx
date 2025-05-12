@@ -28,6 +28,7 @@ const GestionInscriptions = () => {
   const [paiement, setPaiment] = useState([]);
 
   useEffect(() => {
+    // Si l'utilisateur n'est pas authentifié, ne pas exécuter le code
     if (!Array.isArray(data) || !Array.isArray(paiements)) return;
 
     const updatedPaiment = data.map((inscription) => {

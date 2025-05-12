@@ -11,18 +11,18 @@ const CrudUser = () => {
   const queryClient = useQueryClient();
   const { data: users = [], isLoading, isError } = useUsers();
 
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "" });
-  const [showPassword, setShowPassword] = useState(false);
+  const [newUser, setNewUser] = useState({ name: "", email: "", role: "" });
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const { mutate: addUser, isLoading: isAddingUser } = useAddUser();
   const { mutate: updateUserMutation } = useUpdateUser();
-  const {mutate: deleteUserMutation } = useDeleteUser();
+  const { mutate: deleteUserMutation } = useDeleteUser();
+
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleAddUser = () => {
-    if (!newUser.name || !newUser.password || !newUser.email) {
+    if (!newUser.name || !newUser.email) {
       toast.error("⚠️ Tous les champs sont obligatoires !");
       return;
     }
@@ -35,11 +35,10 @@ const CrudUser = () => {
       return;
     }
 
-   
     addUser(newUser, {
       onSuccess: () => {
         toast.success("✅ Utilisateur ajouté avec succès !");
-        setNewUser({ name: "", email: "", password: "", role: "" });
+        setNewUser({ name: "", email: "", role: "" });
         queryClient.invalidateQueries({ queryKey: ["users"] });
       },
       onError: () => {
@@ -66,17 +65,17 @@ const CrudUser = () => {
       },
     });
   };
+
   const handleDeleteUser = (userId) => {
-    // Confirmation before deleting
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
     if (confirmDelete) {
       deleteUserMutation(userId, {
         onSuccess: () => {
           toast.success("✅ Utilisateur supprimé avec succès !");
-          queryClient.invalidateQueries({ queryKey: ["users"] }); // Re-fetch the user list
+          queryClient.invalidateQueries({ queryKey: ["users"] });
         },
         onError: () => {
-          toast.error("❌ Erreur lors de la suppression de l'utilisateur !");
+          toast.error("❌ Erreur lors de la suppression !");
         },
       });
     }
@@ -94,9 +93,7 @@ const CrudUser = () => {
       <UserForm
         newUser={newUser}
         setNewUser={setNewUser}
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-        onSubmit={handleAddUser} // Pass the handleAddUser function here
+        onSubmit={handleAddUser}
         isAddingUser={isAddingUser}
       />
 
@@ -113,5 +110,6 @@ const CrudUser = () => {
     </div>
   );
 };
+
 
 export default CrudUser;
