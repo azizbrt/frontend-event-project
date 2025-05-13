@@ -142,3 +142,10 @@ export const useUpdateEventStatus = () => {
     },
   });
 };
+//recommended events
+export const fetchRecommendedEvents = async () => {
+  const response = await axios.get(`${API_URL}/recommended`, {
+    withCredentials: true,
+  });
+  return response.data;
+};

@@ -1,11 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App"; // Vérifie que le chemin est correct
-import "./index.css"; // Assure-toi que Tailwind est bien importé
+import App from "./App";
+import "./index.css";
 import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// ✅ Création du client React Query
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

@@ -11,30 +11,38 @@ const useEventStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  // ✅ Fetch all events
   fetchEvents: async () => {
-    try {
-      set({ loading: true, error: null });
-      const response = await axios.get(`${API_URL}/get`);
-      const allEvents = response.data.events;
+  try {
+    set({ loading: true, error: null });
 
-      const sortedEvents = [...allEvents].sort((a, b) =>
-        new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      const latestFive = sortedEvents.slice(0, 5);
+    const response = await axios.get(`${API_URL}/get`);
+    const allEvents = response.data.events;
 
-      set({
-        events: allEvents,
-        latestEvents: latestFive,
-        loading: false
-      });
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || 'Failed to fetch events',
-        loading: false
-      });
-    }
-  },
+    // 1. Ne garder que les événements acceptés
+    const acceptedEvents = allEvents.filter(event => event.etat === "accepter");
+
+    // 2. Trier par date de création (du plus récent au plus ancien)
+    const sortedEvents = acceptedEvents.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    // 3. Prendre les 5 plus récents
+    const latestFive = sortedEvents.slice(0, 5);
+
+    // 4. Mettre à jour le state
+    set({
+      events: acceptedEvents,
+      latestEvents: latestFive,
+      loading: false
+    });
+  } catch (error) {
+    set({
+      error: error.response?.data?.message || 'Failed to fetch events',
+      loading: false
+    });
+  }
+},
+
 
   // ✅ Get event by ID
   getEventById: async (id) => {
@@ -52,24 +60,6 @@ const useEventStore = create((set, get) => ({
     }
   },
 
-  // ✅ Fetch recommended events
-  fetchRecommendedEvents: async () => {
-    try {
-      set({ loading: true, error: null });
-      const response = await axios.get(`${API_URL}/recommended`, {
-        withCredentials: true,
-      });
-      set({
-        recommendedEvents: response.data,
-        loading: false
-      });
-    } catch (error) {
-      set({
-        loading: false,
-        error: error.response?.data?.message || "Failed to fetch recommended events"
-      });
-    }
-  },
 
   // ✅ Create event (multipart/form-data)
   createEvent: async (eventData) => {

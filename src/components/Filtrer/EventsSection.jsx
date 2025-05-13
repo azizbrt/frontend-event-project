@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -6,30 +7,16 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaMapMarkerAlt,
-  FaCalendarAlt,
-  FaUsers,
   FaStar,
 } from "react-icons/fa";
-import useEventStore from "../../store/useEventStore ";
-import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
+import { Link } from "react-router-dom";
+import { fetchRecommendedEvents } from "../../hooks/useEvents";
 
 const responsive = {
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 3,
-    partialVisibilityGutter: 40,
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 768 },
-    items: 2,
-    partialVisibilityGutter: 30,
-  },
-  mobile: {
-    breakpoint: { max: 768, min: 0 },
-    items: 1,
-    partialVisibilityGutter: 20,
-  },
+  desktop: { breakpoint: { max: 3000, min: 1024 }, items: 3 },
+  tablet: { breakpoint: { max: 1024, min: 768 }, items: 2 },
+  mobile: { breakpoint: { max: 768, min: 0 }, items: 1 },
 };
 
 const EventCard = ({ event }) => (
@@ -56,23 +43,18 @@ const EventCard = ({ event }) => (
     </div>
 
     <div className="mt-4 space-y-2">
-      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
-        {event.titre}
-      </h3>
+      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">{event.titre}</h3>
       <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
-
       <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
         <CalendarDays className="w-4 h-4 text-orange-500" />
         {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
       </div>
-
       <div className="flex items-center text-sm text-gray-500">
         <FaMapMarkerAlt className="mr-2 text-orange-500" />
         <span className="line-clamp-1">{event.lieu}</span>
       </div>
-
-
     </div>
+
     <Link
       to={`/events/${event._id}`}
       className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
@@ -87,9 +69,7 @@ const CustomArrow = ({ onClick, direction }) => (
     onClick={onClick}
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
-    className={`absolute z-10 ${
-      direction === "left" ? "left-0" : "right-0"
-    } p-2 bg-white rounded-full shadow-lg`}
+    className={`absolute z-10 ${direction === "left" ? "left-0" : "right-0"} p-2 bg-white rounded-full shadow-lg`}
     aria-label={direction === "left" ? "Previous" : "Next"}
   >
     {direction === "left" ? (
@@ -101,14 +81,12 @@ const CustomArrow = ({ onClick, direction }) => (
 );
 
 const EventsSection = () => {
-  const { recommendedEvents, loading, error, fetchRecommendedEvents } =
-    useEventStore();
+  const { data: recommendedEvents = [], isLoading, isError, error } = useQuery({
+    queryKey: ["recommendedEvents"],
+    queryFn: fetchRecommendedEvents,
+  });
 
-  useEffect(() => {
-    fetchRecommendedEvents();
-  }, [fetchRecommendedEvents]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
@@ -116,13 +94,17 @@ const EventsSection = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 text-center">
-        <p>{error}</p>
+        <p>{error.message || "Erreur de chargement des événements."}</p>
       </div>
     );
   }
+
+  const filteredEvents = recommendedEvents.filter(
+    (event) => event.etat === "accepter"
+  );
 
   return (
     <div className="w-full py-12 bg-white">
@@ -134,11 +116,7 @@ const EventsSection = () => {
         Événements à ne pas manquer
       </motion.h2>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative px-4"
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative px-4">
         <Carousel
           responsive={responsive}
           infinite={true}
@@ -150,12 +128,9 @@ const EventsSection = () => {
           containerClass="carousel-container"
           itemClass="carousel-item-padding-40-px"
         >
-          {recommendedEvents
-  .filter((event) => event.etat === "accepté")
-  .map((event) => (
-    <EventCard key={event._id} event={event} />
-))}
-
+          {filteredEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
+          ))}
         </Carousel>
       </motion.div>
     </div>
