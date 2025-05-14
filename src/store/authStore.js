@@ -92,41 +92,38 @@ export const useAuthStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
-    set({ isCheckingAuth: true, error: null });
-    try {
-      const response = await axios.get(`${API_URL}/check-auth`, {
-        withCredentials: true,
-      });
-      console.log("Auth Check Response:", response.data);
+  set({ isCheckingAuth: true, error: null });
+  try {
+    const response = await axios.get(`${API_URL}/check-auth`, {
+      withCredentials: true,
+    });
+    console.log("Auth Check Response:", response.data);
 
-      if (!response.data.user) {
-        set({
-          user: null,
-          isAuthenticated: false,
-          isCheckingAuth: false,
-        });
-        return;
-      }
-
+    if (!response.data.user) {
       set({
-        user: response.data.user,
-        isAuthenticated: true,
-        isCheckingAuth: false,
-      });
-    } catch (error) {
-      console.warn(
-        "Erreur auth frontend:",
-        error.response?.data || error.message
-      );
-      set({
-        error:
-          error.response?.data?.message || "Erreur lors de l’authentification",
-        isCheckingAuth: false,
-        isAuthenticated: false,
         user: null,
+        isAuthenticated: false,
+        isCheckingAuth: false,
       });
+      return;
     }
-  },
+
+    set({
+      user: response.data.user,
+      isAuthenticated: true,
+      isCheckingAuth: false,
+    });
+  } catch (error) {
+    console.warn("Erreur auth frontend:", error.response?.data || error.message);
+    set({
+      error: error.response?.data?.message || "Erreur lors de l’authentification",
+      isCheckingAuth: false,
+      isAuthenticated: false,
+      user: null,
+    });
+  }
+},
+
 
   logout: async () => {
     set({ isAuthenticated: false, user: null }); // ⬅️ Set immediately to prevent flicker or re-renders

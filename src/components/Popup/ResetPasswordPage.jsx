@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { useNavigate, useParams,  } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoLockClosed } from "react-icons/io5";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
+import PasswordStrengthMeter from "./PasswordStrengthMeter";
+import { isPasswordStrong } from "../../utils/passwordUtils";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -10,7 +12,6 @@ const ResetPasswordPage = () => {
   const { resetPassword, error, isLoading, message } = useAuthStore();
   const { token } = useParams();
   const navigate = useNavigate();
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,16 +21,18 @@ const ResetPasswordPage = () => {
       return;
     }
 
+    if (!isPasswordStrong(password)) {
+      toast.error("Le mot de passe est trop faible !");
+      return;
+    }
+
     try {
       await resetPassword(token, password);
       toast.success("Mot de passe réinitialisé avec succès !");
-      setTimeout(() => {
-        navigate("/");
-      
-      }, 2000);
-    } catch (error) {
-      console.error(error);
-      alert("Erreur lors de la réinitialisation du mot de passe");
+      setTimeout(() => navigate("/"), 2000);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de la réinitialisation du mot de passe");
     }
   };
 
@@ -43,8 +46,9 @@ const ResetPasswordPage = () => {
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         {message && <p className="text-green-600 text-sm mb-4">{message}</p>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="relative mb-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Mot de passe */}
+          <div className="relative">
             <IoLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="password"
@@ -56,7 +60,8 @@ const ResetPasswordPage = () => {
             />
           </div>
 
-          <div className="relative mb-6">
+          {/* Confirm Mot de passe */}
+          <div className="relative">
             <IoLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="password"
@@ -68,10 +73,18 @@ const ResetPasswordPage = () => {
             />
           </div>
 
+          {/* Password strength feedback */}
+          <PasswordStrengthMeter password={password} />
+
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition duration-200"
+            disabled={!isPasswordStrong(password) || isLoading}
+            className={`w-full py-2 font-semibold rounded-full transition duration-200 ${
+              isPasswordStrong(password)
+                ? "bg-orange-500 hover:bg-orange-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             {isLoading ? "Réinitialisation..." : "Réinitialiser"}
           </button>

@@ -2,52 +2,34 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { useInscription } from "../../hooks/useInscription";
-import PaiementPopup from "../Popup/PaymentPopup";
 
 const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
-  // State to manage whether the payment popup should be shown
-  const [showPaiementPopup, setShowPaiementPopup] = useState({
-    visible: false,
-    id: null,
-  });
-
-  // Access user information and token from the authentication store
   const { user, token } = useAuthStore();
+  const { mutateAsync: createInscription, isPending } = useInscription();
 
-  // Hook to handle inscription creation
-  const { mutateAsync: createInscription } = useInscription();
-
-  // Form data state to handle input fields (phone, note, name)
   const [formData, setFormData] = useState({
     phone: "",
     note: "",
-    nomAffiché: user?.name || "", // Default to user's name if available
+    nomAffiché: user?.name || "",
   });
 
-  // Error state to store and display error messages
   const [error, setError] = useState("");
 
-  // Handle changes in input fields
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission for inscription
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
 
-    // Check if required fields are filled
+    // Check required fields
     if (!formData.phone || !formData.nomAffiché) {
-      setError("Tous les champs obligatoires doivent être remplis.");
+      setError("Please fill in all required fields");
       return;
     }
 
     try {
-      // Create inscription using the form data
       const res = await createInscription({
         eventId,
         phone: formData.phone,
@@ -56,53 +38,45 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
         token,
       });
 
-      // Get the inscription ID from the response
-      const inscriptionId = res.inscription?._id;
-
-      // Show the payment popup with the inscription ID
-      setShowPaiementPopup({
-        visible: true,
-        id: inscriptionId,
-      });
+      onSuccess(res.inscription?._id, formData);
+      onClose();
     } catch (err) {
-      console.error("Erreur d'inscription :", err);
-      setError("Une erreur est survenue lors de l'inscription.");
+      console.error("Registration error:", err);
+      setError("Oops! Something went wrong. Please try again.");
     }
   };
 
   return (
-    <>
-      {/* Main Modal for Registration */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4"
       >
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4"
-        >
-          <div className="p-6">
-            {/* Header Section with Event Title and Close Button */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">
-                Inscription à {title}
-              </h3>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800">
+              Join {title}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-xl"
+              disabled={isPending}
+            >
+              ✕
+            </button>
+          </div>
 
-            {/* Registration Form */}
-            <form onSubmit={handleSubmit}>
-              {/* Name Field */}
-              <div className="mb-4">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              {/* Display Name */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom affiché *
+                  Your Display Name *
                 </label>
                 <input
                   type="text"
@@ -112,17 +86,17 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                   maxLength={100}
+                  disabled={isPending}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Ce nom sera visible par les autres participants et
-                  organisateurs.
+                  This name will be visible to others
                 </p>
               </div>
 
-              {/* Phone Field */}
-              <div className="mb-4">
+              {/* Phone Number */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone *
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
@@ -132,14 +106,15 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                   pattern="[0-9]{8,15}"
-                  title="Numéro de téléphone valide requis"
+                  title="Please enter a valid phone number"
+                  disabled={isPending}
                 />
               </div>
 
-              {/* Notes (Optional) */}
-              <div className="mb-4">
+              {/* Notes */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes (optionnel)
+                  Notes (optional)
                 </label>
                 <textarea
                   name="note"
@@ -148,60 +123,63 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   maxLength={200}
+                  disabled={isPending}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.note.length}/200 caractères
+                  {formData.note.length}/200 characters
                 </p>
               </div>
 
-              {/* Error Message Display */}
+              {/* Error Message */}
               {error && (
-                <div className="mb-4 text-red-500 text-sm">{error}</div>
+                <div className="p-2 bg-red-50 text-red-600 text-sm rounded">
+                  {error}
+                </div>
               )}
 
-              {/* Buttons to Cancel or Submit */}
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-                >
-                  Procéder au paiement
-                </button>
-              </div>
-            </form>
-          </div>
-        </motion.div>
-      </motion.div>
+              {/* Price Display */}
+              {eventPrice > 0 && (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="font-medium text-blue-800">
+                    Event Price: {eventPrice} DT
+                  </p>
+                </div>
+              )}
+            </div>
 
-      {/* Show Payment Popup after Successful Registration */}
-      {showPaiementPopup.visible && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center"
-        >
-          <PaiementPopup
-            onClose={() => {
-              setShowPaiementPopup({ visible: false, id: null });
-              onClose(); // Close the modal when payment is closed
-            }}
-            participantName={formData.nomAffiché}
-            eventId={eventId}
-            phone={formData.phone}
-            note={formData.note}
-            eventPrice={eventPrice}
-            inscriptionId={showPaiementPopup.id}
-          />
-        </motion.div>
-      )}
-    </>
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-md"
+                disabled={isPending}
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="submit"
+                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 flex items-center justify-center min-w-32"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  "Continue to Payment"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

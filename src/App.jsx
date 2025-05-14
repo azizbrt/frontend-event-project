@@ -42,14 +42,14 @@ import Marches from "./components/Categorie/Marches";
 import Communautaire from "./components/Categorie/Communautaire";
 
 // Card Pages
-import Card1 from "./components/lesPages/Card1";
 import Card2 from "./components/lesPages/Card2";
 import Card3 from "./components/lesPages/Card3";
 import Card4 from "./components/lesPages/Card4";
 import Card5 from "./components/lesPages/Card5";
-import EventDetails from "./components/lesPages/Card1";
+import EventDetails from "./components/lesPages/EventDetails";
 
 import ProtectedRoute from "./utils/ProtectedRoute";
+import PaiementPage from "./components/Popup/PaiementPage";
 
 // Query Client
 const queryClient = new QueryClient({
@@ -64,12 +64,15 @@ const queryClient = new QueryClient({
 // Auth Redirect Logic
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-  return isAuthenticated && user?.isVerified ? (
-    <Navigate to="/Utilisateurs" replace />
-  ) : (
-    children
-  );
+
+  // Check that the user is not authenticated or is not verified
+  if (isAuthenticated && user?.isVerified) {
+    return <Navigate to="/Utilisateurs" replace />;
+  }
+
+  return children;
 };
+
 
 const getContentReady = () => {
   window.addEventListener("load", () => {
@@ -103,7 +106,12 @@ const AppContent = () => {
 
   useEffect(() => {
     checkAuth();
-    AOS.init({ offset: 100, duration: 800, easing: "ease-in-sine", delay: 100 });
+    AOS.init({
+      offset: 100,
+      duration: 800,
+      easing: "ease-in-sine",
+      delay: 100,
+    });
     AOS.refresh();
   }, [checkAuth]);
 
@@ -114,9 +122,43 @@ const AppContent = () => {
       </div>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={<RedirectAuthenticatedUser><Home /></RedirectAuthenticatedUser>} />
-        <Route path="/events/:id" element={<ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}><EventDetails /></ProtectedRoute>} />
-        <Route path="/evenements" element={<ProtectedRoute allowedRoles={["participant", "admin", "gestionnaire"]}><Event /></ProtectedRoute>} />
+        <Route
+          path="/"
+          element={
+            <RedirectAuthenticatedUser>
+              <Home />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route
+          path="/paiement/:inscriptionId"
+          element={
+            <ProtectedRoute allowedRoles={["participant"]}>
+              <PaiementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
+              <EventDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/evenements"
+          element={
+            <ProtectedRoute
+              allowedRoles={["participant", "admin", "gestionnaire"]}
+            >
+              <Event />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Categories */}
         <Route path="/Education-et-Formation" element={<Education />} />
@@ -129,13 +171,52 @@ const AppContent = () => {
         <Route path="/Communautaire-et-Caritatif" element={<Communautaire />} />
 
         {/* User Dashboards */}
-        <Route path="/Utilisateurs" element={<ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}><Utilisateurs /></ProtectedRoute>} />
-        <Route path="/Admin" element={<ProtectedRoute allowedRoles={["admin"]}><Admin /></ProtectedRoute>} />
-        <Route path="/Gestionnaire" element={<ProtectedRoute allowedRoles={["gestionnaire", "admin"]}><Gestionnaire /></ProtectedRoute>} />
-        <Route path="/UpdateProfil" element={<ProtectedRoute allowedRoles={["admin", "gestionnaire", "participant"]}><UpdateProfile /></ProtectedRoute>} />
+        <Route
+          path="/Utilisateurs"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
+              <Utilisateurs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Gestionnaire"
+          element={
+            <ProtectedRoute allowedRoles={["gestionnaire", "admin"]}>
+              <Gestionnaire />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/UpdateProfil"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin", "gestionnaire", "participant"]}
+            >
+              <UpdateProfile />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Auth Routes */}
-        <Route path="/verify-email" element={<RedirectAuthenticatedUser><EmailVerificationPage /></RedirectAuthenticatedUser>} />
+        <Route
+          path="/verify-email"
+          element={
+            <RedirectAuthenticatedUser>
+              <EmailVerificationPage />
+            </RedirectAuthenticatedUser>
+          }
+        />
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       </Routes>

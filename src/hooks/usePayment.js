@@ -7,11 +7,7 @@ import { useEffect } from "react";
 const API_URL = "http://localhost:8000/api/payments";
 
 export const useCreatePayment = () => {
-  const { checkAuth } = useAuthStore();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+  
 
   return useMutation({
     mutationFn: async (data) => {

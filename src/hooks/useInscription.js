@@ -28,7 +28,6 @@ export const useInscription = () => {
     },
     onSuccess: (data) => {
       toast.success(data.message || "Inscription réussie");
-      queryClient.invalidateQueries(["inscription"]);
       queryClient.invalidateQueries(["mesInscriptions"]);
     },
     onError: (error) => {

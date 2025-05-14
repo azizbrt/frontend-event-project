@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -17,17 +17,20 @@ import { useEvents } from "../../hooks/useEvents";
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const { data: eventsData, isLoading, isError } = useEvents();
 
+  // 🎯 Trouver l'événement avec l'id donné
   const selectedEvent = eventsData?.events?.find(
     (event) => event._id === id && event.etat === "accepter"
   );
 
-  const handlePaymentSuccess = () => {
-    setPaymentSuccess(true);
-    setShowPopup(false);
+  // 👶 Fonction pour aller à la page de paiement après inscription
+  const handleInscriptionSuccess = (inscriptionId) => {
+    navigate(`/paiement/${inscriptionId}`, {
+      state: { eventId: selectedEvent._id, eventPrice: selectedEvent.prix }, // 👉 on passe eventId ici
+    });
   };
 
   const formatDate = (dateString) =>
@@ -36,21 +39,17 @@ const EventDetails = () => {
       month: "long",
       year: "numeric",
     });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-gray-600"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             Chargement en cours...
           </motion.div>
         </main>
@@ -59,7 +58,6 @@ const EventDetails = () => {
     );
   }
 
-  // Error or not found event
   if (isError || !selectedEvent) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -90,6 +88,7 @@ const EventDetails = () => {
         transition={{ duration: 0.5 }}
         className="container mx-auto py-10 px-4 sm:px-8 pt-20"
       >
+        {/* 🖼️ Image et Description */}
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
             <motion.img
@@ -106,6 +105,7 @@ const EventDetails = () => {
               {selectedEvent.description}
             </p>
 
+            {/* 🏷️ Tags */}
             {selectedEvent.tag?.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -124,10 +124,11 @@ const EventDetails = () => {
               </div>
             )}
 
+            {/* 📍 Date, Lieu, Type */}
             <div className="space-y-2 text-gray-600">
               <div className="flex items-center gap-2">
                 <MapPin className="text-orange-500" />
-                <span className="text-base">{selectedEvent.lieu}</span>
+                <span>{selectedEvent.lieu}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CalendarDays className="text-blue-500" />
@@ -147,6 +148,7 @@ const EventDetails = () => {
             </div>
           </div>
 
+          {/* 🧾 Infos & Bouton */}
           <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl space-y-4">
             <h2 className="text-xl font-semibold text-orange-600">
               Informations
@@ -168,7 +170,6 @@ const EventDetails = () => {
                 <Tag className="text-purple-600" />
                 <span>Catégorie: {selectedEvent.categorieName}</span>
               </div>
-
               <div className="flex items-center gap-2">
                 <Users className="text-blue-600" />
                 <div>
@@ -190,15 +191,13 @@ const EventDetails = () => {
               )}
             </div>
 
+            {/* 🧡 Bouton d'inscription */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition"
               onClick={() => setShowPopup(true)}
-              disabled={selectedEvent.etat !== "accepter"}
             >
-              {selectedEvent.etat === "accepter"
-                ? "S'inscrire maintenant"
-                : "Inscriptions fermées"}
+              S'inscrire maintenant
             </motion.button>
           </div>
         </div>
@@ -213,37 +212,15 @@ const EventDetails = () => {
         <Footer />
       </motion.div>
 
+      {/* 👇 Afficher la popup si showPopup est true */}
       {showPopup && (
         <InscrirePopup
           onClose={() => setShowPopup(false)}
-          onSuccess={handlePaymentSuccess}
+          onSuccess={handleInscriptionSuccess}
           title={selectedEvent.titre}
           eventId={selectedEvent._id}
           eventPrice={selectedEvent.prix}
         />
-      )}
-
-      {paymentSuccess && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-        >
-          <div className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm">
-            <h3 className="text-xl font-semibold text-green-600 mb-2">
-              Merci !
-            </h3>
-            <p className="text-gray-700">
-              Votre inscription a été confirmée avec succès.
-            </p>
-            <button
-              className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
-              onClick={() => setPaymentSuccess(false)}
-            >
-              Fermer
-            </button>
-          </div>
-        </motion.div>
       )}
     </div>
   );

@@ -2,49 +2,25 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { useAuthStore } from "../../store/authStore";
-import {
-  useAnnulerInscription,
-  useMesInscriptions,
-  useSupprimerInscription,
-} from "../../hooks/useInscription";
+import { useMesInscriptions, useSupprimerInscription } from "../../hooks/useInscription";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User,
-  Mail,
-  Lock,
-  Calendar,
-  BadgeCheck,
-  Clock,
-  ScrollText,
-  Trash2,
+  User, Mail, Lock, Calendar, BadgeCheck, Clock, ScrollText, Trash2,
 } from "lucide-react";
+import PasswordStrengthMeter from "../Popup/PasswordStrengthMeter";
+import { isPasswordStrong } from "../../utils/passwordUtils";
 
 const UpdateProfile = () => {
-  const { user, updateUserProfile, isLoading, error } = useAuthStore();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const { user, updateUserProfile, isLoading } = useAuthStore();
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [messages, setMessages] = useState({ success: "", errors: {} });
-  const {
-    data: inscriptionsData,
-    isLoading: loadingInscriptions,
-    isError,
-    error: inscriptionError,
-  } = useMesInscriptions();
-  console.log("inscriptionsData:", inscriptionsData);
+
+  const { data: inscriptionsData, isLoading: loadingInscriptions } = useMesInscriptions();
   const { mutate: annulerInscription } = useSupprimerInscription();
 
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.name,
-        email: user.email,
-        password: "",
-        confirmPassword: "",
-      });
+      setFormData({ name: user.name, email: user.email, password: "", confirmPassword: "" });
     }
   }, [user]);
 
@@ -55,17 +31,17 @@ const UpdateProfile = () => {
 
   const validate = () => {
     const errors = {};
-    if (!formData.name.trim()) errors.name = "Name is required";
+    if (!formData.name.trim()) errors.name = "Le nom est requis.";
     if (!formData.email.trim()) {
-      errors.email = "Email is required";
+      errors.email = "L'email est requis.";
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      errors.email = "Invalid email format";
+      errors.email = "Format d'email invalide.";
     }
-    if (formData.password && formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+    if (formData.password && !isPasswordStrong(formData.password)) {
+      errors.password = "Mot de passe faible.";
     }
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Passwords don't match";
+      errors.confirmPassword = "Les mots de passe ne correspondent pas.";
     }
 
     setMessages((prev) => ({ ...prev, errors }));
@@ -87,10 +63,16 @@ const UpdateProfile = () => {
     }
   };
 
+  const fields = [
+    { name: "name", placeholder: "Nom complet", icon: <User />, type: "text" },
+    { name: "email", placeholder: "Adresse email", icon: <Mail />, type: "email" },
+    { name: "password", placeholder: "Nouveau mot de passe", icon: <Lock />, type: "password" },
+    { name: "confirmPassword", placeholder: "Confirmer le mot de passe", icon: <Lock />, type: "password" },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50 to-white">
       <Navbar />
-
       <main className="flex-grow flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -99,21 +81,14 @@ const UpdateProfile = () => {
           className="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-lg border border-orange-100"
         >
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-center mb-8"
-          >
+          <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2 mt-16">
               <User size={28} /> Mon Profil
             </h1>
-            <p className="text-orange-400 mt-2">
-              Gérez vos informations personnelles
-            </p>
-          </motion.div>
+            <p className="text-orange-400 mt-2">Gérez vos informations personnelles</p>
+          </div>
 
-          {/* Messages */}
+          {/* Success message */}
           <AnimatePresence>
             {messages.success && (
               <motion.div
@@ -129,40 +104,9 @@ const UpdateProfile = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {[
-              {
-                icon: <User />,
-                name: "name",
-                placeholder: "Nom complet",
-                type: "text",
-              },
-              {
-                icon: <Mail />,
-                name: "email",
-                placeholder: "Adresse email",
-                type: "email",
-              },
-              {
-                icon: <Lock />,
-                name: "password",
-                placeholder: "Nouveau mot de passe",
-                type: "password",
-              },
-              {
-                icon: <Lock />,
-                name: "confirmPassword",
-                placeholder: "Confirmer le mot de passe",
-                type: "password",
-              },
-            ].map((field, index) => (
-              <motion.div
-                key={field.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="relative"
-              >
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orange-400">
+            {fields.map((field, i) => (
+              <div key={field.name} className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center text-orange-400">
                   {field.icon}
                 </div>
                 <input
@@ -171,48 +115,37 @@ const UpdateProfile = () => {
                   value={formData[field.name]}
                   onChange={handleChange}
                   placeholder={field.placeholder}
-                  className="w-full pl-10 pr-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-300 transition-all"
+                  className="w-full pl-10 pr-4 py-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-300"
                 />
                 {messages.errors[field.name] && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-1 text-sm text-red-500 flex items-center gap-1"
-                  >
+                  <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
                     <Clock size={14} /> {messages.errors[field.name]}
-                  </motion.p>
+                  </p>
                 )}
-              </motion.div>
+              </div>
             ))}
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <PasswordStrengthMeter password={formData.password} />
+
+            <button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+              disabled={isLoading || (formData.password && !isPasswordStrong(formData.password))}
+              className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg disabled:opacity-70 flex justify-center items-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <Clock className="animate-spin" size={18} />
-                  En cours...
+                  <Clock className="animate-spin" size={18} /> En cours...
                 </>
               ) : (
                 <>
-                  <BadgeCheck size={18} />
-                  Mettre à jour
+                  <BadgeCheck size={18} /> Mettre à jour
                 </>
               )}
-            </motion.button>
+            </button>
           </form>
 
-          {/* Inscriptions Section */}
-          <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-12 pt-6 border-t border-orange-100"
-          >
+          {/* Participations */}
+          <section className="mt-12 pt-6 border-t border-orange-100">
             <h2 className="text-xl font-semibold text-orange-600 mb-4 flex items-center gap-2">
               <ScrollText className="text-orange-500" /> Mes Participations
             </h2>
@@ -221,85 +154,56 @@ const UpdateProfile = () => {
               <div className="flex justify-center py-8">
                 <Clock className="animate-spin text-orange-400" size={24} />
               </div>
-            ) : inscriptionsData?.inscriptions?.length > 0 ? (
+            ) : inscriptionsData?.inscriptions?.length ? (
               <ul className="space-y-3">
-                {inscriptionsData.inscriptions.map((item, index) => {
-                  // Debugging the ID
-                  console.log("Inscription ID:", item._id); // Debugging the ID here
-                  return (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * index }}
-                      className="p-4 bg-orange-50 rounded-lg hover:shadow-md transition-shadow"
-                    >
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Inscription Details */}
-                        <div className="flex items-start gap-2">
-                          <Calendar className="text-orange-500 mt-1 flex-shrink-0" />
-                          <div>
-                            <p className="font-medium text-orange-700">
-                              {item.evenement.titre}
-                            </p>
-                            <p className="text-sm text-orange-500">
-                              {new Date(
-                                item.evenement.dateDebut
-                              ).toLocaleDateString()}{" "}
-                              -{" "}
-                              {new Date(
-                                item.evenement.dateFin
-                              ).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-orange-700 capitalize">
-                              {item.status}
-                            </p>
-                            <p className="text-sm text-orange-500">
-                              Inscrit le{" "}
-                              {new Date(
-                                item.dateInscription
-                              ).toLocaleDateString()}
-                            </p>
-                          </div>
-
-                          {/* Delete Button */}
-                          {item.status === "en attente" && (
-                            <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    "Êtes-vous sûr de vouloir annuler cette inscription ?"
-                                  )
-                                ) {
-                                  annulerInscription(item._id);
-                                }
-                              }}
-                              className="text-red-500 hover:text-red-600 transition"
-                              title="Supprimer l'inscription"
-                            >
-                              <Trash2 size={20} />
-                            </button>
-                          )}
+                {inscriptionsData.inscriptions.map((item, i) => (
+                  <li
+                    key={item._id}
+                    className="p-4 bg-orange-50 rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-start gap-2">
+                        <Calendar className="text-orange-500 mt-1" />
+                        <div>
+                          <p className="font-medium text-orange-700">{item.evenement.titre}</p>
+                          <p className="text-sm text-orange-500">
+                            {new Date(item.evenement.dateDebut).toLocaleDateString()} -{" "}
+                            {new Date(item.evenement.dateFin).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
-                    </motion.li>
-                  );
-                })}
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-orange-700 capitalize">{item.status}</p>
+                          <p className="text-sm text-orange-500">
+                            Inscrit le {new Date(item.dateInscription).toLocaleDateString()}
+                          </p>
+                        </div>
+
+                        {item.status === "en attente" && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm("Annuler cette inscription ?")) {
+                                annulerInscription(item._id);
+                              }
+                            }}
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
               </ul>
             ) : (
-              <div className="text-center py-6 text-orange-400">
-                <p>Aucune participation enregistrée</p>
-              </div>
+              <p className="text-center py-6 text-orange-400">Aucune participation enregistrée</p>
             )}
-          </motion.section>
+          </section>
         </motion.div>
       </main>
-
       <Footer />
     </div>
   );
