@@ -1,29 +1,41 @@
 import React from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { motion } from "framer-motion";
-import { Users, CalendarCheck, ClipboardList } from "lucide-react";
+import { Users, CalendarCheck, ClipboardList, Flame, Wallet } from "lucide-react";
 
 import {
   useDernieresInscriptions,
   useDerniersPaiements,
+  useEvenementsPopulaires,
   useInscriptionsParMois,
   useTotalEvents,
   useTotalInscriptions,
   useTotalUsers,
 } from "../../hooks/useStatestique";
 
+const container = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
+};
+
 const Statistique = () => {
   const { data: totalUsers, isLoading: loadingUsers, isError: errorUsers } = useTotalUsers();
   const { data: totalEvents } = useTotalEvents();
   const { data: totalInscriptions } = useTotalInscriptions();
-  const { data: dernieresInscriptions, isLoading: loadingInscriptions, isError: errorInscriptions } = useDernieresInscriptions();
+  const { data: dernieresInscriptions } = useDernieresInscriptions();
   const { data: paiementsRecents, isLoading: loadingPaiements } = useDerniersPaiements();
   const { data: inscriptionsParMois, isLoading: loadingInscriptionsParMois, isError: errorInscriptionsParMois } = useInscriptionsParMois();
-
-  if (loadingUsers) return <p className="text-center text-gray-500">Chargement...</p>;
-  if (errorUsers) return <p className="text-center text-red-500">Erreur pour les utilisateurs.</p>;
+  const { data: evenements, isLoading: loadingPopulaires, isError: errorPopulaires } = useEvenementsPopulaires();
 
   const stats = [
     {
@@ -43,28 +55,22 @@ const Statistique = () => {
     },
   ];
 
-  // Motion settings
-  const container = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.25 } },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+  if (loadingUsers) return <p className="text-center text-gray-500">Chargement...</p>;
+  if (errorUsers) return <p className="text-center text-red-500">Erreur de chargement des statistiques.</p>;
 
   return (
-    <div className="p-6 bg-white min-h-screen max-w-5xl mx-auto">
+    <div className="p-6 min-h-screen max-w-6xl mx-auto bg-white">
+      {/* Titre */}
       <motion.h1
         className="text-center text-4xl font-bold mb-10 text-gray-800"
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
       >
-        Tableau de bord 
+        Tableau de bord
       </motion.h1>
 
-      {/* Stats cards */}
+      {/* Statistiques principales */}
       <motion.div
         className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12"
         variants={container}
@@ -74,101 +80,100 @@ const Statistique = () => {
         {stats.map(({ name, value, icon }, idx) => (
           <motion.div
             key={idx}
-            className="flex items-center bg-gray-50 rounded-xl p-6 shadow-md space-x-5"
+            className="flex items-center bg-white border rounded-xl p-6 shadow-sm gap-5"
             variants={item}
           >
-            <div>{icon}</div>
+            <div className="bg-gray-100 p-3 rounded-full">{icon}</div>
             <div>
-              <p className="text-gray-700 font-semibold text-lg">{name}</p>
-              <p className="text-3xl font-extrabold text-orange-600">{value?.toLocaleString("fr-FR")}</p>
+              <p className="text-gray-600 font-medium">{name}</p>
+              <p className="text-3xl font-bold text-orange-600">{value?.toLocaleString("fr-FR") || 0}</p>
             </div>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* Bar chart */}
+      {/* Graphique Inscriptions */}
       <motion.div
-        className="bg-gray-50 rounded-xl shadow-md p-6 mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
+        className="bg-white border rounded-xl shadow-sm p-6 mb-12"
+        initial="hidden"
+        animate="visible"
+        variants={item}
       >
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Inscriptions par mois
-        </h2>
-        {loadingInscriptionsParMois && <p>Chargement...</p>}
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Inscriptions par mois</h2>
+        {loadingInscriptionsParMois && <p className="text-gray-500">Chargement...</p>}
         {errorInscriptionsParMois && <p className="text-red-500">Erreur chargement.</p>}
-        {!loadingInscriptionsParMois && !errorInscriptionsParMois && (
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={inscriptionsParMois || []} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+        {!loadingInscriptionsParMois && inscriptionsParMois?.length > 0 && (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={inscriptionsParMois}>
               <XAxis dataKey="date" tick={{ fill: "#4B5563" }} />
               <YAxis tick={{ fill: "#4B5563" }} />
               <Tooltip />
-              <Bar dataKey="value" fill="#fb923c" radius={[5, 5, 0, 0]} />
+              <Bar dataKey="value" fill="#f97316" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
       </motion.div>
 
-      {/* Lists: Recent inscriptions and payments */}
+      {/* Événements populaires + Paiements récents */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 gap-8"
         variants={container}
         initial="hidden"
         animate="visible"
       >
-        {/* Dernières inscriptions */}
+        {/* Événements Populaires */}
         <motion.div
-          className="bg-gray-50 rounded-xl shadow-md p-6"
+          className="bg-white border rounded-xl shadow-sm p-6"
           variants={item}
         >
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">
-            Dernières inscriptions
+          <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-4">
+            <Flame className="w-5 h-5 text-orange-500" />
+            Événements Populaires
           </h3>
-          {loadingInscriptions && <p className="text-gray-500">Chargement...</p>}
-          {errorInscriptions && <p className="text-red-500">Erreur chargement.</p>}
-          {!loadingInscriptions && !errorInscriptions && dernieresInscriptions?.length === 0 && (
-            <p className="text-gray-500">Aucune inscription récente.</p>
+          {loadingPopulaires && <p className="text-gray-500">Chargement...</p>}
+          {errorPopulaires && <p className="text-red-500">Erreur de chargement.</p>}
+          {!loadingPopulaires && evenements?.length === 0 && (
+            <p className="text-gray-500">Aucun événement populaire trouvé.</p>
           )}
-          <ul className="divide-y divide-gray-300 max-h-60 overflow-y-auto">
-            {dernieresInscriptions?.map((item, i) => (
-              <li key={i} className="py-2">
-                <p className="text-gray-700 font-medium">{item.utilisateurId?.name}</p>
+          <ul className="divide-y divide-gray-200 max-h-60 overflow-y-auto">
+            {evenements?.map((ev) => (
+              <li key={ev._id} className="py-2">
+                <p className="text-gray-800 font-medium">{ev.titre}</p>
                 <p className="text-sm text-gray-500">
-                  inscrit à <span className="font-semibold">{item.evenementId?.titre}</span> le{" "}
-                  {new Date(item.dateInscription).toLocaleDateString("fr-FR")}
+                  <span className="font-semibold text-orange-600">{ev.nombreParticipants}</span> participants
                 </p>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Derniers paiements */}
+        {/* Derniers Paiements */}
         <motion.div
-          className="bg-gray-50 rounded-xl shadow-md p-6"
+          className="bg-white border rounded-xl shadow-sm p-6"
           variants={item}
         >
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">
+          <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-4">
+            <Wallet className="w-5 h-5 text-green-500" />
             Derniers paiements
           </h3>
-          {loadingPaiements ? (
-            <p className="text-gray-500">Chargement...</p>
-          ) : paiementsRecents && paiementsRecents.length > 0 ? (
-            <ul className="space-y-2 max-h-60 overflow-y-auto">
-              {paiementsRecents.map((p) => (
-                <li key={p._id} className="border rounded-lg p-3 bg-white shadow-sm">
-                  <div className="flex justify-between text-gray-700 font-medium">
-                    <span>{p.utilisateurId?.name || "Inconnu"}</span>
-                    <span className="text-sm text-gray-500">{new Date(p.datePaiement).toLocaleDateString("fr-FR")}</span>
-                  </div>
-                  <div className="text-sm text-gray-600">Événement : {p.evenementId?.titre || "N/A"}</div>
-                  <div className="text-sm text-gray-600">Montant : {p.montant} TND</div>
-                </li>
-              ))}
-            </ul>
-          ) : (
+          {loadingPaiements && <p className="text-gray-500">Chargement...</p>}
+          {!loadingPaiements && paiementsRecents?.length === 0 && (
             <p className="text-gray-500">Aucun paiement récent.</p>
           )}
+          <ul className="space-y-3 max-h-60 overflow-y-auto">
+            {paiementsRecents?.map((p) => (
+              <li key={p._id} className="bg-gray-50 border rounded-lg p-4 shadow-sm">
+                <div className="flex justify-between text-gray-700 font-medium mb-1">
+                  <span>{p.utilisateurId?.name || "Inconnu"}</span>
+                  <span className="text-sm text-gray-500">
+                    {new Date(p.datePaiement).toLocaleDateString("fr-FR")}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600">Événement : {p.evenementId?.titre || "N/A"}</div>
+                <div className="text-sm text-gray-600">Montant : {p.montant} TND</div>
+              </li>
+            ))}
+          </ul>
         </motion.div>
       </motion.div>
     </div>

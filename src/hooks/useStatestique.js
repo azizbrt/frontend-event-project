@@ -68,3 +68,14 @@ export function useTotalUsers() {
     refetchOnWindowFocus: true,
   });
 }
+export function useEvenementsPopulaires() {
+  return useQuery({
+    queryKey: ["evenementsPopulaires"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/evenement-populaire`);
+      return res.data.evenements; // retourne un tableau d’événements avec nombreParticipants
+    },
+    refetchInterval: 10000, // rafraîchit toutes les 10 secondes
+    refetchOnWindowFocus: true,
+  });
+}
