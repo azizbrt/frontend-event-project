@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
-import { useLocation, useParams } from "react-router-dom"; // pour récupérer l'id depuis l'URL
+import { useLocation, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCreatePayment } from "../../hooks/usePayment";
+import { Loader2 } from "lucide-react"; // spinner
 
 const PaiementPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const { inscriptionId } = useParams(); // récupère les ids depuis l'URL
+  const { inscriptionId } = useParams();
   const location = useLocation();
-
   const { eventId, eventPrice } = location.state || {};
   const [reference, setReference] = useState("");
   const { mutate: createPayment, isLoading } = useCreatePayment();
+
   if (!eventId || !inscriptionId) {
     toast.error("Échec : ID manquant.");
-    return;
+    return null;
   }
 
   const handlePayment = () => {
@@ -28,13 +29,15 @@ const PaiementPage = () => {
       return;
     }
 
-    const paymentData = {
-      inscriptionId, // ✅ juste ça suffit
-    };
+    const paymentData = { inscriptionId };
 
     createPayment(paymentData, {
       onSuccess: (data) => {
-        setReference(data.paiment.reference); // ✅ la référence générée automatiquement
+        setReference(data.paiment.reference);
+        toast.success("Paiement effectué avec succès !");
+      },
+      onError: () => {
+        toast.error("Erreur lors du paiement. Veuillez réessayer.");
       },
     });
   };
@@ -66,7 +69,7 @@ const PaiementPage = () => {
               </label>
               <input
                 type="text"
-                value={eventPrice} 
+                value={eventPrice}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
               />
@@ -86,7 +89,7 @@ const PaiementPage = () => {
             </div>
 
             {/* RIB */}
-            <div className="mb-4">
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 RIB
               </label>
@@ -103,10 +106,19 @@ const PaiementPage = () => {
               <button
                 type="button"
                 onClick={handlePayment}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-                disabled={isLoading}
+                className={`px-4 py-2 flex items-center justify-center bg-orange-500 text-white rounded-md hover:bg-orange-600 transition disabled:opacity-50`}
+                disabled={isLoading || reference !== ""}
               >
-                {isLoading ? "Traitement..." : "Valider le paiement"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Traitement...
+                  </>
+                ) : reference ? (
+                  "Paiement effectué"
+                ) : (
+                  "Valider le paiement"
+                )}
               </button>
             </div>
           </form>
