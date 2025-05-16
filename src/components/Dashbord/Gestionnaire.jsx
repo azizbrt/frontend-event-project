@@ -4,6 +4,7 @@ import { Users, Calendar, BarChart, Home, UserCircle, Search } from "lucide-reac
 import GestionInscriptions from "./GestionInscriptions";
 import CRUDevenement from "./CRUDevenement";
 import { useAuthStore } from "../../store/authStore";
+import StatestiqueGestionnaire from "./StatestiqueGestionnaire";
 
 const Gestionnaire = () => {
   const { user } = useAuthStore();
@@ -23,10 +24,7 @@ const Gestionnaire = () => {
     statistiques: {
       label: "Statistiques",
       icon: <BarChart className="mr-2 w-5 h-5" />,
-      component: <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-orange-500 mb-4">Statistiques globales</h2>
-        <p className="text-gray-600">Tableau de bord des statistiques à venir...</p>
-      </div>,
+      component: <StatestiqueGestionnaire />,
     },
   };
 
