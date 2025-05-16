@@ -1,38 +1,49 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { 
-  CalendarCheck, 
-  ClipboardList, 
-  Flame, 
+import {
+  CalendarCheck,
+  ClipboardList,
+  Flame,
   Wallet,
   BarChart2,
   UserCheck,
-  Clock
+  Clock,
 } from "lucide-react";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
   ResponsiveContainer,
-  CartesianGrid 
+  CartesianGrid,
 } from "recharts";
 
-import { 
+import {
   useInscriptionsRecentes,
-  useStatsGlobales, 
-  useStatsParEvenement 
+  useStatsGlobales,
+  useStatsParEvenement,
 } from "../../hooks/useStatsHooksgestionnaire";
-
 
 const StatestiqueGestionnaire = () => {
   // Tes autres hooks déjà en place
-  const { data: globalData, isLoading: globalLoading, error: globalError } = useStatsGlobales();
-  const { data: eventData, isLoading: eventLoading, error: eventError } = useStatsParEvenement();
+  const {
+    data: globalData,
+    isLoading: globalLoading,
+    error: globalError,
+  } = useStatsGlobales();
+  const {
+    data: eventData,
+    isLoading: eventLoading,
+    error: eventError,
+  } = useStatsParEvenement();
 
   // Le hook pour les inscriptions récentes
-  const { data: inscriptions, isLoading: inscriptionsLoading, error: inscriptionsError } = useInscriptionsRecentes();
+  const {
+    data: inscriptions,
+    isLoading: inscriptionsLoading,
+    error: inscriptionsError,
+  } = useInscriptionsRecentes();
 
   // Gérer le loading global
   if (globalLoading || eventLoading || inscriptionsLoading) {
@@ -47,7 +58,10 @@ const StatestiqueGestionnaire = () => {
   if (globalError || eventError || inscriptionsError) {
     return (
       <div className="text-center py-10 text-red-500">
-        Erreur: {globalError?.message || eventError?.message || inscriptionsError?.message}
+        Erreur:{" "}
+        {globalError?.message ||
+          eventError?.message ||
+          inscriptionsError?.message}
       </div>
     );
   }
@@ -59,35 +73,35 @@ const StatestiqueGestionnaire = () => {
       value: globalData?.total || 0,
       icon: <ClipboardList className="w-8 h-8" />,
       color: "text-green-500",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
     },
     {
       name: "Inscriptions Validées",
       value: globalData?.valides || 0,
       icon: <UserCheck className="w-8 h-8" />,
       color: "text-blue-500",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-50",
     },
     {
       name: "En Attente",
       value: globalData?.enAttente || 0,
       icon: <Clock className="w-8 h-8" />,
       color: "text-purple-500",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
     },
     {
       name: "Prochain Événement",
       value: globalData?.prochainEvenement?.titre ? "1" : "0",
       icon: <Flame className="w-8 h-8" />,
       color: "text-orange-500",
-      bgColor: "bg-orange-50"
+      bgColor: "bg-orange-50",
     },
   ];
 
   // Tes données graphiques (pour test ou remplacer par eventData)
   const testData = [
     { titre: "Sport", nombreInscriptions: 10 },
-    { titre: "Lorem", nombreInscriptions: 15 }
+    { titre: "Lorem", nombreInscriptions: 15 },
   ];
 
   return (
@@ -159,14 +173,17 @@ const StatestiqueGestionnaire = () => {
               {globalData.prochainEvenement.titre}
             </h3>
             <p className="text-gray-600">
-              {new Date(globalData.prochainEvenement.date).toLocaleDateString("fr-FR", {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              {new Date(globalData.prochainEvenement.date).toLocaleDateString(
+                "fr-FR",
+                {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              )}
             </p>
           </div>
         </motion.div>
@@ -185,7 +202,7 @@ const StatestiqueGestionnaire = () => {
             Inscriptions par Événement
           </h2>
         </div>
-        
+
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -193,23 +210,23 @@ const StatestiqueGestionnaire = () => {
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="titre" 
+              <XAxis
+                dataKey="titre"
                 tick={{ fontSize: 12 }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
               />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
-                  background: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.5rem'
+                  background: "#ffffff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "0.5rem",
                 }}
               />
-              <Bar 
-                dataKey="nombreInscriptions" 
+              <Bar
+                dataKey="nombreInscriptions"
                 fill="#f97316"
                 radius={[4, 4, 0, 0]}
                 animationDuration={1500}
@@ -230,11 +247,49 @@ const StatestiqueGestionnaire = () => {
           <Clock className="text-purple-500" />
           10 Dernières Inscriptions
         </h2>
+
         {inscriptions && inscriptions.length > 0 ? (
-          <ul className="list-disc list-inside text-gray-700">
-            {inscriptions.map((inscription) => (
-              <li key={inscription.id} className="mb-1">
-                {inscription.nom} - {inscription.email} {/* adapte selon tes champs */}
+          <ul className="space-y-3">
+            {inscriptions.map((inscription, index) => (
+              <li
+                key={index}
+                className="border border-gray-100 rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition"
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                  <div className="text-gray-800">
+                    <p className="font-medium">{inscription.nom}</p>
+                    <p className="text-sm text-gray-600">{inscription.email}</p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      Événement :{" "}
+                      <span className="font-semibold">
+                        {inscription.evenement}
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Le{" "}
+                      {new Date(inscription.date).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                  <div className="mt-2 sm:mt-0">
+                    <span
+                      className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${
+                        inscription.statut === "validée"
+                          ? "bg-green-100 text-green-700"
+                          : inscription.statut === "en attente"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {inscription.statut}
+                    </span>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>

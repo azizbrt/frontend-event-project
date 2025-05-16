@@ -5,7 +5,7 @@ import Footer from "../Footer/Footer";
 import { useLocation, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCreatePayment } from "../../hooks/usePayment";
-import { Loader2 } from "lucide-react"; // spinner
+import { Loader2 } from "lucide-react"; 
 
 const PaiementPage = () => {
   useEffect(() => {
