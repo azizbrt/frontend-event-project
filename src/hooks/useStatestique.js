@@ -57,3 +57,14 @@ export function useTotalUsers() {
       },
     });
   };
+  export function useInscriptionsParMois() {
+  return useQuery({
+    queryKey: ["inscriptionsParMois"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/inscriptions-par-mois`);
+      return res.data; // le tableau d'objets { date, value }
+    },
+    refetchInterval: 60000, // rafraîchit toutes les 60 secondes (ajuste selon besoin)
+    refetchOnWindowFocus: true,
+  });
+}
