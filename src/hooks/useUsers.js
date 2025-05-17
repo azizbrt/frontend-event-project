@@ -18,17 +18,21 @@ export const useUsers = () => {
     queryFn: fetchUsers,
   });
 };
-const AddUser = async (userData) =>{
-    const {data} = await axios.post(`${API_URL}/users/create`,userData);
+const AddUser = async (userData) => {
+  try {
+    const { data } = await axios.post(`${API_URL}/users/create`, userData);
     return data;
+  } catch (error) {
+    // Pass along the error response for better error handling in components
+    throw error;
+  }
 };
+
 export const useAddUser = () => {
-    return useMutation({
-      mutationFn: AddUser,
-    }
-  );
-  };
-  
+  return useMutation({
+    mutationFn: AddUser,
+  });
+};
   const updateUser = async (updateUser) => {
     const { _id, ...userData } = updateUser;
     const response = await axios.put(`${API_URL}/users/${_id}`, userData);

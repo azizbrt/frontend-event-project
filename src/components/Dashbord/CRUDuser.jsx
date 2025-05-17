@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import {  useAddUser, useDeleteUser, useUpdateUser, useUsers } from "../../hooks/useUsers";
+import { useAddUser, useDeleteUser, useUpdateUser, useUsers } from "../../hooks/useUsers";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-
 import UserForm from "../admin users/UserForm";
 import UserTable from "../admin users/UserTable";
 import EditUserModal from "../admin users/editMondal";
@@ -36,13 +35,22 @@ const CrudUser = () => {
     }
 
     addUser(newUser, {
-      onSuccess: () => {
-        toast.success("✅ Utilisateur ajouté avec succès !");
+      onSuccess: (data) => {
+        if (data.success) {
+          toast.success("✅ Utilisateur créé ! Un email avec les instructions a été envoyé.");
+        } else {
+          toast.error(`❌ ${data.message || "Erreur lors de la création"}`);
+        }
         setNewUser({ name: "", email: "", role: "" });
         queryClient.invalidateQueries({ queryKey: ["users"] });
       },
-      onError: () => {
-        toast.error("❌ Une erreur est survenue !");
+      onError: (error) => {
+        const errorMessage = error.response?.data?.message || "Une erreur est survenue";
+        if (error.response?.status === 409) {
+          toast.error("❌ Cet email est déjà utilisé");
+        } else {
+          toast.error(`❌ ${errorMessage}`);
+        }
       },
     });
   };
@@ -110,6 +118,5 @@ const CrudUser = () => {
     </div>
   );
 };
-
 
 export default CrudUser;
