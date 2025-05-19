@@ -80,7 +80,7 @@ const Navbar = ({ handleOrderPopup }) => {
                             </Link>
                           </li>
                         )}
-                        {["admin", "gestionnaire"].includes(user?.role) && (
+                        {[ "gestionnaire"].includes(user?.role) && (
                           <li>
                             <Link
                               to="/gestionnaire"
