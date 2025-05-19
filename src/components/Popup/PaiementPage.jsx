@@ -29,7 +29,7 @@ const PaiementPage = () => {
       return;
     }
 
-    const paymentData = { inscriptionId };
+    const paymentData = { inscriptionId, eventId };
 
     createPayment(paymentData, {
       onSuccess: (data) => {

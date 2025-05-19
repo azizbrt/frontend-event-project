@@ -29,15 +29,7 @@ const Navbar = ({ handleOrderPopup }) => {
           <span className="font-bold text-xl text-orange-600">EVENT</span>
         </Link>
 
-        {/* Search - Desktop only */}
-        <div className="hidden sm:flex items-center relative w-64">
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            className="w-full px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 focus:outline-none"
-          />
-          <IoMdSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+        
 
         {/* Right buttons */}
         <div className="hidden sm:flex items-center gap-4">
@@ -169,7 +161,7 @@ const Navbar = ({ handleOrderPopup }) => {
                     🛠️ Tableau Admin
                   </Link>
                 )}
-                {["admin", "gestionnaire"].includes(user?.role) && (
+                {[ "gestionnaire"].includes(user?.role) && (
                   <Link
                     to="/gestionnaire"
                     className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"

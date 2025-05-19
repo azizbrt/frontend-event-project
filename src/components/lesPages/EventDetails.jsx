@@ -8,6 +8,7 @@ import {
   Users,
   BadgeDollarSign,
   CheckCircle,
+  Clock,
 } from "lucide-react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
@@ -38,6 +39,13 @@ const EventDetails = () => {
       day: "numeric",
       month: "long",
       year: "numeric",
+    });
+
+  const formatHeure = (dateString) =>
+    new Date(dateString).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, // <-- Important for AM/PM
     });
 
   useEffect(() => {
@@ -88,7 +96,7 @@ const EventDetails = () => {
         transition={{ duration: 0.5 }}
         className="container mx-auto py-10 px-4 sm:px-8 pt-20"
       >
-        {/* 🖼️ Image et Description */}
+        {/*  Image et Description */}
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
             <motion.img
@@ -105,7 +113,7 @@ const EventDetails = () => {
               {selectedEvent.description}
             </p>
 
-            {/* 🏷️ Tags */}
+            {/*  Tags */}
             {selectedEvent.tag?.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -124,7 +132,7 @@ const EventDetails = () => {
               </div>
             )}
 
-            {/* 📍 Date, Lieu, Type */}
+            {/*  Date, Lieu, Type */}
             <div className="space-y-2 text-gray-600">
               <div className="flex items-center gap-2">
                 <MapPin className="text-orange-500" />
@@ -137,6 +145,16 @@ const EventDetails = () => {
                   {formatDate(selectedEvent.dateFin)}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                <Clock className="text-green-400" />
+                <span>
+                  {formatHeure(selectedEvent.dateDebut)} →{" "}
+                  {formatHeure(selectedEvent.dateFin)}{" "}
+                  <span className="text-sm text-gray-500">
+                  </span>
+                </span>
+              </div>
+
               <div className="flex items-center gap-2">
                 <Tag className="text-purple-500" />
                 <span>
@@ -191,7 +209,7 @@ const EventDetails = () => {
               )}
             </div>
 
-            {/* 🧡 Bouton d'inscription */}
+            {/*  Bouton d'inscription */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition"
@@ -212,7 +230,7 @@ const EventDetails = () => {
         <Footer />
       </motion.div>
 
-      {/* 👇 Afficher la popup si showPopup est true */}
+      {/*  Afficher la popup si showPopup est true */}
       {showPopup && (
         <InscrirePopup
           onClose={() => setShowPopup(false)}

@@ -2,25 +2,53 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { useAuthStore } from "../../store/authStore";
-import { useMesInscriptions, useSupprimerInscription } from "../../hooks/useInscription";
+import {
+  useMesInscriptions,
+  useSupprimerInscription,
+} from "../../hooks/useInscription";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User, Mail, Lock, Calendar, BadgeCheck, Clock, ScrollText, Trash2,
+  User,
+  Mail,
+  Lock,
+  Calendar,
+  BadgeCheck,
+  Clock,
+  ScrollText,
+  Trash2,
 } from "lucide-react";
 import PasswordStrengthMeter from "../Popup/PasswordStrengthMeter";
 import { isPasswordStrong } from "../../utils/passwordUtils";
+import { Link } from "react-router-dom";
 
 const UpdateProfile = () => {
   const { user, updateUserProfile, isLoading } = useAuthStore();
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [messages, setMessages] = useState({ success: "", errors: {} });
 
-  const { data: inscriptionsData, isLoading: loadingInscriptions } = useMesInscriptions();
+  const { data: inscriptionsData, isLoading: loadingInscriptions } =
+    useMesInscriptions();
+  useEffect(() => {
+    if (inscriptionsData) {
+      console.log(inscriptionsData.inscriptions);
+    }
+  }, [inscriptionsData]);
+
   const { mutate: annulerInscription } = useSupprimerInscription();
 
   useEffect(() => {
     if (user) {
-      setFormData({ name: user.name, email: user.email, password: "", confirmPassword: "" });
+      setFormData({
+        name: user.name,
+        email: user.email,
+        password: "",
+        confirmPassword: "",
+      });
     }
   }, [user]);
 
@@ -65,9 +93,24 @@ const UpdateProfile = () => {
 
   const fields = [
     { name: "name", placeholder: "Nom complet", icon: <User />, type: "text" },
-    { name: "email", placeholder: "Adresse email", icon: <Mail />, type: "email" },
-    { name: "password", placeholder: "Nouveau mot de passe", icon: <Lock />, type: "password" },
-    { name: "confirmPassword", placeholder: "Confirmer le mot de passe", icon: <Lock />, type: "password" },
+    {
+      name: "email",
+      placeholder: "Adresse email",
+      icon: <Mail />,
+      type: "email",
+    },
+    {
+      name: "password",
+      placeholder: "Nouveau mot de passe",
+      icon: <Lock />,
+      type: "password",
+    },
+    {
+      name: "confirmPassword",
+      placeholder: "Confirmer le mot de passe",
+      icon: <Lock />,
+      type: "password",
+    },
   ];
 
   return (
@@ -85,7 +128,9 @@ const UpdateProfile = () => {
             <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2 mt-16">
               <User size={28} /> Mon Profil
             </h1>
-            <p className="text-orange-400 mt-2">Gérez vos informations personnelles</p>
+            <p className="text-orange-400 mt-2">
+              Gérez vos informations personnelles
+            </p>
           </div>
 
           {/* Success message */}
@@ -129,7 +174,10 @@ const UpdateProfile = () => {
 
             <button
               type="submit"
-              disabled={isLoading || (formData.password && !isPasswordStrong(formData.password))}
+              disabled={
+                isLoading ||
+                (formData.password && !isPasswordStrong(formData.password))
+              }
               className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg disabled:opacity-70 flex justify-center items-center gap-2"
             >
               {isLoading ? (
@@ -156,7 +204,7 @@ const UpdateProfile = () => {
               </div>
             ) : inscriptionsData?.inscriptions?.length ? (
               <ul className="space-y-3">
-                {inscriptionsData.inscriptions.map((item, i) => (
+                {inscriptionsData.inscriptions.map((item) => (
                   <li
                     key={item._id}
                     className="p-4 bg-orange-50 rounded-lg hover:shadow-md transition-shadow"
@@ -165,41 +213,77 @@ const UpdateProfile = () => {
                       <div className="flex items-start gap-2">
                         <Calendar className="text-orange-500 mt-1" />
                         <div>
-                          <p className="font-medium text-orange-700">{item.evenement.titre}</p>
+                          <p className="font-medium text-orange-700">
+                            {item.evenement.titre}
+                          </p>
                           <p className="text-sm text-orange-500">
-                            {new Date(item.evenement.dateDebut).toLocaleDateString()} -{" "}
-                            {new Date(item.evenement.dateFin).toLocaleDateString()}
+                            {new Date(
+                              item.evenement.dateDebut
+                            ).toLocaleDateString()}{" "}
+                            -{" "}
+                            {new Date(
+                              item.evenement.dateFin
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col items-end justify-between text-right">
                         <div>
-                          <p className="font-medium text-orange-700 capitalize">{item.status}</p>
+                          <p className="font-medium text-orange-700 capitalize">
+                            {item.status}
+                          </p>
                           <p className="text-sm text-orange-500">
-                            Inscrit le {new Date(item.dateInscription).toLocaleDateString()}
+                            Inscrit le{" "}
+                            {new Date(
+                              item.dateInscription
+                            ).toLocaleDateString()}
                           </p>
                         </div>
 
-                        {item.status === "en attente" && (
-                          <button
-                            onClick={() => {
-                              if (window.confirm("Annuler cette inscription ?")) {
-                                annulerInscription(item._id);
-                              }
-                            }}
-                            className="text-red-500 hover:text-red-600"
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                        )}
+                        <div className="flex gap-2 items-center mt-2">
+                          {/* Bouton annuler */}
+                          {item.status === "en attente" && (
+                            <button
+                              onClick={() => {
+                                if (
+                                  window.confirm("Annuler cette inscription ?")
+                                ) {
+                                  annulerInscription(item._id);
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-600"
+                              title="Annuler l'inscription"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          )}
+
+                          {/* Bouton payer si non payé */}
+                          {item.status !== "annulée" &&
+                            item.status !== "validée" &&
+                            !item.paiementEffectué && (
+                              <Link
+                                to={`/paiement/${item._id}`}
+                                state={{
+                                  eventId: item.evenement.id,
+                                  eventPrice: item.evenement.prix,
+                                }}
+                                className="px-4 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                              >
+                                Payer maintenant
+                              </Link>
+                            )}
+                        </div>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-center py-6 text-orange-400">Aucune participation enregistrée</p>
+              <p className="text-center py-6 text-orange-400">
+                Aucune participation enregistrée
+              </p>
             )}
           </section>
         </motion.div>
