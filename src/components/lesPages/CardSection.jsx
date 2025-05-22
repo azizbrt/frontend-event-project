@@ -4,6 +4,7 @@ import { MapPin, CalendarDays } from "lucide-react";
 import useEventStore from "../../store/useEventStore ";
 
 const CardSection = () => {
+  const baseURL = import.meta.env.VITE_API_URL;
   const { latestEvents, fetchEvents, loading, error } = useEventStore();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const CardSection = () => {
               >
                 <div className="relative h-48 bg-gray-200 overflow-hidden">
                   <img
-                    src={`http://localhost:8000/images/${event.image}`}
+                    src={`${baseURL}/images/${event.image}`}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     alt={event.titre}
                   />

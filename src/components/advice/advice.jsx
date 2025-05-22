@@ -44,8 +44,7 @@ const Advice = () => {
   return (
     <div className="relative overflow-hidden min-h-[550px] sm:min-h-[650px] bg-white flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200">
       {/* Background pattern */}
-      <div className="h-[400px] w-[400px] sm:h-[700px] sm:w-[700px] from-orange-500 via-orange-400 to-orange-500 
-        absolute -top-1/3 sm:-top-1/2 right-0 rounded-3xl rotate-45 z-0"></div>
+      <div className="absolute h-[400px] w-[400px] sm:h-[700px] sm:w-[700px]  bg-orange-400 -top-1/3 sm:-top-1/2 right-0 rounded-3xl rotate-45 z-0"></div>
 
       {/* Section Conseils */}
       <div className="container pb-8 sm:pb-0">

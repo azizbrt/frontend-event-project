@@ -43,9 +43,9 @@ const Commentaire = () => {
       {
         onSuccess: () => {
           setComment("");
-          toast.success("✅ Commentaire publié !");
+          toast.success("Commentaire publié !");
         },
-        onError: () => toast.error("❌ Erreur lors de l'ajout du commentaire."),
+        onError: () => toast.error(" Erreur lors de l'ajout du commentaire."),
       }
     );
   };
@@ -119,7 +119,7 @@ const Commentaire = () => {
           )}
           {isError && (
             <p className="text-red-500">
-              ❌ Une erreur est survenue lors du chargement.
+              Une erreur est survenue lors du chargement.
             </p>
           )}
           {!isLoading && comments.length === 0 && (
@@ -201,7 +201,7 @@ const Commentaire = () => {
                             if (res._id) {
                               supprimerReponse(res._id);
                             } else {
-                              toast.error("❌ ID de la réponse manquant");
+                              toast.error(" ID de la réponse manquant");
                             }
                           }}
                           className="text-red-500 hover:text-red-700 text-xs absolute top-2 right-2"

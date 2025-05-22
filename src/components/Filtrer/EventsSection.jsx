@@ -18,6 +18,7 @@ const responsive = {
   tablet: { breakpoint: { max: 1024, min: 768 }, items: 2 },
   mobile: { breakpoint: { max: 768, min: 0 }, items: 1 },
 };
+const baseURL = import.meta.env.VITE_API_URL;
 
 const EventCard = ({ event }) => (
   <motion.div
@@ -29,7 +30,7 @@ const EventCard = ({ event }) => (
   >
     <div className="relative">
       <motion.img
-        src={`http://localhost:8000/images/${event.image}`}
+        src={`${baseURL}/images/${event.image}`}
         alt={event.titre}
         className="w-full h-48 object-cover rounded-lg"
         whileHover={{ scale: 1.05 }}
@@ -43,7 +44,9 @@ const EventCard = ({ event }) => (
     </div>
 
     <div className="mt-4 space-y-2">
-      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">{event.titre}</h3>
+      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+        {event.titre}
+      </h3>
       <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
       <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
         <CalendarDays className="w-4 h-4 text-orange-500" />
@@ -69,7 +72,9 @@ const CustomArrow = ({ onClick, direction }) => (
     onClick={onClick}
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
-    className={`absolute z-10 ${direction === "left" ? "left-0" : "right-0"} p-2 bg-white rounded-full shadow-lg`}
+    className={`absolute z-10 ${
+      direction === "left" ? "left-0" : "right-0"
+    } p-2 bg-white rounded-full shadow-lg`}
     aria-label={direction === "left" ? "Previous" : "Next"}
   >
     {direction === "left" ? (
@@ -81,7 +86,12 @@ const CustomArrow = ({ onClick, direction }) => (
 );
 
 const EventsSection = () => {
-  const { data: recommendedEvents = [], isLoading, isError, error } = useQuery({
+  const {
+    data: recommendedEvents = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["recommendedEvents"],
     queryFn: fetchRecommendedEvents,
   });
@@ -116,7 +126,11 @@ const EventsSection = () => {
         Événements à ne pas manquer
       </motion.h2>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative px-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="relative px-4"
+      >
         <Carousel
           responsive={responsive}
           infinite={true}

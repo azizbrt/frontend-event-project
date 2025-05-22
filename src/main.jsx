@@ -5,7 +5,7 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// ✅ Création du client React Query
+// Création du client React Query
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(

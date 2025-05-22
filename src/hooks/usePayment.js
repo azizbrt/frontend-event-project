@@ -1,52 +1,85 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+// hooks/usePaiementHooks.js
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useAuthStore } from "../store/authStore";
-import { useEffect } from "react";
 
 const API_URL = "http://localhost:8000/api/payments";
 
-export const useCreatePayment = () => {
-  
-
-  return useMutation({
-    mutationFn: async (data) => {
-      const response = await axios.post(`${API_URL}/create`, data);
-      return response.data;
+// 🔍 1. Récupérer les détails d’un paiement par inscriptionId
+export const usePaiementDetails = (inscriptionId, enabled = true) => {
+  return useQuery({
+    queryKey: ["paiement-details", inscriptionId],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_URL}/get/${inscriptionId}`, {
+        withCredentials: true,
+      });
+      return data;
     },
-    onSuccess: (data) => {
-      toast.success("paiment en attente!!");
-      console.log("Payment created successfully:", data);
-    },
-
+    enabled: !!inscriptionId && enabled,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
     onError: (error) => {
-      toast.error("Erreur lors de la création du paiement: " + error.message);
-      console.error("Error details:", error);
+      toast.error("Erreur lors du chargement du paiement");
+      console.error(" Erreur paiement-details:", error);
     },
   });
 };
 
-export const useGetAllPaiementsWithDetails = () => {
-  return useQuery({
-    queryKey: ["paiements"], // The query key is now an object with queryKey
-    queryFn: async () => {
-      try {
-        const response = await axios.get(`${API_URL}/get`);
-        return response.data.paiements; // Assuming the response contains paiements in the 'paiements' field
-      } catch (error) {
-        if (checkAuth) {
-          toast.error("Erreur lors de la récupération des paiements");
-        }
-        console.error("Error details:", error);
-        throw new Error(error.response?.data?.message || error.message);
+// 🧾 2. Créer un nouveau paiement
+export const useCreatePayment = () => {
+  return useMutation({
+    mutationFn: async (formDataValues) => {
+      const formData = new FormData();
+
+      formData.append("inscriptionId", formDataValues.inscriptionId);
+      if (formDataValues.preuve) {
+        formData.append("preuve", formDataValues.preuve); // "preuve" doit correspondre au nom dans le backend
       }
+
+      const { data } = await axios.post(`${API_URL}/create`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      return data;
     },
     onSuccess: (data) => {
-      console.log("Paiements fetched successfully:", data);
+      toast.success("Paiement soumis !");
+      console.log("Paiement créé :", data);
     },
     onError: (error) => {
-      console.error("Error fetching paiements:", error);
+      toast.error(
+        "Erreur paiement : " + (error.response?.data?.message || error.message)
+      );
+      console.error(" Paiement erreur :", error);
     },
-    refetchInterval: 600000, // Automatically refetch every 10 minutes (optional)
+  });
+};
+export const useValiderOuRefuserPaiement = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ paiementId, statut }) => {
+      const response = await axios.put(
+        `${API_URL}/valider/${paiementId}`,
+        { statut },
+        { withCredentials: true }
+      );
+      return response.data;
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries(["paiementDetails"]); //  à adapter selon ta clé de cache
+      queryClient.invalidateQueries(["inscriptions"]); //  idem si nécessaire
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message ||
+          "Erreur lors de la mise à jour du paiement"
+      );
+    },
   });
 };

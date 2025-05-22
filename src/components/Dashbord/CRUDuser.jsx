@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { useAddUser, useDeleteUser, useUpdateUser, useUsers } from "../../hooks/useUsers";
+import {
+  useAddUser,
+  useDeleteUser,
+  useUpdateUser,
+  useUsers,
+} from "../../hooks/useUsers";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import UserForm from "../admin users/UserForm";
@@ -22,34 +27,37 @@ const CrudUser = () => {
 
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
-      toast.error("⚠️ Tous les champs sont obligatoires !");
+      toast.error(" Tous les champs sont obligatoires !");
       return;
     }
     if (!newUser.role) {
-      toast.error("⚠️ Veuillez choisir un rôle !");
+      toast.error(" Veuillez choisir un rôle !");
       return;
     }
     if (!validateEmail(newUser.email)) {
-      toast.error("❌ Email invalide !");
+      toast.error(" Email invalide !");
       return;
     }
 
     addUser(newUser, {
       onSuccess: (data) => {
         if (data.success) {
-          toast.success("✅ Utilisateur créé ! Un email avec les instructions a été envoyé.");
+          toast.success(
+            "Utilisateur créé ! Un email avec les instructions a été envoyé."
+          );
         } else {
-          toast.error(`❌ ${data.message || "Erreur lors de la création"}`);
+          toast.error(` ${data.message || "Erreur lors de la création"}`);
         }
         setNewUser({ name: "", email: "", role: "" });
         queryClient.invalidateQueries({ queryKey: ["users"] });
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.message || "Une erreur est survenue";
+        const errorMessage =
+          error.response?.data?.message || "Une erreur est survenue";
         if (error.response?.status === 409) {
-          toast.error("❌ Cet email est déjà utilisé");
+          toast.error(" Cet email est déjà utilisé");
         } else {
-          toast.error(`❌ ${errorMessage}`);
+          toast.error(` ${errorMessage}`);
         }
       },
     });
@@ -64,26 +72,28 @@ const CrudUser = () => {
     if (!user._id) return;
     updateUserMutation(user, {
       onSuccess: () => {
-        toast.success("✅ Utilisateur mis à jour !");
+        toast.success("Utilisateur mis à jour !");
         queryClient.invalidateQueries({ queryKey: ["users"] });
         setShowModal(false);
       },
       onError: () => {
-        toast.error("❌ Erreur lors de la mise à jour !");
+        toast.error(" Erreur lors de la mise à jour !");
       },
     });
   };
 
   const handleDeleteUser = (userId) => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
+    const confirmDelete = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+    );
     if (confirmDelete) {
       deleteUserMutation(userId, {
         onSuccess: () => {
-          toast.success("✅ Utilisateur supprimé avec succès !");
+          toast.success("Utilisateur supprimé avec succès !");
           queryClient.invalidateQueries({ queryKey: ["users"] });
         },
         onError: () => {
-          toast.error("❌ Erreur lors de la suppression !");
+          toast.error(" Erreur lors de la suppression !");
         },
       });
     }
@@ -105,7 +115,11 @@ const CrudUser = () => {
         isAddingUser={isAddingUser}
       />
 
-      <UserTable users={users} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+      <UserTable
+        users={users}
+        onEdit={handleEditUser}
+        onDelete={handleDeleteUser}
+      />
 
       {showModal && (
         <EditUserModal

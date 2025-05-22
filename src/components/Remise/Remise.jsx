@@ -35,10 +35,10 @@ const Remise = ({ handleOrderPopup }) => {
   return (
     <section className="relative pt-28 overflow-hidden min-h-[550px] sm:min-h-[650px] bg-gray-100 dark:bg-gray-950 dark:text-white duration-200">
       {/* Decorative orange background blob */}
-      <div className="absolute h-[400px] w-[400px] sm:h-[700px] sm:w-[700px] bg-orange-400 -top-1/3 sm:-top-1/2 right-0 rounded-3xl rotate-45 z-0"></div>
+      <div className="absolute h-[400px] w-[400px] sm:h-[700px] sm:w-[700px]  bg-orange-400 -top-1/3 sm:-top-1/2 right-0 rounded-3xl rotate-45 z-0"></div>
 
       {/* Slider content */}
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 ">
         <Slider {...settings}>
           {ImageList.map((data) => (
             <div key={data.id}>

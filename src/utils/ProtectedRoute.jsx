@@ -54,7 +54,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           title: "Authentification requise",
           message: "Veuillez vous connecter pour accéder à cette page.",
           actionText: "Se connecter",
-          action: () => setRedirectPath("/")
+          action: () => setRedirectPath("/"),
         });
       } else if (!user?.isVerified) {
         setMessageConfig({
@@ -62,7 +62,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           title: "Vérification nécessaire",
           message: "Veuillez vérifier votre email pour accéder à cette page.",
           actionText: "Vérifier mon email",
-          action: () => setRedirectPath("/verify-email")
+          action: () => setRedirectPath("/verify-email"),
         });
       } else if (allowedRoles && !allowedRoles.includes(user.role)) {
         setMessageConfig({
@@ -70,12 +70,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           title: "Accès restreint",
           message: `Vous n'avez pas les permissions nécessaires (${user.role}).`,
           actionText: "Retour à l'accueil",
-          action: () => setRedirectPath(getDefaultRoute(user.role))
+          action: () => setRedirectPath(getDefaultRoute(user.role)),
         });
       } else {
-        // ✅ Utilisateur authentifié, vérifié, rôle autorisé
+        // Utilisateur authentifié, vérifié, rôle autorisé
         const defaultRoute = getDefaultRoute(user.role);
-        if (location.pathname === "/" ) {
+        if (location.pathname === "/") {
           setRedirectPath(defaultRoute);
         }
       }

@@ -1,8 +1,8 @@
 // src/hooks/useEventHooks.js
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const API_URL = "http://localhost:8000/api/events";
 
@@ -117,12 +117,14 @@ export const useUpdateEvent = () => {
       queryClient.invalidateQueries(["events"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Erreur lors de la mise à jour.");
+      toast.error(
+        error.response?.data?.message || "Erreur lors de la mise à jour."
+      );
     },
   });
 };
 
-// ✅ Modifier l’état (statut) d’un événement
+// Modifier l’état (statut) d’un événement
 const updateEventStatus = async ({ id, etat }) => {
   const { data } = await axios.put(`${API_URL}/etat/${id}`, { etat });
   return data;

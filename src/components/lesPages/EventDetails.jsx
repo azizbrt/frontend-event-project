@@ -21,6 +21,9 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const { data: eventsData, isLoading, isError } = useEvents();
+  const baseURL = import.meta.env.VITE_API_URL;
+  console.log("useParams().inscriptionId:", id);
+  console.log("location.state:", location.state);
 
   // 🎯 Trouver l'événement avec l'id donné
   const selectedEvent = eventsData?.events?.find(
@@ -100,7 +103,7 @@ const EventDetails = () => {
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
             <motion.img
-              src={`http://localhost:8000/images/${selectedEvent.image}`}
+              src={`${baseURL}/images/${selectedEvent.image}`}
               alt={`Image de ${selectedEvent.titre}`}
               className="w-full h-80 object-cover rounded-xl"
               whileHover={{ scale: 1.02 }}
@@ -150,8 +153,7 @@ const EventDetails = () => {
                 <span>
                   {formatHeure(selectedEvent.dateDebut)} →{" "}
                   {formatHeure(selectedEvent.dateFin)}{" "}
-                  <span className="text-sm text-gray-500">
-                  </span>
+                  <span className="text-sm text-gray-500"></span>
                 </span>
               </div>
 

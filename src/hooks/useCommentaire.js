@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 const API_URL = "http://localhost:8000/api/commentaires";
 
-// ✅ Créer un commentaire
+// Créer un commentaire
 export const useCreeCommentaire = () => {
   const queryClient = useQueryClient();
 
@@ -24,13 +24,13 @@ export const useCreeCommentaire = () => {
     onError: (error) => {
       const message =
         error?.response?.data?.message ||
-        "❌ Erreur lors de l’ajout du commentaire";
+        " Erreur lors de l’ajout du commentaire";
       toast.error(message);
     },
   });
 };
 
-// ✅ Récupérer les commentaires d’un événement
+// Récupérer les commentaires d’un événement
 export const useCommentairesByEvenement = (evenementId) => {
   return useQuery({
     queryKey: ["commentaires", evenementId],
@@ -41,14 +41,14 @@ export const useCommentairesByEvenement = (evenementId) => {
     onError: (error) => {
       const message =
         error?.response?.data?.message ||
-        "❌ Erreur lors du chargement des commentaires";
+        " Erreur lors du chargement des commentaires";
       toast.error(message);
     },
     refetchOnWindowFocus: false,
   });
 };
 
-// ✅ Export regroupé
+// Export regroupé
 export const useCommentaire = () => {
   const creeCommentaire = useCreeCommentaire();
   return { creeCommentaire };
@@ -67,26 +67,29 @@ export const useRepondreCommentaire = () => {
       return response.data;
     },
     onSuccess: () => {
-      toast.success("✅ Réponse ajoutée !");
+      toast.success("Réponse ajoutée !");
       queryClient.invalidateQueries(["commentaires"]); // pour actualiser les commentaires
     },
     onError: (error) => {
       console.error("Erreur lors de la réponse :", error);
-      toast.error("❌ Échec de l’ajout de la réponse");
+      toast.error(" Échec de l’ajout de la réponse");
     },
   });
 
   return { repondreCommentaire: mutation };
 };
-// ✅ Supprimer un commentaire
+// Supprimer un commentaire
 export const useSupprimerCommentaire = (evenementId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (commentaireId) => {
-      const res = await axios.delete(`${API_URL}/supprimercommentaire/${commentaireId}`, {
-        withCredentials: true,
-      });
+      const res = await axios.delete(
+        `${API_URL}/supprimercommentaire/${commentaireId}`,
+        {
+          withCredentials: true,
+        }
+      );
       return res.data;
     },
     onSuccess: () => {
@@ -96,12 +99,11 @@ export const useSupprimerCommentaire = (evenementId) => {
     onError: (error) => {
       const message =
         error?.response?.data?.message ||
-        "❌ Erreur lors de la suppression du commentaire";
+        " Erreur lors de la suppression du commentaire";
       toast.error(message);
     },
   });
 };
-
 
 export const useSupprimerReponse = (evenementId) => {
   const queryClient = useQueryClient();
@@ -112,15 +114,11 @@ export const useSupprimerReponse = (evenementId) => {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("✅ Réponse supprimée avec succès !");
+      toast.success("Réponse supprimée avec succès !");
       queryClient.invalidateQueries(["commentaires", evenementId]);
     },
     onError: () => {
-      toast.error("❌ Échec de la suppression de la réponse.");
+      toast.error(" Échec de la suppression de la réponse.");
     },
   });
 };
-
-
-
-

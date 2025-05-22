@@ -75,6 +75,9 @@ const UpdateProfile = () => {
     setMessages((prev) => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
   };
+  const peutPayer = (item) => {
+    return item.status === "en attente" && !item.paiementEffectué;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,7 +87,7 @@ const UpdateProfile = () => {
 
     try {
       await updateUserProfile(formData.name, formData.email, formData.password);
-      setMessages({ success: "✅ Profil mis à jour avec succès!", errors: {} });
+      setMessages({ success: "Profil mis à jour avec succès!", errors: {} });
       setFormData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
     } catch (err) {
       console.error("Update error:", err);
@@ -260,20 +263,18 @@ const UpdateProfile = () => {
                           )}
 
                           {/* Bouton payer si non payé */}
-                          {item.status !== "annulée" &&
-                            item.status !== "validée" &&
-                            !item.paiementEffectué && (
-                              <Link
-                                to={`/paiement/${item._id}`}
-                                state={{
-                                  eventId: item.evenement.id,
-                                  eventPrice: item.evenement.prix,
-                                }}
-                                className="px-4 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-                              >
-                                Payer maintenant
-                              </Link>
-                            )}
+                          {peutPayer(item) && (
+                            <Link
+                              to={`/paiement/${item._id}`}
+                              state={{
+                                eventId: item.evenement.id,
+                                eventPrice: item.evenement.prix,
+                              }}
+                              className="px-4 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                            >
+                              Payer maintenant
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

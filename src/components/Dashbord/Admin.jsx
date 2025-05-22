@@ -9,6 +9,7 @@ import { useAuthStore } from "../../store/authStore";
 import AddEvent from "./AddEvent";
 import AdminEvents from "./AdminEvents";
 import Statistique from "./Statestique";
+import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [selectedFeature, setSelectedFeature] = useState("users");
@@ -24,6 +25,12 @@ const Admin = () => {
     { key: "events", label: "Gérer les événements", icon: <FaCalendarAlt /> },
     { key: "statistics", label: "Statistiques globales", icon: <FaChartBar /> },
   ];
+    const navigate = useNavigate(); 
+
+  const Handlelogout = () => {
+    navigate("/"); 
+    logout();
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
@@ -64,8 +71,16 @@ const Admin = () => {
           className="bg-white shadow-md p-4 flex justify-between items-center"
         >
           <div className="flex items-center gap-4">
-            <span className="font-semibold text-gray-700">{user?.name}</span>
+            <span className="font-semibold text-gray-700">
+              Bonjour {user?.name}
+            </span>
           </div>
+          <button
+            onClick={Handlelogout}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+          >
+            Déconnexion
+          </button>
           <div className="relative group hidden sm:block">
             <input
               type="text"

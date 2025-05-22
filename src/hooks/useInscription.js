@@ -39,29 +39,30 @@ export const useInscription = () => {
 };
 
 // Consulter toutes les inscriptions (admin ou gestionnaire)
-export const useConsulterInscription = () => {
+export const useConsulterInscriptions = () => {
   return useQuery({
-    queryKey: ["inscription"],
+    queryKey: ["inscriptions"], // 🔑 Nom de la requête (clé pour le cache)
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/get`);
-      const inscriptionsAvecId = res.data.inscriptions.map((inscription) => ({
+      const response = await axios.get(`${API_URL}/get`);
+
+      // 🧹 On s’assure que chaque inscription a bien un champ `id`
+      return response.data.inscriptions.map((inscription) => ({
         ...inscription,
-        id: inscription.id,
+        id: inscription.id, // déjà présent, on le garde pour être sûr
       }));
-      return inscriptionsAvecId;
+    },
+    onSuccess: (data) => {
+      if (data.length > 0) {
+        toast.success("Inscriptions récupérées avec succès !");
+      }
     },
     onError: (error) => {
       const message =
         error?.response?.data?.message ||
-        "Erreur lors de la récupération des inscriptions";
+        " Une erreur est survenue lors du chargement des inscriptions.";
       toast.error(message);
     },
-    onSuccess: (data) => {
-      if (data.length > 0) {
-        toast.success("Inscriptions récupérées avec succès");
-      }
-    },
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false, // 🚫 Pas besoin de relancer quand on revient sur l’onglet
   });
 };
 
@@ -71,7 +72,7 @@ export const useValiderInscription = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        console.log("Deleting inscription with ID:", id);  
+      console.log("Deleting inscription with ID:", id);
       const res = await axios.put(`${API_URL}/valider/${id}`);
       return res.data;
     },
@@ -129,7 +130,9 @@ export const useSupprimerInscription = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-      const response = await axios.delete(`${API_URL}/annuleeinscription/${id}`);
+      const response = await axios.delete(
+        `${API_URL}/annuleeinscription/${id}`
+      );
       return response.data;
     },
 

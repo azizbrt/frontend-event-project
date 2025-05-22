@@ -1,10 +1,8 @@
-// ✅ Nouvelle façon (v5)
+// Nouvelle façon (v5)
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-
 const API_URL = "http://localhost:8000/api/admin";
-
 
 const fetchUsers = async () => {
   const { data } = await axios.get(`${API_URL}/users`); // adapte le endpoint
@@ -33,28 +31,30 @@ export const useAddUser = () => {
     mutationFn: AddUser,
   });
 };
-  const updateUser = async (updateUser) => {
-    const { _id, ...userData } = updateUser;
-    const response = await axios.put(`${API_URL}/users/${_id}`, userData);
-    return response.data;
-  };
-  
-  export const useUpdateUser = () => {
-    return useMutation({
-      mutationFn: updateUser,
-    });
-  };
-const deleteUser = async(userId) =>{
+const updateUser = async (updateUser) => {
+  const { _id, ...userData } = updateUser;
+  const response = await axios.put(`${API_URL}/users/${_id}`, userData);
+  return response.data;
+};
+
+export const useUpdateUser = () => {
+  return useMutation({
+    mutationFn: updateUser,
+  });
+};
+const deleteUser = async (userId) => {
   const response = await axios.delete(`${API_URL}/users/${userId}`);
   return response.data;
 };
-export const useDeleteUser =() =>{
+export const useDeleteUser = () => {
   return useMutation({
     mutationFn: deleteUser,
-  })
-}
+  });
+};
 const searchUsers = async (searchTerm) => {
-  const { data } = await axios.get(`${API_URL}/users/search?search=${searchTerm}`);
+  const { data } = await axios.get(
+    `${API_URL}/users/search?search=${searchTerm}`
+  );
   return data; // Return the search results
 };
 export const useSearchUsers = (searchTerm) => {
