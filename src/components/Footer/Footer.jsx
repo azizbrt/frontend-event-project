@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 import Banner from "../../assets/footer-pattern.jpg";
 import {
   FaFacebook,
@@ -7,6 +9,7 @@ import {
   FaLocationArrow,
   FaMobileAlt,
 } from "react-icons/fa";
+
 
 const BannerImg = {
   backgroundImage: `url(${Banner})`,
@@ -19,7 +22,7 @@ const BannerImg = {
 
 const FooterLinks = [
   { title: "Accueil", link: "/#" },
-  { title: "À propos", link: "/#about" },
+  { title: "À propos", link: "/about" },
   { title: "Contact", link: "/#contact" },
   { title: "Blog", link: "/#blog" },
 ];
@@ -45,7 +48,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-2">
               {FooterLinks.map((link) => (
                 <li key={link.title} className="cursor-pointer hover:text-orange-400 transition-all">
-                  <a href={link.link}>{link.title}</a>
+                  {link.title == "À propos" ? <Link to={link.link}>{link.title}</Link> :  <a href={link.link}>{link.title}</a> }
                 </li>
               ))}
             </ul>

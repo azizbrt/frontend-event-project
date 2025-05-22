@@ -5,6 +5,8 @@ import "aos/dist/aos.css";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+
 import "./index.css";
 
 // Layout Components
@@ -12,6 +14,7 @@ import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import CookieConsent from "./components/Cookie/CookieConsent";
 import Popup from "./components/Popup/Popup";
+import AboutPage from "./components/AboutPage";
 
 // Sections
 import Remise from "./components/Remise/Remise";
@@ -32,20 +35,8 @@ import UpdateProfile from "./components/Utilisateur/UpdateProfil";
 import Event from "./components/Utilisateur/Event";
 
 // Categories
-import Education from "./components/Categorie/Education";
-import Celebrations from "./components/Categorie/Celebrations";
-import Culture from "./components/Categorie/Culture";
-import Ecologie from "./components/Categorie/Ecologie";
-import Sport from "./components/Categorie/Sport";
-import Professionnel from "./components/Categorie/Professionnel";
-import Marches from "./components/Categorie/Marches";
-import Communautaire from "./components/Categorie/Communautaire";
 
 // Card Pages
-import Card2 from "./components/lesPages/Card2";
-import Card3 from "./components/lesPages/Card3";
-import Card4 from "./components/lesPages/Card4";
-import Card5 from "./components/lesPages/Card5";
 import EventDetails from "./components/lesPages/EventDetails";
 
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -73,7 +64,6 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
-
 const getContentReady = () => {
   window.addEventListener("load", () => {
     document.body.classList.add("loaded");
@@ -99,6 +89,23 @@ const Home = () => {
     </>
   );
 };
+
+const About =()=>{
+ const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const toggleLoginPopup = () => setShowLoginPopup(!showLoginPopup);
+
+  return (
+    <>
+      <Navbar handleOrderPopup={toggleLoginPopup} />
+      <AboutPage />
+      <Footer />
+      <Popup orderPopup={showLoginPopup} setOrderPopup={setShowLoginPopup} />
+      {/* <CookieConsent /> */}
+    </>
+  );
+}
+
+
 
 // Main Application Content
 const AppContent = () => {
@@ -161,14 +168,8 @@ const AppContent = () => {
         />
 
         {/* Categories */}
-        <Route path="/Education-et-Formation" element={<Education />} />
-        <Route path="/Culture-et-Loisirs" element={<Culture />} />
-        <Route path="/Celebrations-et-Fêtes" element={<Celebrations />} />
-        <Route path="/Ecologie-et-Environnement" element={<Ecologie />} />
-        <Route path="/Sport-et-Bien-être" element={<Sport />} />
-        <Route path="/Professionnel" element={<Professionnel />} />
-        <Route path="/Marches-et-Foires" element={<Marches />} />
-        <Route path="/Communautaire-et-Caritatif" element={<Communautaire />} />
+
+        <Route path="/about" element={<About />} />
 
         {/* User Dashboards */}
         <Route
