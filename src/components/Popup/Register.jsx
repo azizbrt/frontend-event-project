@@ -25,7 +25,7 @@ const Register = ({ setRegisterPopup, setOrderPopup }) => {
 
     try {
       await signup(email, password, name);
-      navigate("/verify-email");
+      navigate("/verify-email",{ state: { email: user.email } });
       setRegisterPopup(false);
       setOrderPopup(true);
     } catch (err) {

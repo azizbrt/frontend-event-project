@@ -101,7 +101,6 @@ const PaiementPage = () => {
                 <p><span className="font-medium">Titulaire:</span> Banque BRT</p>
                 <p><span className="font-medium">IBAN:</span> TN59 1234 5678 9012 3456 7890</p>
                 <p><span className="font-medium">BIC:</span> BICXXXXXXX</p>
-                <p><span className="font-medium">Référence:</span> {inscriptionId.slice(0, 8).toUpperCase()}</p>
               </div>
             </div>
 

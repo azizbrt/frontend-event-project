@@ -69,7 +69,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   verifyEmail: async (code) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null, verificationEmail: email });
     try {
       const response = await axios.post(
         `${API_URL}/verify-email`,
@@ -201,6 +201,30 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+  resendVerificationCode: async (email) => {
+  set({ isLoading: true, error: null, message: null });
+  try {
+    const response = await axios.post(
+      `${API_URL}/resend-code`,
+      { email },
+      { withCredentials: true }
+    );
+    set({
+      isLoading: false,
+      message: response.data.message || "Code renvoyé avec succès !",
+    });
+    return response.data;
+  } catch (error) {
+    set({
+      isLoading: false,
+      error:
+        error.response?.data?.message ||
+        "Erreur lors du renvoi du code de vérification",
+    });
+    throw error;
+  }
+},
+
 
   // Optionally, add a function to clear error or reset user state
   clearError: () => set({ error: null }),

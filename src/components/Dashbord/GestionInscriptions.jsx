@@ -12,8 +12,10 @@ import {
 
 const baseURL = import.meta.env.VITE_API_URL;
 
+
 // Payment popup to show payment info and accept/refuse buttons
 const PaymentDetailsModal = ({ paiement, onClose }) => {
+  
   const { mutate: validerOuRefuserPaiement, isLoading } =
     useValiderOuRefuserPaiement();
 

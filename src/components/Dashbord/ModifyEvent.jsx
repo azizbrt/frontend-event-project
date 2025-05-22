@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { FaCalendarAlt, FaUsers, FaEdit, FaTimes } from "react-icons/fa";
 import { useEventById, useUpdateEvent } from "../../hooks/useEvents";
 import toast from "react-hot-toast";
+import { useGetCategories } from "../../hooks/useCategorie";
 
 const ModifyEvent = ({ eventId, isOpen, onClose }) => {
   const { data: event, isLoading, isError } = useEventById(eventId);
   const { mutate: updateEvent, isPending } = useUpdateEvent();
+  const { data: categories, isLoading: categoriesLoading } = useGetCategories();
 
   const [formData, setFormData] = useState({
     titre: "",
@@ -16,8 +18,10 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
     dateFin: "",
     capacite: "",
     description: "",
-    image: null, // <-- for new image
+    image: null,
     prix: "",
+    categorieName: "",
+    tag: [],
   });
 
   useEffect(() => {
@@ -29,8 +33,10 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
         dateFin: event.dateFin?.slice(0, 10) || "",
         capacite: event.capacite || "",
         description: event.description || "",
-        image: null, // keep null until new image uploaded
+        image: null,
         prix: event.prix || "",
+        categorieName: event.categorieName || "",
+        tag: event.tag || [],
       });
     }
   }, [event]);
@@ -53,8 +59,10 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
     form.append("capacite", formData.capacite);
     form.append("description", formData.description);
     form.append("prix", formData.prix);
+    form.append("categorieName", formData.categorieName);
+    form.append("tag", JSON.stringify(formData.tag));
 
-    // N'ajouter l'image que si elle a été changée
+
     if (formData.image) {
       form.append("image", formData.image);
     }
@@ -175,6 +183,34 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   <option value="hybride">Hybride</option>
                 </select>
               </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.33 }}
+                className="space-y-1"
+              >
+                <label className="block text-sm font-medium text-gray-700">
+                  Catégorie
+                </label>
+                <select
+                  name="categorieName"
+                  value={formData.categorieName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {categoriesLoading ? (
+                    <option>Chargement...</option>
+                  ) : (
+                    categories?.map((cat) => (
+                      <option key={cat.name} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </motion.div>
 
               <div className="grid grid-cols-2 gap-4">
                 <motion.div
@@ -252,6 +288,30 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.38 }}
+                className="space-y-1"
+              >
+                <label className="block text-sm font-medium text-gray-700">
+                  Tags (séparés par des virgules)
+                </label>
+                <input
+                  type="text"
+                  name="tagInput"
+                  value={formData.tag.join("#")}
+                  onChange={(e) => {
+                    const tagsArray = e.target.value
+                      .split("#")
+                      .map((t) => t.trim())
+                      .filter((t) => t.length > 0);
+                    setFormData((prev) => ({ ...prev, tag: tagsArray }));
+                  }}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </motion.div>
+
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}

@@ -213,7 +213,7 @@ const AppContent = () => {
           path="/verify-email"
           element={
             <RedirectAuthenticatedUser>
-              <EmailVerificationPage />
+              <EmailVerificationPage  />
             </RedirectAuthenticatedUser>
           }
         />
