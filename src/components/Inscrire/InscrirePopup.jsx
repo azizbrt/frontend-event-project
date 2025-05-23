@@ -59,9 +59,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
       >
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-gray-800">
-              Join {title}
-            </h3>
+            <h3 className="text-xl font-bold text-gray-800">Join {title}</h3>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-xl"
@@ -138,13 +136,13 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
               )}
 
               {/* Price Display */}
-              {eventPrice > 0 && (
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <p className="font-medium text-blue-800">
-                    Event Price: {eventPrice} DT
-                  </p>
-                </div>
-              )}
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="font-medium text-blue-800">
+                  {eventPrice > 0
+                    ? `Event Price: ${eventPrice} DT`
+                    : "This is a FREE event!"}
+                </p>
+              </div>
             </div>
 
             {/* Action Buttons */}
@@ -157,23 +155,19 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
               >
                 Cancel
               </button>
-              
+
               <button
                 type="submit"
                 className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 flex items-center justify-center min-w-32"
                 disabled={isPending}
               >
-                {isPending ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  "Continue to Payment"
-                )}
+                {
+                  isPending
+                    ? "Processing..."
+                    : eventPrice > 0
+                    ? "Continue to Payment" // 💵 Paid event
+                    : "Complete Registration" // 🎉 Free event
+                }
               </button>
             </div>
           </form>

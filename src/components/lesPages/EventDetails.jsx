@@ -31,11 +31,23 @@ const EventDetails = () => {
   );
 
   // 👶 Fonction pour aller à la page de paiement après inscription
-  const handleInscriptionSuccess = (inscriptionId) => {
+const handleInscriptionSuccess = (inscriptionId) => {
+  if (selectedEvent.prix > 0) {
+    //  Paid event - go to payment
     navigate(`/paiement/${inscriptionId}`, {
-      state: { eventId: selectedEvent._id, eventPrice: selectedEvent.prix }, // 👉 on passe eventId ici
+      state: { eventId: selectedEvent._id, eventPrice: selectedEvent.prix },
     });
-  };
+  } else {
+    //  Free event - show success message
+    setShowPopup(false); // Close signup popup
+    Swal.fire({
+      title: "Inscription réussie !",
+      text: "Vous êtes inscrit à cet événement gratuit.",
+      icon: "success",
+      confirmButtonText: "Super !",
+    });
+  }
+};
 
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString("fr-FR", {

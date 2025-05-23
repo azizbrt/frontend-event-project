@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import {
   useAnnulerInscription,
   useConsulterInscriptions,
+  useDeleteGestionnaireInscription,
+  useSupprimerInscription,
   useValiderInscription,
 } from "../../hooks/useInscription";
 import {
@@ -12,10 +14,8 @@ import {
 
 const baseURL = import.meta.env.VITE_API_URL;
 
-
 // Payment popup to show payment info and accept/refuse buttons
 const PaymentDetailsModal = ({ paiement, onClose }) => {
-  
   const { mutate: validerOuRefuserPaiement, isLoading } =
     useValiderOuRefuserPaiement();
 
@@ -163,6 +163,41 @@ const GestionInscriptions = () => {
     useValiderInscription();
   const { mutate: annulerInscription, isLoading: loadingAnnulation } =
     useAnnulerInscription();
+  const { mutate: supprimerInscription, isLoading } =
+    useDeleteGestionnaireInscription();
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Vous allez supprimer cette inscription.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      input: "select",
+      inputOptions: {
+        "Paiement non reçu": "Paiement non reçu",
+        "Demande du participant": "Demande du participant",
+        "Erreur de saisie": "Erreur de saisie",
+        "Nombre maximum atteint": "Nombre maximum atteint",
+        "Problème technique": "Problème technique",
+        Autre: "Autre",
+      },
+      inputPlaceholder: "Choisissez la cause",
+      preConfirm: (cause) => {
+        if (!cause) {
+          Swal.showValidationMessage("Veuillez choisir une cause");
+        }
+        return cause;
+      },
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        supprimerInscription({ id, cause: result.value });
+      }
+    });
+  };
 
   if (isLoadingInscriptions) return <div>Chargement...</div>;
   if (isError) return <div>{error?.message || "Erreur de chargement"}</div>;
@@ -217,15 +252,20 @@ const GestionInscriptions = () => {
                     {inscription.status}
                   </td>
                   <td className="p-3 border border-gray-300">
-                    <button
-                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      
-                      onClick={() => setSelectedInscriptionId(id)}
-                      
-                    >
-                      Voir paiement
-                    </button>
+                    {inscription.evenement.prix === 0 ?(
+                      <span className="text-green-600 font-semibold">
+                        C'est un événement gratuit
+                      </span>
+                    ) : (
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        onClick={() => setSelectedInscriptionId(id)}
+                      >
+                        Voir paiement
+                      </button>
+                    )}
                   </td>
+
                   <td className="p-3 border border-gray-300 space-x-2">
                     <button
                       onClick={() =>
@@ -242,7 +282,10 @@ const GestionInscriptions = () => {
                             validerInscription(
                               inscription._id || inscription.id
                             );
-                            console.log("ID being sent:", inscription._id || inscription.id);
+                            console.log(
+                              "ID being sent:",
+                              inscription._id || inscription.id
+                            );
                           }
                         })
                       }
@@ -272,6 +315,13 @@ const GestionInscriptions = () => {
                       className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loadingAnnulation ? "Annulation..." : "Annuler"}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(id)} // On appelle seulement UNE fonction
+                      disabled={isLoading}
+                      className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Supprimer
                     </button>
                   </td>
                 </tr>

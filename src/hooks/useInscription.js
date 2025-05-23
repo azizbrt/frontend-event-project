@@ -148,3 +148,35 @@ export const useSupprimerInscription = () => {
     },
   });
 };
+export const useDeleteGestionnaireInscription = () => {
+  const queryClient = useQueryClient(); // Pour recharger les données après suppression
+
+  return useMutation({
+    // 🎯 Fonction qui sera appelée quand on veut supprimer une inscription
+    mutationFn: async ({ id, cause }) => {
+      const res = await axios.delete(
+        `${API_URL}/deleteinscription/${id}`,
+        {
+          data: { cause }, // ✅ On envoie aussi la cause dans le corps
+        }
+      );
+      return res.data;
+    },
+
+    // ✅ Si la suppression s’est bien passée
+    onSuccess: (data) => {
+      toast.success(data.message || "Inscription supprimée avec succès");
+      // 🔄 On met à jour les données locales pour que l’UI soit à jour
+      queryClient.invalidateQueries(["inscriptions"]);
+      queryClient.invalidateQueries(["mesInscriptions"]);
+    },
+
+    // ❌ Si une erreur se produit
+    onError: (error) => {
+      const message =
+        error?.response?.data?.message ||
+        "Erreur lors de la suppression de l'inscription";
+      toast.error(message);
+    },
+  });
+};
