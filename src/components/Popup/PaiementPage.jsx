@@ -12,9 +12,9 @@ const PaiementPage = () => {
   const { inscriptionId } = useParams();
   const location = useLocation();
   const { eventId, eventPrice } = location.state || {};
-  
+
   const [paymentFile, setPaymentFile] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState("pending"); // 'pending', 'submitted', 'error'
+  const [paymentStatus, setPaymentStatus] = useState("pending");
   const [reference, setReference] = useState("");
   const { mutate: createPayment, isLoading } = useCreatePayment();
 
@@ -57,7 +57,7 @@ const PaiementPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
-      <main className="flex-grow flex items-center justify-center px-4 py-12">
+      <main className="flex-grow flex items-start justify-center px-4 py-12 mt-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,7 +86,6 @@ const PaiementPage = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Payment Amount */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-700">Montant à payer</span>
@@ -94,7 +93,6 @@ const PaiementPage = () => {
               </div>
             </div>
 
-            {/* Bank Information */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <h3 className="font-medium text-gray-700 mb-2">Coordonnées Bancaires</h3>
               <div className="space-y-1 text-sm">
@@ -104,11 +102,10 @@ const PaiementPage = () => {
               </div>
             </div>
 
-            {/* Payment Proof Upload */}
             {paymentStatus !== "submitted" && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Avis de debit
+                  Avis de débit
                 </label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                   <div className="space-y-1 text-center">
@@ -140,7 +137,6 @@ const PaiementPage = () => {
               </div>
             )}
 
-            {/* Reference Number */}
             {paymentStatus === "submitted" && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center gap-2">
@@ -156,7 +152,6 @@ const PaiementPage = () => {
               </div>
             )}
 
-            {/* Submit Button */}
             {paymentStatus !== "submitted" && (
               <button
                 onClick={handlePaymentDeclaration}

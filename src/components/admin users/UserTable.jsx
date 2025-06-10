@@ -1,25 +1,24 @@
 import React, { useState } from "react";
 import { useSearchUsers } from "../../hooks/useUsers";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const UserTable = ({ users, onEdit, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // new state to trigger search
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: filteredUsers, isLoading, isError } = useSearchUsers(searchQuery);
 
   const handleInputChange = (e) => {
-    setSearchTerm(e.target.value); // just update the input
+    setSearchTerm(e.target.value);
   };
 
   const handleSearchClick = () => {
-    setSearchQuery(searchTerm); // when click, set the query to search
+    setSearchQuery(searchTerm);
   };
 
-  // Handle loading or error
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error while fetching users!</p>;
 
-  // Choose what to display
   const displayUsers = searchQuery && filteredUsers?.length > 0 ? filteredUsers : users;
 
   if (displayUsers.length === 0) {
@@ -59,30 +58,34 @@ const UserTable = ({ users, onEdit, onDelete }) => {
           </thead>
           <tbody>
             {displayUsers.map((user) => (
-              <tr key={user._id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-4 text-center">{user.name}</td>
-                <td className="py-2 px-4 text-center">{user.email}</td>
-                <td className="py-2 px-4 text-center capitalize">{user.role}</td>
-                <td className="py-2 px-4 text-center">
+              <tr key={user._id} className="border-b hover:bg-gray-50 text-center">
+                <td className="py-2 px-4">{user.name}</td>
+                <td className="py-2 px-4">{user.email}</td>
+                <td className="py-2 px-4 capitalize">{user.role}</td>
+                <td className="py-2 px-4">
                   {user.etatCompte === "actif" ? (
                     <span className="text-green-500 font-semibold">Actif</span>
                   ) : (
                     <span className="text-red-500 font-semibold">Inactif</span>
                   )}
                 </td>
-                <td className="py-2 px-4 flex justify-center gap-2">
-                  <button
-                    onClick={() => onEdit(user)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    onClick={() => onDelete(user._id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
-                  >
-                    Supprimer
-                  </button>
+                <td className="py-2 px-4">
+                  <div className="flex justify-center gap-3">
+                    <button
+                      onClick={() => onEdit(user)}
+                      className="text-blue-500 hover:text-blue-700 text-lg"
+                      title="Modifier"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => onDelete(user)}
+                      className="text-red-500 hover:text-red-700 text-lg"
+                      title="Supprimer"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

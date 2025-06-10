@@ -105,7 +105,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
           transition={{ duration: 0.2 }}
           className="w-full max-w-md rounded-xl bg-white shadow-xl overflow-hidden"
         >
-          <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
+          <div className="bg-orange-500 p-4 text-white flex justify-between items-center">
             <Dialog.Title className="text-xl font-bold flex items-center gap-2">
               <FaEdit /> Modifier l'événement
             </Dialog.Title>
@@ -132,7 +132,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   name="titre"
                   value={formData.titre}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   required
                 />
               </motion.div>
@@ -151,7 +151,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   value={formData.prix}
                   onChange={handleChange}
                   min="0"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   required
                 />
                 {parseFloat(formData.prix) === 0 && (
@@ -174,7 +174,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   name="typeEvenement"
                   value={formData.typeEvenement}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   required
                 >
                   <option value="">Sélectionnez un type</option>
@@ -196,7 +196,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   name="categorieName"
                   value={formData.categorieName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   required
                 >
                   <option value="">Sélectionnez une catégorie</option>
@@ -227,7 +227,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                     name="dateDebut"
                     value={formData.dateDebut}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                     required
                   />
                 </motion.div>
@@ -246,7 +246,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                     name="dateFin"
                     value={formData.dateFin}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   />
                 </motion.div>
               </div>
@@ -266,7 +266,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   value={formData.capacite}
                   onChange={handleChange}
                   min="1"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                   required
                 />
               </motion.div>
@@ -285,7 +285,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                   value={formData.description}
                   onChange={handleChange}
                   rows="3"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                 />
               </motion.div>
               <motion.div
@@ -308,7 +308,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                       .filter((t) => t.length > 0);
                     setFormData((prev) => ({ ...prev, tag: tagsArray }));
                   }}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
                 />
               </motion.div>
 
@@ -364,7 +364,7 @@ const ModifyEvent = ({ eventId, isOpen, onClose }) => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className={`px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 ${
+                  className={`px-4 py-2 text-white bg-orange-400 rounded-lg hover:bg-orange-400 transition-colors flex items-center gap-2 ${
                     isPending ? "opacity-70" : ""
                   }`}
                 >

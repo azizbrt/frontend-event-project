@@ -12,9 +12,6 @@ const Navbar = ({ handleOrderPopup }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
-  
-    console.log("from Navbar,", handleOrderPopup)
-
 
   const handleLogout = () => {
     logout();
@@ -45,11 +42,7 @@ const Navbar = ({ handleOrderPopup }) => {
 
           {/* Right buttons */}
           <div className="hidden sm:flex items-center gap-4">
-            {/* Lien À propos (desktop) */}
-            <Link
-              to="/about"
-              className=" text-white  hover:text-orange-600 transition"
-            >
+            <Link to="/about" className="text-white hover:text-orange-600 transition">
               À Propos
             </Link>
 
@@ -84,37 +77,25 @@ const Navbar = ({ handleOrderPopup }) => {
                         <ul className="text-sm">
                           {user?.role === "admin" && (
                             <li>
-                              <Link
-                                to="/admin"
-                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                              >
+                              <Link to="/admin" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                                 🛠️ Tableau Admin
                               </Link>
                             </li>
                           )}
                           {["gestionnaire"].includes(user?.role) && (
                             <li>
-                              <Link
-                                to="/gestionnaire"
-                                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                              >
+                              <Link to="/gestionnaire" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                                 🗂️ Tableau Gestionnaire
                               </Link>
                             </li>
                           )}
                           <li>
-                            <Link
-                              to="/UpdateProfil"
-                              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
+                            <Link to="/UpdateProfil" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                               👤 Mon Profil
                             </Link>
                           </li>
                           <li>
-                            <button
-                              onClick={handleLogout}
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
+                            <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                               🚪 Déconnexion
                             </button>
                           </li>
@@ -158,10 +139,11 @@ const Navbar = ({ handleOrderPopup }) => {
           } bg-gray-100 dark:bg-gray-800 py-3`}
         >
           <div className="text-center text-xl text-orange-500 dark:text-white animate-pulse">
-            Bienvenue sur EVENT !
-            {!isAuthenticated && (
+            {isAuthenticated && user?.isVerified ? (
+              <>👋 Bienvenue, {user?.name} !</>
+            ) : (
               <>
-                {" "}👉🏻{" "}
+                Pour créer un Event ! 👉🏻{" "}
                 <a
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=widedlabidi791dadou@gmail.com"
                   target="_blank"
@@ -191,48 +173,29 @@ const Navbar = ({ handleOrderPopup }) => {
               className="w-full px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800"
             />
 
-            {/* Lien À propos mobile */}
-            <Link
-              to="/about"
-              className=" block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
+            <Link to="/about" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
               ℹ️ À propos
             </Link>
 
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/evenements"
-                  className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <Link to="/evenements" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   🗓️ Tous les événements
                 </Link>
                 {user?.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
+                  <Link to="/admin" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                     🛠️ Tableau Admin
                   </Link>
                 )}
                 {["gestionnaire"].includes(user?.role) && (
-                  <Link
-                    to="/gestionnaire"
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
+                  <Link to="/gestionnaire" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                     🗂️ Tableau Gestionnaire
                   </Link>
                 )}
-                <Link
-                  to="/UpdateProfil"
-                  className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <Link to="/UpdateProfil" className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                   👤 Mon Profil
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                   🚪 Déconnexion
                 </button>
               </>

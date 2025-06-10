@@ -18,6 +18,7 @@ import {
   Loader2,
   UserCircle,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const Commentaire = () => {
   const [comment, setComment] = useState("");
@@ -45,7 +46,7 @@ const Commentaire = () => {
           setComment("");
           toast.success("Commentaire publié !");
         },
-        onError: () => toast.error(" Erreur lors de l'ajout du commentaire."),
+        onError: () => toast.error("Erreur lors de l'ajout du commentaire."),
       }
     );
   };
@@ -71,9 +72,57 @@ const Commentaire = () => {
     );
   };
 
+  const handleDeleteComment = (commentId) => {
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Cette action supprimera le commentaire définitivement.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        supprimerCommentaire(commentId, {
+          onSuccess: () => {
+            toast.success("Commentaire supprimé !");
+          },
+          onError: () => {
+            toast.error("Erreur lors de la suppression.");
+          },
+        });
+      }
+    });
+  };
+
+  const handleDeleteReply = (replyId) => {
+    Swal.fire({
+      title: "Supprimer cette réponse ?",
+      text: "Cette action est irréversible.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        supprimerReponse(replyId, {
+          onSuccess: () => {
+            toast.success("Réponse supprimée !");
+          },
+          onError: () => {
+            toast.error("Erreur lors de la suppression de la réponse.");
+          },
+        });
+      }
+    });
+  };
+
   return (
     <motion.div
-      className="bg-gray-50 py-10 px-4"
+      className="bg-white py-10 px-4"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -92,7 +141,7 @@ const Commentaire = () => {
           transition={{ delay: 0.3 }}
         >
           <textarea
-            className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500"
+            className="w-full p-4 border border-white rounded-xl focus:ring-2 focus:ring-orange-500"
             placeholder="Tape ton message ici..."
             rows="3"
             value={comment}
@@ -145,7 +194,7 @@ const Commentaire = () => {
                 </div>
                 {user?.role === "admin" && (
                   <button
-                    onClick={() => supprimerCommentaire(comment._id)}
+                    onClick={() => handleDeleteComment(comment._id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={16} />
@@ -155,7 +204,7 @@ const Commentaire = () => {
 
               <p className="text-gray-800 mb-2">{comment.contenu}</p>
 
-              {/* Réponses */}
+              {/* Réponse */}
               <form onSubmit={(e) => handleAddReply(e, comment._id)}>
                 <input
                   type="text"
@@ -166,7 +215,6 @@ const Commentaire = () => {
                     handleReplyChange(comment._id, e.target.value)
                   }
                 />
-
                 <button
                   type="submit"
                   className="mt-2 flex items-center gap-1 text-sm bg-gray-400 hover:bg-gray-500 text-white py-1 px-4 rounded-lg transition"
@@ -175,7 +223,7 @@ const Commentaire = () => {
                 </button>
               </form>
 
-              {/* Liste des réponses */}
+              {/* Réponses */}
               {comment.responses?.length > 0 && (
                 <div className="mt-3 pl-4 border-l-2 border-orange-300 space-y-2">
                   {comment.responses.map((res, i) => (
@@ -199,9 +247,9 @@ const Commentaire = () => {
                         <button
                           onClick={() => {
                             if (res._id) {
-                              supprimerReponse(res._id);
+                              handleDeleteReply(res._id);
                             } else {
-                              toast.error(" ID de la réponse manquant");
+                              toast.error("ID de la réponse manquant");
                             }
                           }}
                           className="text-red-500 hover:text-red-700 text-xs absolute top-2 right-2"

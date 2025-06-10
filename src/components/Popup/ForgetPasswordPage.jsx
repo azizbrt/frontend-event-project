@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import passImage from "../../assets/forgetpass.png"; 
 
 const ForgotPasswordPage = () => {
 	const [email, setEmail] = useState("");
@@ -22,6 +23,15 @@ const ForgotPasswordPage = () => {
 			transition={{ duration: 0.5 }}
 			className='max-w-md w-full bg-white bg-opacity-90 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-auto mt-10'
 		>
+			{/* Image d'en-tête */}
+			<div className="w-full bg-gradient-to-r from-white to-white flex justify-center py-4">
+				<img
+					src={passImage}
+					alt="Mot de passe oublié"
+					className="max-h-60 object-contain"
+				/>
+			</div>
+
 			<div className='p-8'>
 				<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-orange-500 to-orange-600 text-transparent bg-clip-text'>
 					Mot de passe oublié ?
@@ -33,7 +43,6 @@ const ForgotPasswordPage = () => {
 							Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
 						</p>
 						<div className='relative mb-4'>
-							{/* Input field with the Mail icon inside */}
 							<Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500' />
 							<input
 								className='w-full p-3 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500'

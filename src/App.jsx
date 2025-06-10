@@ -22,6 +22,7 @@ import CardSection from "./components/lesPages/CardSection";
 import EventsSection from "./components/Filtrer/EventsSection";
 import Description from "./components/Description/TEAM";
 
+
 // Auth & Verification
 import EmailVerificationPage from "./components/Popup/EmailVerificationPage";
 import ForgetPasswordPage from "./components/Popup/ForgetPasswordPage";
@@ -83,6 +84,7 @@ const Home = () => {
       <CardSection />
       <EventsSection />
       <Description />
+      
       <Footer />
       <Popup orderPopup={showLoginPopup} setOrderPopup={setShowLoginPopup} />
       <CookieConsent />
@@ -100,6 +102,7 @@ const About =()=>{
       <AboutPage />
       <Footer />
       <Popup orderPopup={showLoginPopup} setOrderPopup={setShowLoginPopup} />
+     
       {/* <CookieConsent /> */}
     </>
   );
@@ -137,6 +140,7 @@ const AppContent = () => {
             </RedirectAuthenticatedUser>
           }
         />
+        
         <Route
           path="/paiement/:inscriptionId"
           element={
@@ -170,6 +174,7 @@ const AppContent = () => {
         {/* Categories */}
 
         <Route path="/about" element={<About />} />
+        
 
         {/* User Dashboards */}
         <Route
@@ -220,6 +225,7 @@ const AppContent = () => {
         />
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        
       </Routes>
     </>
   );

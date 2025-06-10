@@ -3,7 +3,7 @@ import Navbar from "../Navbar/Navbar";
 import Advice from "../advice/advice";
 import EventsSection from "../Filtrer/EventsSection";
 import CardSection from "../lesPages/CardSection";
-import Description from "../Description/TEAM";
+
 import Footer from "../Footer/Footer";
 import { BsEnvelopePaper } from "react-icons/bs";
 import Swal from "sweetalert2";
@@ -16,7 +16,7 @@ const Utilisateurs = () => {
     event.preventDefault();
     const formData = new FormData(event.target);
 
-    formData.append("access_key", "c12a0a7f-5121-4b0d-8cf1-f6572be7d413");
+    formData.append("access_key", "32ba1629-63c6-412a-9d3f-7b56322950b6");
     const object = Object.fromEntries(formData);
     const json = JSON.stringify(object);
 
@@ -59,7 +59,7 @@ const Utilisateurs = () => {
       <Advice />
       <CardSection />
       <EventsSection />
-      <Description />
+   
 
       {/* Contact Section */}
       <section className="max-w-6xl mx-auto px-4 py-12 md:py-16">

@@ -25,7 +25,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
 
     // Check required fields
     if (!formData.phone || !formData.nomAffiché) {
-      setError("Please fill in all required fields");
+      setError("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
@@ -41,8 +41,8 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
       onSuccess(res.inscription?._id, formData);
       onClose();
     } catch (err) {
-      console.error("Registration error:", err);
-      setError("Oops! Something went wrong. Please try again.");
+      console.error("Erreur d'enregistrement:", err);
+      setError("Oups ! Un problème est survenu. Veuillez réessayer.");
     }
   };
 
@@ -74,7 +74,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
               {/* Display Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Display Name *
+                 Votre nom d'affichage *
                 </label>
                 <input
                   type="text"
@@ -87,14 +87,14 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                   disabled={isPending}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  This name will be visible to others
+                  Ce nom sera visible par les autres
                 </p>
               </div>
 
               {/* Phone Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number *
+                 Numéro de téléphone *
                 </label>
                 <input
                   type="tel"
@@ -104,7 +104,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                   pattern="[0-9]{8,15}"
-                  title="Please enter a valid phone number"
+                  title="Veuillez entrer un numéro de téléphone valide"
                   disabled={isPending}
                 />
               </div>
@@ -140,7 +140,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                 <p className="font-medium text-blue-800">
                   {eventPrice > 0
                     ? `Event Price: ${eventPrice} DT`
-                    : "This is a FREE event!"}
+                    : "C'est un événement GRATUIT!"}
                 </p>
               </div>
             </div>
@@ -153,7 +153,7 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-md"
                 disabled={isPending}
               >
-                Cancel
+                Annuler
               </button>
 
               <button
@@ -163,10 +163,10 @@ const InscrirePopup = ({ onClose, onSuccess, eventId, title, eventPrice }) => {
               >
                 {
                   isPending
-                    ? "Processing..."
+                    ? "Traitement..."
                     : eventPrice > 0
-                    ? "Continue to Payment" // 💵 Paid event
-                    : "Complete Registration" // 🎉 Free event
+                    ? "Continuer vers le paiement" // 💵 Paid event
+                    : "Terminer l'inscription" // 🎉 Free event
                 }
               </button>
             </div>

@@ -2,16 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
+import verifImage from "../../assets/verification.png"; // ✅ Image importée
 
 const EmailVerificationPage = () => {
-  // State for the 6-digit code, each digit in its own slot
   const [code, setCode] = useState(["", "", "", "", "", ""]);
-  // Refs for each input field to control focus
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const { error, isLoading, verifyEmail } = useAuthStore();
 
-  // Handle changes in the input fields
   const handleChange = (index, value) => {
     const newCode = [...code];
     if (value.length === 1) {
@@ -21,7 +19,6 @@ const EmailVerificationPage = () => {
         inputRefs.current[index + 1].focus();
       }
     } else if (value.length > 1) {
-      // Handle paste: split the pasted value and fill in the inputs
       const pastedCode = value.slice(0, 6).split("");
       for (let i = 0; i < 6; i++) {
         newCode[i] = pastedCode[i] || "";
@@ -34,14 +31,12 @@ const EmailVerificationPage = () => {
     }
   };
 
-  // Handle backspace: move focus to the previous input if current is empty
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  // Modified handleSubmit that doesn't require an event parameter
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -56,10 +51,9 @@ const EmailVerificationPage = () => {
     }
   };
 
-  // Auto-submit when all fields are filled
   useEffect(() => {
     if (code.every((digit) => digit !== "")) {
-      handleSubmit(); // Call handleSubmit directly without creating a new event
+      handleSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
@@ -67,12 +61,20 @@ const EmailVerificationPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-orange-500 to-orange-400 text-transparent bg-clip-text">
+
+        {/* ✅ Image affichée en haut */}
+        <div className="flex justify-center mb-6">
+          <img src={verifImage} alt="Vérification Email" className="max-h-60 object-contain" />
+        </div>
+
+        <h2 className="text-3xl font-bold mb-4 text-center bg-gradient-to-r from-orange-500 to-orange-400 text-transparent bg-clip-text">
           Verify Your Email
         </h2>
+
         <p className="text-center text-gray-600 mb-6">
           Enter the 6-digit code sent to your email address.
         </p>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex justify-between">
             {code.map((digit, index) => (
@@ -88,11 +90,13 @@ const EmailVerificationPage = () => {
               />
             ))}
           </div>
+
           {error && (
             <div className="text-red-500 text-center">
               {error.message}
             </div>
           )}
+
           <button
             type="submit"
             disabled={isLoading || code.some((digit) => !digit)}

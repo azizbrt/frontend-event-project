@@ -80,14 +80,20 @@ const Statistique = () => {
         {stats.map(({ name, value, icon }, idx) => (
           <motion.div
             key={idx}
-            className="flex items-center bg-white border rounded-xl p-6 shadow-sm gap-5"
+            className="flex flex-col sm:flex-row items-center bg-white border rounded-xl p-6 shadow-sm gap-5"
             variants={item}
           >
+            {/* Titre hors card en mobile */}
+            <p className="block sm:hidden mb-2 text-center text-gray-600 font-medium">{name}</p>
+
             <div className="bg-gray-100 p-3 rounded-full">{icon}</div>
-            <div>
+
+            {/* Titre dans la card sur desktop */}
+            <div className="hidden sm:block">
               <p className="text-gray-600 font-medium">{name}</p>
-              <p className="text-3xl font-bold text-orange-600">{value?.toLocaleString("fr-FR") || 0}</p>
             </div>
+
+            <p className="text-3xl font-bold text-orange-600">{value?.toLocaleString("fr-FR") || 0}</p>
           </motion.div>
         ))}
       </motion.div>

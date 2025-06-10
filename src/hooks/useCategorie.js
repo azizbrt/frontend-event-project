@@ -11,7 +11,8 @@ export const useCreateCategory = () => {
       return response.data;
     },
     onSuccess: async (data) => {
-      toast.success("Catégorie ajoutée avec succès !");
+      toast.success("Catégorie ajoutée avec succès !", { duration: 5000 }); // 3 secondes
+
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (error) => {
@@ -45,7 +46,7 @@ export const useDeleteCategory = () => {
       return response.data;
     },
     onSuccess: async (data) => {
-      toast.success("Catégorie supprimée avec succès !");
+      toast.success("Catégorie supprimée avec succès  !", { duration: 5000 });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (error) => {

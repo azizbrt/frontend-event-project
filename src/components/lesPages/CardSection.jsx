@@ -36,8 +36,9 @@ const CardSection = () => {
             .map((event) => (
               <div
                 key={event._id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl"
+                className="flex flex-col justify-between bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl"
               >
+                {/* Image */}
                 <div className="relative h-48 bg-gray-200 overflow-hidden">
                   <img
                     src={`${baseURL}/images/${event.image}`}
@@ -49,34 +50,55 @@ const CardSection = () => {
                   </div>
                 </div>
 
-                <div className="p-4">
+                {/* Content */}
+                <div className="flex flex-col flex-grow p-4">
+                  {/* Lieu */}
                   <div className="text-sm text-gray-500 mb-1 flex items-center gap-1">
                     <MapPin className="w-4 h-4 text-orange-500" />
                     {event.lieu}
                   </div>
+
+                  {/* Titre */}
                   <h3 className="text-lg font-semibold truncate block max-w-full">
                     {event.titre}
                   </h3>
 
-                  <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
+                  {/* Date */}
+                  <div className="text-sm text-gray-500 mb-1 flex items-center gap-1">
                     <CalendarDays className="w-4 h-4 text-orange-500" />
                     {new Date(event.dateDebut).toLocaleDateString("fr-FR")}
                   </div>
-                  <Link
-                    to={`/events/${event._id}`}
-                    className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
-                  >
-                    Voir détails
-                  </Link>
+
+                  {/* Catégorie & prix (optionnel) */}
+                  {event.categorie && (
+                    <span className="inline-block bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full mb-2">
+                      {event.categorie}
+                    </span>
+                  )}
+                  {event.prix && (
+                    <p className="text-sm font-semibold text-orange-500 mb-2">
+                      {event.prix} TND
+                    </p>
+                  )}
+
+                  {/* Bouton en bas */}
+                  <div className="mt-auto">
+                    <Link
+                      to={`/events/${event._id}`}
+                      className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300"
+                    >
+                      Voir détails
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
         </div>
 
-        {/* Voir tous les événements */}
+        {/* Bouton tous les événements */}
         <div className="text-center mt-12">
           <Link
-            to="/events"
+            to="/evenements"
             className="border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-medium py-2 px-6 rounded-full transition-colors duration-300"
           >
             Voir tous les événements

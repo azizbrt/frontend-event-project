@@ -15,6 +15,7 @@ import Footer from "../Footer/Footer";
 import Commentaire from "../../components/Feedback/Commentaire";
 import InscrirePopup from "../../components/Inscrire/InscrirePopup";
 import { useEvents } from "../../hooks/useEvents";
+import Swal from "sweetalert2";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -22,32 +23,26 @@ const EventDetails = () => {
   const [showPopup, setShowPopup] = useState(false);
   const { data: eventsData, isLoading, isError } = useEvents();
   const baseURL = import.meta.env.VITE_API_URL;
-  console.log("useParams().inscriptionId:", id);
-  console.log("location.state:", location.state);
 
-  // 🎯 Trouver l'événement avec l'id donné
   const selectedEvent = eventsData?.events?.find(
     (event) => event._id === id && event.etat === "accepter"
   );
 
-  // 👶 Fonction pour aller à la page de paiement après inscription
-const handleInscriptionSuccess = (inscriptionId) => {
-  if (selectedEvent.prix > 0) {
-    //  Paid event - go to payment
-    navigate(`/paiement/${inscriptionId}`, {
-      state: { eventId: selectedEvent._id, eventPrice: selectedEvent.prix },
-    });
-  } else {
-    //  Free event - show success message
-    setShowPopup(false); // Close signup popup
-    Swal.fire({
-      title: "Inscription réussie !",
-      text: "Vous êtes inscrit à cet événement gratuit.",
-      icon: "success",
-      confirmButtonText: "Super !",
-    });
-  }
-};
+  const handleInscriptionSuccess = (inscriptionId) => {
+    if (selectedEvent.prix > 0) {
+      navigate(`/paiement/${inscriptionId}`, {
+        state: { eventId: selectedEvent._id, eventPrice: selectedEvent.prix },
+      });
+    } else {
+      setShowPopup(false);
+      Swal.fire({
+        title: "Inscription réussie !",
+        text: "Vous êtes inscrit à cet événement gratuit.",
+        icon: "success",
+        confirmButtonText: "Super !",
+      });
+    }
+  };
 
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString("fr-FR", {
@@ -60,7 +55,7 @@ const handleInscriptionSuccess = (inscriptionId) => {
     new Date(dateString).toLocaleTimeString("fr-FR", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true, // <-- Important for AM/PM
+      hour12: true,
     });
 
   useEffect(() => {
@@ -69,7 +64,7 @@ const handleInscriptionSuccess = (inscriptionId) => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-100 min-h-screen flex flex-col">
+      <div className="bg-white min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -109,9 +104,9 @@ const handleInscriptionSuccess = (inscriptionId) => {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto py-10 px-4 sm:px-8 pt-20"
+        className="container mx-auto py-10 px-4 sm:px-8 pt-32"
       >
-        {/*  Image et Description */}
+        {/* Image et Description */}
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
             <motion.img
@@ -128,7 +123,7 @@ const handleInscriptionSuccess = (inscriptionId) => {
               {selectedEvent.description}
             </p>
 
-            {/*  Tags */}
+            {/* Tags */}
             {selectedEvent.tag?.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -147,7 +142,7 @@ const handleInscriptionSuccess = (inscriptionId) => {
               </div>
             )}
 
-            {/*  Date, Lieu, Type */}
+            {/* Date, Lieu, Type */}
             <div className="space-y-2 text-gray-600">
               <div className="flex items-center gap-2">
                 <MapPin className="text-orange-500" />
@@ -164,11 +159,9 @@ const handleInscriptionSuccess = (inscriptionId) => {
                 <Clock className="text-green-400" />
                 <span>
                   {formatHeure(selectedEvent.dateDebut)} →{" "}
-                  {formatHeure(selectedEvent.dateFin)}{" "}
-                  <span className="text-sm text-gray-500"></span>
+                  {formatHeure(selectedEvent.dateFin)}
                 </span>
               </div>
-
               <div className="flex items-center gap-2">
                 <Tag className="text-purple-500" />
                 <span>
@@ -180,7 +173,7 @@ const handleInscriptionSuccess = (inscriptionId) => {
             </div>
           </div>
 
-          {/* 🧾 Infos & Bouton */}
+          {/* Infos & Bouton */}
           <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl space-y-4">
             <h2 className="text-xl font-semibold text-orange-600">
               Informations
@@ -223,7 +216,6 @@ const handleInscriptionSuccess = (inscriptionId) => {
               )}
             </div>
 
-            {/*  Bouton d'inscription */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition"
@@ -244,7 +236,6 @@ const handleInscriptionSuccess = (inscriptionId) => {
         <Footer />
       </motion.div>
 
-      {/*  Afficher la popup si showPopup est true */}
       {showPopup && (
         <InscrirePopup
           onClose={() => setShowPopup(false)}

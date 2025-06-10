@@ -20,6 +20,7 @@ import {
 import PasswordStrengthMeter from "../Popup/PasswordStrengthMeter";
 import { isPasswordStrong } from "../../utils/passwordUtils";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2"; // ✅ Import SweetAlert2
 
 const UpdateProfile = () => {
   const { user, updateUserProfile, isLoading } = useAuthStore();
@@ -33,12 +34,6 @@ const UpdateProfile = () => {
 
   const { data: inscriptionsData, isLoading: loadingInscriptions } =
     useMesInscriptions();
-  useEffect(() => {
-    if (inscriptionsData) {
-      console.log(inscriptionsData.inscriptions);
-    }
-  }, [inscriptionsData]);
-
   const { mutate: annulerInscription } = useSupprimerInscription();
 
   useEffect(() => {
@@ -75,9 +70,6 @@ const UpdateProfile = () => {
     setMessages((prev) => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
   };
-  const peutPayer = (item) => {
-    return item.status === "en attente" && !item.paiementEffectué;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,32 +86,40 @@ const UpdateProfile = () => {
     }
   };
 
+  const peutPayer = (item) => {
+    return item.status === "en attente" && !item.paiementEffectué;
+  };
+
+  // ✅ Nouvelle fonction pour SweetAlert2
+  const confirmerAnnulation = (idInscription) => {
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Êtes-vous sûr de vouloir annuler cette inscription ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "Oui, annuler",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        annulerInscription(idInscription);
+        Swal.fire("Annulé", "Votre inscription a été annulée.", "success");
+      }
+    });
+  };
+
   const fields = [
     { name: "name", placeholder: "Nom complet", icon: <User />, type: "text" },
-    {
-      name: "email",
-      placeholder: "Adresse email",
-      icon: <Mail />,
-      type: "email",
-    },
-    {
-      name: "password",
-      placeholder: "Nouveau mot de passe",
-      icon: <Lock />,
-      type: "password",
-    },
-    {
-      name: "confirmPassword",
-      placeholder: "Confirmer le mot de passe",
-      icon: <Lock />,
-      type: "password",
-    },
+    { name: "email", placeholder: "Adresse email", icon: <Mail />, type: "email" },
+    { name: "password", placeholder: "Nouveau mot de passe", icon: <Lock />, type: "password" },
+    { name: "confirmPassword", placeholder: "Confirmer le mot de passe", icon: <Lock />, type: "password" },
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50 to-white">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center p-4">
+      <main className="flex-grow flex items-center justify-center p-4 mt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,9 +131,7 @@ const UpdateProfile = () => {
             <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2 mt-16">
               <User size={28} /> Mon Profil
             </h1>
-            <p className="text-orange-400 mt-2">
-              Gérez vos informations personnelles
-            </p>
+            <p className="text-orange-400 mt-2">Gérez vos informations personnelles</p>
           </div>
 
           {/* Success message */}
@@ -152,7 +150,7 @@ const UpdateProfile = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {fields.map((field, i) => (
+            {fields.map((field) => (
               <div key={field.name} className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center text-orange-400">
                   {field.icon}
@@ -220,13 +218,8 @@ const UpdateProfile = () => {
                             {item.evenement.titre}
                           </p>
                           <p className="text-sm text-orange-500">
-                            {new Date(
-                              item.evenement.dateDebut
-                            ).toLocaleDateString()}{" "}
-                            -{" "}
-                            {new Date(
-                              item.evenement.dateFin
-                            ).toLocaleDateString()}
+                            {new Date(item.evenement.dateDebut).toLocaleDateString()} -{" "}
+                            {new Date(item.evenement.dateFin).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -238,23 +231,15 @@ const UpdateProfile = () => {
                           </p>
                           <p className="text-sm text-orange-500">
                             Inscrit le{" "}
-                            {new Date(
-                              item.dateInscription
-                            ).toLocaleDateString()}
+                            {new Date(item.dateInscription).toLocaleDateString()}
                           </p>
                         </div>
 
                         <div className="flex gap-2 items-center mt-2">
-                          {/* Bouton annuler */}
+                          {/* Bouton annuler avec SweetAlert */}
                           {item.status === "en attente" && (
                             <button
-                              onClick={() => {
-                                if (
-                                  window.confirm("Annuler cette inscription ?")
-                                ) {
-                                  annulerInscription(item._id);
-                                }
-                              }}
+                              onClick={() => confirmerAnnulation(item._id)}
                               className="text-red-500 hover:text-red-600"
                               title="Annuler l'inscription"
                             >

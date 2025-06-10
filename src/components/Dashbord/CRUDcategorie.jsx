@@ -6,23 +6,16 @@ import {
   useUpdateCategory,
 } from "../../hooks/useCategorie";
 import toast from "react-hot-toast";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
-// 🟠 Modal Component
-const EditModal = ({
-  isOpen,
-  onClose,
-  onApply,
-  categoryName,
-  setCategoryName,
-}) => {
+// ✅ Modal de modification
+const EditModal = ({ isOpen, onClose, onApply, categoryName, setCategoryName }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-80 shadow-lg">
-        <h3 className="text-lg font-bold mb-4 text-orange-500">
-          Modifier la Catégorie
-        </h3>
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center px-4">
+      <div className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg">
+        <h3 className="text-lg font-bold mb-4 text-orange-500">Modifier la Catégorie</h3>
         <input
           type="text"
           value={categoryName}
@@ -30,17 +23,33 @@ const EditModal = ({
           className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
         />
         <div className="flex justify-end space-x-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-          >
+          <button onClick={onClose} className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
             Annuler
           </button>
-          <button
-            onClick={onApply}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Appliquer
+          <button onClick={onApply} className="px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-500">
+            Modifier
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ✅ Modal de confirmation de suppression
+const DeleteConfirmModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center px-4">
+      <div className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg">
+        <h3 className="text-lg font-bold mb-4 text-red-500">Confirmer la suppression</h3>
+        <p className="mb-4">Voulez-vous vraiment supprimer cette catégorie ?</p>
+        <div className="flex justify-end space-x-2">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+            Annuler
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+            Supprimer
           </button>
         </div>
       </div>
@@ -49,26 +58,22 @@ const EditModal = ({
 };
 
 const CRUDcategorie = () => {
-  const [newCategory, setNewCategory] = useState({
-    name: "",
-    subcategories: [],
-  });
+  const [newCategory, setNewCategory] = useState({ name: "" });
   const [errors, setErrors] = useState({ name: "" });
 
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
 
-  // Hooks
-  const { mutate: createCategory, isLoading: isCreating } = useCreateCategory();
+  const [deleteId, setDeleteId] = useState(null);
+
+  const { mutate: createCategory } = useCreateCategory();
   const { mutate: deleteCategoryMutation } = useDeleteCategory();
   const { data: categories, isLoading, isError } = useGetCategories();
-  const { mutate: updateCategoryMutation, isPending: isUpdating } =
-    useUpdateCategory();
+  const { mutate: updateCategoryMutation } = useUpdateCategory();
 
   if (isLoading) return <p>Chargement...</p>;
   if (isError) return <p>Erreur lors du chargement des catégories</p>;
 
-  // Ajouter une catégorie
   const handleSubmit = () => {
     if (!newCategory.name) {
       setErrors({ name: "Le nom est requis" });
@@ -76,32 +81,12 @@ const CRUDcategorie = () => {
     }
 
     createCategory(
-      {
-        name: newCategory.name,
-        description: newCategory.description || "",
-        parent: newCategory.parent || null,
-      },
+      { name: newCategory.name },
       {
         onSuccess: () => {
-          setNewCategory({ name: "", description: "", parent: null });
-        },
-      }
-    );
-  };
-
-  // Ajouter une sous-catégorie
-  const addSubcategory = (parentId, subcategoryName) => {
-    if (!subcategoryName.trim()) {
-      return toast.error("Nom requis");
-    }
-    createCategory(
-      {
-        name: subcategoryName,
-        parent: parentId,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Sous-catégorie ajoutée!");
+          setNewCategory({ name: "" });
+          setErrors({ name: "" });
+          toast.success("Catégorie ajoutée");
         },
         onError: () => {
           toast.error("Erreur lors de l'ajout");
@@ -110,30 +95,18 @@ const CRUDcategorie = () => {
     );
   };
 
-  // Supprimer une catégorie
   const handleDeleteCategory = (id) => {
-    if (
-      window.confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?")
-    ) {
-      deleteCategoryMutation(id, {
-        onSuccess: () => {
-          toast.success("Catégorie supprimée");
-        },
-        onError: (err) => {
-          toast.error(`Erreur: ${err.message}`);
-        },
-      });
-    }
+    deleteCategoryMutation(id, {
+      onSuccess: () => {
+        toast.success("Catégorie supprimée");
+        setDeleteId(null);
+      },
+      onError: (err) => {
+        toast.error(`Erreur: ${err.message}`);
+      },
+    });
   };
 
-  //  TODO: Supprimer une sous-catégorie (à implémenter dans le backend)
-  const deleteSubcategory = (categoryId, subcategoryId) => {
-    console.log(
-      `Supprimer sous-catégorie ID ${subcategoryId} de catégorie ${categoryId}`
-    );
-  };
-
-  // Modifier une catégorie
   const handleUpdateCategory = (id) => {
     if (!editName.trim()) return toast.error("Nom requis");
 
@@ -153,8 +126,8 @@ const CRUDcategorie = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-orange-400 mb-4">
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mx-2 sm:mx-auto max-w-3xl">
+      <h2 className="text-xl font-semibold text-orange-400 mb-4 text-center sm:text-left">
         Gérer les Catégories
       </h2>
 
@@ -164,9 +137,7 @@ const CRUDcategorie = () => {
           type="text"
           placeholder="Nom de la catégorie"
           value={newCategory.name}
-          onChange={(e) =>
-            setNewCategory({ ...newCategory, name: e.target.value })
-          }
+          onChange={(e) => setNewCategory({ name: e.target.value })}
           className={`border ${
             errors.name ? "border-red-500" : "border-gray-300"
           } rounded px-3 py-2 w-full mb-2`}
@@ -174,77 +145,53 @@ const CRUDcategorie = () => {
         {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         <button
           onClick={handleSubmit}
-          className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 w-full sm:w-auto"
         >
           Ajouter
         </button>
       </div>
 
       {/* Table des catégories */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-orange-100 text-center">
-            <th className="p-2 border">Nom</th>
-            <th className="p-2 border">Sous-Catégories</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((cat) => (
-            <tr key={cat._id} className="text-center">
-              <td className="p-2 border">{cat.name}</td>
-              <td className="p-2 border">
-                <ul>
-                  {cat.subcategories?.map((sub) => (
-                    <li
-                      key={sub.id}
-                      className="flex justify-between items-center"
-                    >
-                      {sub.name}
-                      <button
-                        onClick={() => deleteSubcategory(cat._id, sub.id)}
-                        className="text-red-500 ml-2"
-                      >
-                        Supprimer
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <input
-                  type="text"
-                  placeholder="Nouvelle sous-catégorie"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      addSubcategory(cat._id, e.target.value);
-                      e.target.value = "";
-                    }
-                  }}
-                  className="border border-gray-300 rounded px-3 py-1 mt-2 w-full"
-                />
-              </td>
-              <td className="p-2 border space-x-2">
-                <button
-                  onClick={() => {
-                    setEditingId(cat._id);
-                    setEditName(cat.name);
-                  }}
-                  className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => handleDeleteCategory(cat._id)}
-                  className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Supprimer
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[400px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-orange-500 text-center">
+              <th className="p-2 border text-white">Nom</th>
+              <th className="p-2 border text-white">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {categories.map((cat) => (
+              <tr key={cat._id} className="text-center">
+                <td className="p-2 border">{cat.name}</td>
+                <td className="p-2 border">
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <button
+                      onClick={() => {
+                        setEditingId(cat._id);
+                        setEditName(cat.name);
+                      }}
+                      className="text-blue-500 hover:text-blue-700 text-lg"
+                      title="Modifier"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => setDeleteId(cat._id)}
+                      className="text-red-500 hover:text-red-700 text-lg"
+                      title="Supprimer"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Edit Modal */}
+      {/* ✅ Modals */}
       <EditModal
         isOpen={!!editingId}
         onClose={() => {
@@ -254,6 +201,12 @@ const CRUDcategorie = () => {
         onApply={() => handleUpdateCategory(editingId)}
         categoryName={editName}
         setCategoryName={setEditName}
+      />
+
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => handleDeleteCategory(deleteId)}
       />
     </div>
   );

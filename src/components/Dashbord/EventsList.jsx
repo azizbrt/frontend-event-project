@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FaEdit,
@@ -9,14 +9,12 @@ import {
 } from "react-icons/fa";
 import { useEventsByGestionnaire, useDeleteEvent } from "../../hooks/useEvents";
 import { useAuthStore } from "../../store/authStore";
-import { toast } from "react-hot-toast";
-import ModifyEvent from "./ModifyEvent"; // Don't forget to import this!
+import ModifyEvent from "./ModifyEvent";
+import Swal from "sweetalert2";
 
 const EventsList = () => {
-  // 1. All the important things we need to remember
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModifyOpen, setIsModifyOpen] = useState(false);
-  const [event, setEvenet] = useState([]);
   const { user, isCheckingAuth } = useAuthStore();
   const {
     data: events,
@@ -26,34 +24,43 @@ const EventsList = () => {
     refetch,
   } = useEventsByGestionnaire(user?._id);
 
+  const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
+
   useEffect(() => {
     if (!isCheckingAuth && user?._id) {
-      refetch(); // Refetch once auth check is done and user ID is known
+      refetch();
     }
   }, [user?._id, isCheckingAuth, refetch]);
 
-  console.log(user, "event");
-
-  const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
-
-  // 2. How to choose which event to modify
   const handleModify = (event) => {
     setSelectedEvent(event);
     setIsModifyOpen(true);
   };
 
-  // 3. How to delete an event
   const handleDelete = (eventId) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
-      deleteEvent(eventId, {
-        onSuccess: () => toast.success("Événement supprimé avec succès"),
-        onError: (err) =>
-          toast.error(`Erreur lors de la suppression: ${err.message}`),
-      });
-    }
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Cette action supprimera l'événement définitivement.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e3342f",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteEvent(eventId, {
+          onSuccess: () => {
+            Swal.fire("Supprimé !", "L'événement a été supprimé.", "success");
+          },
+          onError: (err) => {
+            Swal.fire("Erreur", `La suppression a échoué: ${err.message}`, "error");
+          },
+        });
+      }
+    });
   };
 
-  // 4. How to show the status icon
   const getStatusIcon = (etat) => {
     switch (etat.toLowerCase()) {
       case "en attendant":
@@ -67,16 +74,10 @@ const EventsList = () => {
     }
   };
 
-  // 5. Show loading messages if we're waiting
   if (isCheckingAuth)
-    return (
-      <div className="text-center p-4">
-        Vérification de l'authentification...
-      </div>
-    );
+    return <div className="text-center p-4">Vérification de l'authentification...</div>;
   if (isLoading) return <p className="text-gray-600 text-lg">Chargement...</p>;
-  if (isError)
-    return <p className="text-red-500 text-lg">Erreur: {error.message}</p>;
+  if (isError) return <p className="text-red-500 text-lg">Erreur: {error.message}</p>;
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
@@ -84,7 +85,6 @@ const EventsList = () => {
 
       {events?.length > 0 ? (
         <>
-          {/* Big screen view */}
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -98,7 +98,7 @@ const EventsList = () => {
                 </tr>
               </thead>
               <tbody>
-                {events?.map((event) => (
+                {events.map((event) => (
                   <EventRow
                     key={event._id}
                     event={event}
@@ -112,7 +112,6 @@ const EventsList = () => {
             </table>
           </div>
 
-          {/* Small screen view */}
           <div className="md:hidden mt-4 space-y-4">
             {events.map((event) => (
               <EventCardMobile
@@ -129,10 +128,9 @@ const EventsList = () => {
         <p className="text-gray-600">Aucun événement trouvé.</p>
       )}
 
-      {/* The popup for editing */}
       {selectedEvent && (
         <ModifyEvent
-          eventId={selectedEvent._id} // Pass ID instead of full event
+          eventId={selectedEvent._id}
           isOpen={isModifyOpen}
           onClose={() => setIsModifyOpen(false)}
         />
@@ -141,7 +139,6 @@ const EventsList = () => {
   );
 };
 
-// Component for each row in the table
 const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
   <motion.tr
     initial={{ opacity: 0, y: 10 }}
@@ -163,7 +160,6 @@ const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
       </div>
     </td>
     <td className="p-3 border-b">{event.capacite}</td>
-
     <td className="p-3 border-b">
       <div className="flex gap-2">
         <button onClick={() => onModify(event)} className="text-blue-600 p-2">
@@ -181,7 +177,6 @@ const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
   </motion.tr>
 );
 
-// Component for mobile view
 const EventCardMobile = ({ event, onModify, onDelete, getStatusIcon }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
