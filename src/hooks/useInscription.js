@@ -136,16 +136,13 @@ export const useSupprimerInscription = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-      const { data } = await axios.delete(
-        `${API_URL}/annuleeinscription/${id}`
-      );
-      return data;
+      const response = await axios.delete(`${API_URL}/annuleeinscription/${id}`);
+      return response.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast.success(data?.message || "Inscription annulée avec succès !");
-      queryClient.invalidateQueries({ queryKey: ["mesInscriptions"] }); // ✅ Ensures proper re-fetch
-      queryClient.refetchQueries({ queryKey: ["mesInscriptions"] });
+      await queryClient.invalidateQueries({ queryKey: ["mesInscriptions"] }); // 👈 await here
     },
 
     onError: (error) => {
@@ -156,6 +153,8 @@ export const useSupprimerInscription = () => {
     },
   });
 };
+
+
 
 export const useDeleteGestionnaireInscription = () => {
   const queryClient = useQueryClient(); // Pour recharger les données après suppression

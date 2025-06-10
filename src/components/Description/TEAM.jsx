@@ -31,10 +31,9 @@ const TeamDetails = () => (
           className="w-32 h-32 rounded-full shadow-md mb-4"
         />
         <h3 className="text-xl font-semibold text-gray-800">Aziz Barrouta</h3>
-        <p className="text-orange-600 text-sm mb-2">Développeur Backend</p>
+        <p className="text-orange-600 text-sm mb-2">Stagiaire</p>
         <p className="text-gray-600 text-sm text-center">
-          API, base de données MongoDB, sécurité et logique serveur.
-        </p>
+  API, base de données MongoDB, sécurité, connexion front-back, et créer les pages avec toutes les opérations.</p>
       </div>
     </div>
   </section>
