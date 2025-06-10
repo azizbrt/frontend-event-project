@@ -11,13 +11,7 @@ import {
   usePaiementDetails,
   useValiderOuRefuserPaiement,
 } from "../../hooks/usePayment";
-import {
-  CheckCircle,
-  XCircle,
-  Trash2,
-  Eye,
-  X,
-} from "lucide-react";
+import { CheckCircle, XCircle, Trash2, Eye, X } from "lucide-react";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -82,10 +76,19 @@ const PaymentDetailsModal = ({ paiement, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold mb-4">Détails du Paiement</h2>
-        <p><strong>Référence :</strong> {paiement.reference}</p>
-        <p><strong>Montant :</strong> {paiement.montant} €</p>
-        <p><strong>Date :</strong> {new Date(paiement.datePaiement).toLocaleString()}</p>
-        <p><strong>Méthode :</strong> {paiement.methode}</p>
+        <p>
+          <strong>Référence :</strong> {paiement.reference}
+        </p>
+        <p>
+          <strong>Montant :</strong> {paiement.montant} €
+        </p>
+        <p>
+          <strong>Date :</strong>{" "}
+          {new Date(paiement.datePaiement).toLocaleString()}
+        </p>
+        <p>
+          <strong>Méthode :</strong> {paiement.methode}
+        </p>
 
         {imageUrl ? (
           <img
@@ -97,7 +100,9 @@ const PaymentDetailsModal = ({ paiement, onClose }) => {
           <p className="text-gray-500 my-4">Aucune preuve fournie.</p>
         )}
 
-        <p><strong>Statut :</strong> {updatedStatus}</p>
+        <p>
+          <strong>Statut :</strong> {updatedStatus}
+        </p>
 
         {updatedStatus !== "validé" && updatedStatus !== "refusé" && (
           <div className="mt-6 flex justify-end space-x-4">
@@ -307,11 +312,31 @@ const GestionInscriptions = () => {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-xl">
             Chargement paiement...
           </div>
-        ) : (
+        ) : paiementDetails ? (
           <PaymentDetailsModal
             paiement={paiementDetails}
             onClose={() => setSelectedInscriptionId(null)}
           />
+        ) : (
+          <div
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40"
+            onClick={() => setSelectedInscriptionId(null)}
+          >
+            <div
+              className="bg-white rounded-lg p-6 text-center max-w-sm w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-lg font-semibold mb-4 text-gray-800">
+                Le participant n'a pas encore payé.
+              </p>
+              <button
+                onClick={() => setSelectedInscriptionId(null)}
+                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         ))}
     </div>
   );

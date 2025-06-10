@@ -90,11 +90,10 @@ const UpdateProfile = () => {
     return item.status === "en attente" && !item.paiementEffectué;
   };
 
-  // ✅ Nouvelle fonction pour SweetAlert2
   const confirmerAnnulation = (idInscription) => {
     Swal.fire({
       title: "Êtes-vous sûr ?",
-      text: "Êtes-vous sûr de vouloir annuler cette inscription ?",
+      text: "Cette action est irréversible.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -103,17 +102,31 @@ const UpdateProfile = () => {
       cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        annulerInscription(idInscription);
-        Swal.fire("Annulé", "Votre inscription a été annulée.", "success");
+        annulerInscription(idInscription); // ✅ onSuccess already shows toast
       }
     });
   };
 
   const fields = [
     { name: "name", placeholder: "Nom complet", icon: <User />, type: "text" },
-    { name: "email", placeholder: "Adresse email", icon: <Mail />, type: "email" },
-    { name: "password", placeholder: "Nouveau mot de passe", icon: <Lock />, type: "password" },
-    { name: "confirmPassword", placeholder: "Confirmer le mot de passe", icon: <Lock />, type: "password" },
+    {
+      name: "email",
+      placeholder: "Adresse email",
+      icon: <Mail />,
+      type: "email",
+    },
+    {
+      name: "password",
+      placeholder: "Nouveau mot de passe",
+      icon: <Lock />,
+      type: "password",
+    },
+    {
+      name: "confirmPassword",
+      placeholder: "Confirmer le mot de passe",
+      icon: <Lock />,
+      type: "password",
+    },
   ];
 
   return (
@@ -131,7 +144,9 @@ const UpdateProfile = () => {
             <h1 className="text-3xl font-bold text-orange-600 flex justify-center items-center gap-2 mt-16">
               <User size={28} /> Mon Profil
             </h1>
-            <p className="text-orange-400 mt-2">Gérez vos informations personnelles</p>
+            <p className="text-orange-400 mt-2">
+              Gérez vos informations personnelles
+            </p>
           </div>
 
           {/* Success message */}
@@ -207,7 +222,7 @@ const UpdateProfile = () => {
               <ul className="space-y-3">
                 {inscriptionsData.inscriptions.map((item) => (
                   <li
-                    key={item._id}
+                    key={item.id}
                     className="p-4 bg-orange-50 rounded-lg hover:shadow-md transition-shadow"
                   >
                     <div className="grid grid-cols-2 gap-4">
@@ -218,8 +233,13 @@ const UpdateProfile = () => {
                             {item.evenement.titre}
                           </p>
                           <p className="text-sm text-orange-500">
-                            {new Date(item.evenement.dateDebut).toLocaleDateString()} -{" "}
-                            {new Date(item.evenement.dateFin).toLocaleDateString()}
+                            {new Date(
+                              item.evenement.dateDebut
+                            ).toLocaleDateString()}{" "}
+                            -{" "}
+                            {new Date(
+                              item.evenement.dateFin
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -231,15 +251,17 @@ const UpdateProfile = () => {
                           </p>
                           <p className="text-sm text-orange-500">
                             Inscrit le{" "}
-                            {new Date(item.dateInscription).toLocaleDateString()}
+                            {new Date(
+                              item.dateInscription
+                            ).toLocaleDateString()}
                           </p>
                         </div>
 
                         <div className="flex gap-2 items-center mt-2">
-                          {/* Bouton annuler avec SweetAlert */}
+                          {/* Annulation */}
                           {item.status === "en attente" && (
                             <button
-                              onClick={() => confirmerAnnulation(item._id)}
+                              onClick={() => confirmerAnnulation(item.id)}
                               className="text-red-500 hover:text-red-600"
                               title="Annuler l'inscription"
                             >
@@ -247,10 +269,10 @@ const UpdateProfile = () => {
                             </button>
                           )}
 
-                          {/* Bouton payer si non payé */}
+                          {/* Paiement */}
                           {peutPayer(item) && (
                             <Link
-                              to={`/paiement/${item._id}`}
+                              to={`/paiement/${item.id}`}
                               state={{
                                 eventId: item.evenement.id,
                                 eventPrice: item.evenement.prix,

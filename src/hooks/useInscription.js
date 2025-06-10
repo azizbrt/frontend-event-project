@@ -1,4 +1,3 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -120,47 +119,53 @@ export const useMesInscriptions = () => {
     queryKey: ["mesInscriptions"],
     queryFn: async () => {
       const { data } = await axios.get(`${API_URL}/getparticipant`);
-      return data;
+      return {
+        inscriptions: data.inscriptions.map((item) => ({
+          ...item,
+          id: item.id || item._id, // Normalisation
+        })),
+      };
     },
     retry: false,
     refetchOnWindowFocus: false,
   });
 };
+
 export const useSupprimerInscription = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id) => {
-      const response = await axios.delete(
+      const { data } = await axios.delete(
         `${API_URL}/annuleeinscription/${id}`
       );
-      return response.data;
+      return data;
     },
 
     onSuccess: (data) => {
-      toast.success(data.message || "Inscription supprimée avec succès");
-      queryClient.invalidateQueries(["mesInscriptions"]);
+      toast.success(data?.message || "Inscription annulée avec succès !");
+      queryClient.invalidateQueries({ queryKey: ["mesInscriptions"] }); // ✅ Ensures proper re-fetch
+      queryClient.refetchQueries({ queryKey: ["mesInscriptions"] });
     },
+
     onError: (error) => {
       const message =
         error?.response?.data?.message ||
-        "Erreur lors de la suppression de l'inscription";
+        "Une erreur est survenue lors de l'annulation.";
       toast.error(message);
     },
   });
 };
+
 export const useDeleteGestionnaireInscription = () => {
   const queryClient = useQueryClient(); // Pour recharger les données après suppression
 
   return useMutation({
     // 🎯 Fonction qui sera appelée quand on veut supprimer une inscription
     mutationFn: async ({ id, cause }) => {
-      const res = await axios.delete(
-        `${API_URL}/deleteinscription/${id}`,
-        {
-          data: { cause }, // ✅ On envoie aussi la cause dans le corps
-        }
-      );
+      const res = await axios.delete(`${API_URL}/deleteinscription/${id}`, {
+        data: { cause }, // ✅ On envoie aussi la cause dans le corps
+      });
       return res.data;
     },
 
