@@ -65,7 +65,7 @@ const AdminEvents = () => {
 
   const handleReject = (eventId) => {
     updateStatus(
-      { id: eventId, etat: "refusé" },
+      { id: eventId, etat: "Refuser" },
       {
         onSuccess: () => toast.success("Événement refusé"),
         onError: (err) => toast.error(`Erreur: ${err.message}`),
