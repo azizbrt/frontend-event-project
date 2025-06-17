@@ -54,7 +54,11 @@ const EventsList = () => {
             Swal.fire("Supprimé !", "L'événement a été supprimé.", "success");
           },
           onError: (err) => {
-            Swal.fire("Erreur", `La suppression a échoué: ${err.message}`, "error");
+            Swal.fire(
+              "Erreur",
+              `La suppression a échoué: ${err.message}`,
+              "error"
+            );
           },
         });
       }
@@ -75,9 +79,14 @@ const EventsList = () => {
   };
 
   if (isCheckingAuth)
-    return <div className="text-center p-4">Vérification de l'authentification...</div>;
+    return (
+      <div className="text-center p-4">
+        Vérification de l'authentification...
+      </div>
+    );
   if (isLoading) return <p className="text-gray-600 text-lg">Chargement...</p>;
-  if (isError) return <p className="text-red-500 text-lg">Erreur: {error.message}</p>;
+  if (isError)
+    return <p className="text-red-500 text-lg">Erreur: {error.message}</p>;
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
@@ -88,7 +97,7 @@ const EventsList = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-50 text-left text-sm text-gray-600">
+                <tr className="bg-orange-500 text-left text-sm text-white">
                   <th className="p-3 border-b">Titre</th>
                   <th className="p-3 border-b">Type</th>
                   <th className="p-3 border-b">Dates</th>
@@ -143,7 +152,7 @@ const EventRow = ({ event, onModify, onDelete, getStatusIcon, isDeleting }) => (
   <motion.tr
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className="hover:bg-gray-50"
+    className="hover:bg-orange-50"
   >
     <td className="p-3 border-b">{event.titre}</td>
     <td className="p-3 border-b">{event.typeEvenement}</td>

@@ -41,15 +41,23 @@ export const useInscription = () => {
 // Consulter toutes les inscriptions (admin ou gestionnaire)
 export const useConsulterInscriptions = () => {
   return useQuery({
-    queryKey: ["inscriptions"], // 🔑 Nom de la requête (clé pour le cache)
+    queryKey: ["inscriptions"],
     queryFn: async () => {
-      const response = await axios.get(`${API_URL}/get`);
+      try {
+        const response = await axios.get(`${API_URL}/get`);
 
-      // 🧹 On s’assure que chaque inscription a bien un champ `id`
-      return response.data.inscriptions.map((inscription) => ({
-        ...inscription,
-        id: inscription.id, // déjà présent, on le garde pour être sûr
-      }));
+        return response.data.inscriptions.map((inscription) => ({
+          ...inscription,
+          id: inscription.id,
+        }));
+      } catch (error) {
+        const message =
+          error?.response?.data?.message ||
+          "Une erreur est survenue lors du chargement des inscriptions.";
+
+        // 🔥 On relance une vraie erreur avec le message du backend
+        throw new Error(message);
+      }
     },
     onSuccess: (data) => {
       if (data.length > 0) {
@@ -57,12 +65,10 @@ export const useConsulterInscriptions = () => {
       }
     },
     onError: (error) => {
-      const message =
-        error?.response?.data?.message ||
-        " Une erreur est survenue lors du chargement des inscriptions.";
-      toast.error(message);
+      // 🔥 Le message d'erreur est maintenant toujours dans error.message
+      toast.error(error.message);
     },
-    refetchOnWindowFocus: false, // 🚫 Pas besoin de relancer quand on revient sur l’onglet
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -136,7 +142,9 @@ export const useSupprimerInscription = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-      const response = await axios.delete(`${API_URL}/annuleeinscription/${id}`);
+      const response = await axios.delete(
+        `${API_URL}/annuleeinscription/${id}`
+      );
       return response.data;
     },
 
@@ -153,8 +161,6 @@ export const useSupprimerInscription = () => {
     },
   });
 };
-
-
 
 export const useDeleteGestionnaireInscription = () => {
   const queryClient = useQueryClient(); // Pour recharger les données après suppression

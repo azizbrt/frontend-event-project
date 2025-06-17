@@ -65,8 +65,8 @@ const AboutPage = () => {
           <UserIcon className="h-10 w-10 mx-auto text-orange-600 mb-3" />
           <h3 className="text-lg font-bold text-orange-600 mb-2">Projet PFE</h3>
           <p className="text-sm text-gray-600">
-            Réalisé par <strong>Wided Laabidi</strong> &{" "}
-            <strong>Aziz Barrouta</strong> dans le cadre du PFE à l’ISET
+            Réalisé par <strong>Mohamed Aziz Barrouta</strong> &{" "}
+            <strong>Wided Laabidi</strong> dans le cadre du PFE à l’ISET
             Siliena, avec l'encadrement de <strong>Mr.Yasser Ben Ali</strong>{" "}
             (entreprise) & <strong>Mme.Helle Jbeli</strong> (ISET).
           </p>

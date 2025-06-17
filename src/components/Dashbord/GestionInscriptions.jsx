@@ -190,18 +190,22 @@ const GestionInscriptions = () => {
   };
 
   if (isLoadingInscriptions) return <div>Chargement...</div>;
-  if (isError) return <div>{error?.message || "Erreur de chargement"}</div>;
+  if (isError) {
+    return <div>{error.message}</div>;
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Inscriptions des événements</h1>
 
-      {inscriptions?.length === 0 ? (
-        <p>Aucune inscription trouvée.</p>
+      {!inscriptions || inscriptions.length === 0 ? (
+        <div className="p-6 bg-orange-50 text-center text-orange-700 rounded shadow">
+          {error?.message || "Aucune inscription trouvée."}
+        </div>
       ) : (
         <table className="w-full border-collapse border border-gray-300">
           <thead>
-            <tr className="bg-orange-100">
+            <tr className="bg-orange-500 text-left text-sm text-white">
               <th className="p-3 border">Nom du Participant</th>
               <th className="p-3 border">Email</th>
               <th className="p-3 border">Téléphone</th>
@@ -215,7 +219,7 @@ const GestionInscriptions = () => {
             {inscriptions.map((inscription) => {
               const id = inscription._id || inscription.id;
               return (
-                <tr key={id} className="even:bg-gray-50 text-center">
+                <tr key={id} className="border-b hover:bg-orange-50">
                   <td className="p-3 border text-left">
                     {inscription.participant.nom}
                   </td>
@@ -244,61 +248,63 @@ const GestionInscriptions = () => {
                       </button>
                     )}
                   </td>
-                  <td className="p-3 border space-x-2 flex justify-center">
-                    <button
-                      title="Accepter"
-                      onClick={() =>
-                        Swal.fire({
-                          title: "Accepter cette inscription ?",
-                          icon: "question",
-                          showCancelButton: true,
-                          confirmButtonText: "Oui, accepter",
-                          cancelButtonText: "Annuler",
-                          confirmButtonColor: "#10B981",
-                          cancelButtonColor: "#d33",
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            validerInscription(id);
-                          }
-                        })
-                      }
-                      disabled={loadingValidation}
-                      className="text-green-600 hover:text-green-700 disabled:opacity-50"
-                    >
-                      <CheckCircle size={22} />
-                    </button>
+                  <td className="p-3 border">
+                    <div className="flex justify-center items-center gap-3">
+                      <button
+                        title="Accepter"
+                        onClick={() =>
+                          Swal.fire({
+                            title: "Accepter cette inscription ?",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Oui, accepter",
+                            cancelButtonText: "Annuler",
+                            confirmButtonColor: "#10B981",
+                            cancelButtonColor: "#d33",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              validerInscription(id);
+                            }
+                          })
+                        }
+                        disabled={loadingValidation}
+                        className="text-green-600 hover:text-green-700 disabled:opacity-50"
+                      >
+                        <CheckCircle size={22} />
+                      </button>
 
-                    <button
-                      title="Annuler"
-                      onClick={() =>
-                        Swal.fire({
-                          title: "Annuler cette inscription ?",
-                          icon: "warning",
-                          showCancelButton: true,
-                          confirmButtonText: "Oui, annuler",
-                          cancelButtonText: "Annuler",
-                          confirmButtonColor: "#EF4444",
-                          cancelButtonColor: "#6B7280",
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            annulerInscription(id);
-                          }
-                        })
-                      }
-                      disabled={loadingAnnulation}
-                      className="text-red-500 hover:text-red-700 disabled:opacity-50"
-                    >
-                      <XCircle size={22} />
-                    </button>
+                      <button
+                        title="Annuler"
+                        onClick={() =>
+                          Swal.fire({
+                            title: "Annuler cette inscription ?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Oui, annuler",
+                            cancelButtonText: "Annuler",
+                            confirmButtonColor: "#EF4444",
+                            cancelButtonColor: "#6B7280",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              annulerInscription(id);
+                            }
+                          })
+                        }
+                        disabled={loadingAnnulation}
+                        className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                      >
+                        <XCircle size={22} />
+                      </button>
 
-                    <button
-                      title="Supprimer"
-                      onClick={() => handleDelete(id)}
-                      disabled={isLoading}
-                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                    >
-                      <Trash2 size={22} />
-                    </button>
+                      <button
+                        title="Supprimer"
+                        onClick={() => handleDelete(id)}
+                        disabled={isLoading}
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                      >
+                        <Trash2 size={22} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

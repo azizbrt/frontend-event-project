@@ -209,6 +209,7 @@ const UpdateProfile = () => {
           </form>
 
           {/* Participations */}
+          {!["admin", "gestionnaire"].includes(user?.role) && (
           <section className="mt-12 pt-6 border-t border-orange-100">
             <h2 className="text-xl font-semibold text-orange-600 mb-4 flex items-center gap-2">
               <ScrollText className="text-orange-500" /> Mes Participations
@@ -294,6 +295,7 @@ const UpdateProfile = () => {
               </p>
             )}
           </section>
+          )}
         </motion.div>
       </main>
       <Footer />
