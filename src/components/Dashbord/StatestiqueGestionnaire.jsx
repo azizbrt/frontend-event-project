@@ -98,11 +98,17 @@ const StatestiqueGestionnaire = () => {
     },
   ];
 
-  // Tes données graphiques (pour test ou remplacer par eventData)
+  // Tes données graphiques (pour test ou remplacer par chartData)
   const testData = [
     { titre: "Sport", nombreInscriptions: 10 },
     { titre: "Lorem", nombreInscriptions: 15 },
   ];
+  const chartData =
+  eventData?.map((item) => ({
+    titre: item.titre,
+    total: item.total,
+  })) || [];
+
 
   return (
     <div className="p-4 md:p-6 min-h-screen max-w-7xl mx-auto bg-gray-50">
@@ -206,7 +212,7 @@ const StatestiqueGestionnaire = () => {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={testData}
+              data={chartData}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -226,7 +232,7 @@ const StatestiqueGestionnaire = () => {
                 }}
               />
               <Bar
-                dataKey="nombreInscriptions"
+                dataKey="total"
                 fill="#f97316"
                 radius={[4, 4, 0, 0]}
                 animationDuration={1500}
